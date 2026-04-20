@@ -43,16 +43,16 @@ docker compose -f compose/docker-compose.yml down --volumes
 
 ## Restarting the Stack
 
+**Linux / macOS:**
+```bash
+./scripts/restart.sh
+```
+
 **Windows:**
 ```powershell
 .\scripts\restart.ps1
 # Pull latest images first:
 .\scripts\restart.ps1 -Pull
-```
-
-**Linux / macOS:**
-```bash
-./scripts/down.sh && ./scripts/up.sh
 ```
 
 ---
@@ -97,15 +97,17 @@ Combines Docker Compose service state, health checks, and resource usage:
 
 ## Viewing Logs
 
-Stream all service logs:
+**Linux / macOS:**
 ```bash
-docker compose -f compose/docker-compose.yml logs -f
-```
+# All services
+./scripts/logs.sh
 
-Stream logs for a single service:
-```bash
-docker compose -f compose/docker-compose.yml logs -f switchboard
-docker compose -f compose/docker-compose.yml logs -f ninerouter
+# Specific service
+./scripts/logs.sh switchboard
+./scripts/logs.sh ninerouter
+
+# Last 100 lines for a service
+./scripts/logs.sh switchboard 100
 ```
 
 **Windows:**
@@ -113,6 +115,12 @@ docker compose -f compose/docker-compose.yml logs -f ninerouter
 .\scripts\logs.ps1
 .\scripts\logs.ps1 -Service switchboard
 .\scripts\logs.ps1 -Service ninerouter -Tail 100
+```
+
+Or directly via docker compose:
+```bash
+docker compose -f compose/docker-compose.yml logs -f
+docker compose -f compose/docker-compose.yml logs -f switchboard
 ```
 
 ---

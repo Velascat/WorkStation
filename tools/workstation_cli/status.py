@@ -2,21 +2,25 @@
 status.py — aggregate_status() produces a structured JSON-serialisable summary
 of the whole WorkStation stack.
 
-Output shape (section 4.5):
+Output shape:
 {
-    "overall": "healthy" | "degraded" | "down",
+    "platform": "workstation",
+    "status": "healthy" | "degraded" | "unhealthy",
     "timestamp": "<ISO-8601 UTC>",
     "services": {
         "<name>": {
-            "healthy": bool,
-            "status_code": int | None,
-            "latency_ms": float | None,
-            "url": str,
-            "error": str | None
+            "status": "healthy" | "unhealthy",
+            "base_url": str,
+            "health_url": str
         },
         ...
     }
 }
+
+Health model:
+  - "healthy"   — all required services are healthy
+  - "degraded"  — all required services are healthy, but optional services are not
+  - "unhealthy" — at least one required service is not reachable / not HTTP 200
 """
 
 from __future__ import annotations
@@ -27,17 +31,26 @@ from typing import TYPE_CHECKING, Dict
 from .health import check_all_health
 
 if TYPE_CHECKING:
-    from .services import ServiceConfig
+    from .config import ServiceConfig
 
 
 def aggregate_status(services: Dict[str, "ServiceConfig"]) -> dict:
     """
     Check health for all services and return an aggregate status dict.
 
-    Overall status logic:
-      - "healthy"  — all services are healthy
-      - "degraded" — some (but not all) services are healthy
-      - "down"     — no services are healthy
+    Each ServiceConfig carries a ``required`` flag (default: True). Overall
+    platform status is determined as follows:
+
+      - "healthy"   — all required services healthy
+      - "degraded"  — required services healthy, but one or more optional fail
+      - "unhealthy" — any required service is not healthy
+
+    Args:
+        services: Mapping of service name to ServiceConfig, as returned by
+                  config.load_config() or config.load_endpoints().
+
+    Returns:
+        JSON-serialisable dict matching the shape documented above.
     """
     timestamp = datetime.now(tz=timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
@@ -45,30 +58,42 @@ def aggregate_status(services: Dict[str, "ServiceConfig"]) -> dict:
 
     service_summary: Dict[str, dict] = {}
     for name, result in health_results.items():
+        svc = services[name]
         service_summary[name] = {
-            "healthy": result["healthy"],
-            "status_code": result.get("status_code"),
-            "latency_ms": result.get("latency_ms"),
-            "url": result.get("url", ""),
-            "error": result.get("error"),
+            "status": "healthy" if result["healthy"] else "unhealthy",
+            "base_url": svc.base_url,
+            "health_url": svc.health_url,
         }
 
-    total = len(service_summary)
-    healthy_count = sum(1 for s in service_summary.values() if s["healthy"])
+    # Determine platform status based on required flags.
+    required_names = {
+        name for name, svc in services.items() if getattr(svc, "required", True)
+    }
 
-    if total == 0:
-        overall = "down"
-    elif healthy_count == total:
-        overall = "healthy"
-    elif healthy_count == 0:
-        overall = "down"
+    if not services:
+        platform_status = "unhealthy"
     else:
-        overall = "degraded"
+        required_all_healthy = all(
+            service_summary[name]["status"] == "healthy"
+            for name in required_names
+            if name in service_summary
+        )
+        optional_all_healthy = all(
+            service_summary[name]["status"] == "healthy"
+            for name in service_summary
+            if name not in required_names
+        )
+
+        if not required_all_healthy:
+            platform_status = "unhealthy"
+        elif not optional_all_healthy:
+            platform_status = "degraded"
+        else:
+            platform_status = "healthy"
 
     return {
-        "overall": overall,
+        "platform": "workstation",
+        "status": platform_status,
         "timestamp": timestamp,
-        "healthy_count": healthy_count,
-        "total_count": total,
         "services": service_summary,
     }

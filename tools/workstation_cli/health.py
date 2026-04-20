@@ -13,7 +13,7 @@ import time
 from typing import TYPE_CHECKING, Dict
 
 if TYPE_CHECKING:
-    from .services import ServiceConfig
+    from .config import ServiceConfig
 
 
 # ── Low-level HTTP check ──────────────────────────────────────────────────────
@@ -91,6 +91,9 @@ def check_health(url: str, connect_timeout: float = 3.0, read_timeout: float = 1
 def check_all_health(services: Dict[str, "ServiceConfig"]) -> Dict[str, dict]:
     """
     Run check_health() for every ServiceConfig in *services*.
+
+    Accepts either config.ServiceConfig or services.ServiceConfig objects —
+    both expose .health_url, .connect_timeout, and .read_timeout.
 
     Returns a dict mapping service name -> health result dict.
     """

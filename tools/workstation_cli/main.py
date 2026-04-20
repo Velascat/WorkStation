@@ -5,10 +5,12 @@ Usage:
     python -m workstation_cli <command> [options]
 
 Commands:
-    up       Start the stack via docker compose.
-    down     Stop the stack via docker compose.
-    health   Check health endpoints and print results.
-    status   Aggregate health + service info and print summary.
+    up            Start the stack via docker compose.
+    down          Stop the stack via docker compose.
+    health        Check health endpoints and print results.
+    health --json Output health results as JSON.
+    status        Aggregate health + service info and print summary.
+    status --json Output status summary as JSON.
 """
 
 import argparse
@@ -17,8 +19,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+from .config import load_config
 from .health import check_all_health
-from .services import load_services_from_yaml
 from .status import aggregate_status
 
 # ── Repo paths ────────────────────────────────────────────────────────────────
@@ -26,7 +28,7 @@ from .status import aggregate_status
 _THIS_FILE = Path(__file__).resolve()
 _REPO_ROOT = _THIS_FILE.parents[2]          # tools/workstation_cli -> repo root
 _COMPOSE_FILE = _REPO_ROOT / "compose" / "docker-compose.yml"
-_ENDPOINTS_FILE = _REPO_ROOT / "config" / "workstation" / "endpoints.yaml"
+_CONFIG_DIR = _REPO_ROOT / "config" / "workstation"
 _ENV_FILE = _REPO_ROOT / ".env"
 
 
@@ -43,6 +45,24 @@ def _compose(*args: str) -> int:
     cmd += list(args)
     result = subprocess.run(cmd)
     return result.returncode
+
+
+def _load_or_die() -> dict:
+    """Load service config from config/workstation/. Exit with message on failure."""
+    endpoints_file = _CONFIG_DIR / "endpoints.yaml"
+    if not endpoints_file.exists():
+        print(
+            f"Endpoints config not found: {endpoints_file}\n"
+            "Copy config/workstation/endpoints.example.yaml to endpoints.yaml first.",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+    try:
+        cfg = load_config(_CONFIG_DIR)
+    except Exception as exc:
+        print(f"Failed to load config: {exc}", file=sys.stderr)
+        sys.exit(1)
+    return cfg.services
 
 
 # ── Command handlers ──────────────────────────────────────────────────────────
@@ -71,16 +91,13 @@ def cmd_down(args: argparse.Namespace) -> int:
 
 def cmd_health(args: argparse.Namespace) -> int:
     """Check health endpoints for all services."""
-    if not _ENDPOINTS_FILE.exists():
-        print(
-            f"Endpoints config not found: {_ENDPOINTS_FILE}\n"
-            "Copy config/workstation/endpoints.example.yaml to endpoints.yaml first.",
-            file=sys.stderr,
-        )
-        return 1
-
-    services = load_services_from_yaml(_ENDPOINTS_FILE)
+    services = _load_or_die()
     results = check_all_health(services)
+
+    if args.json:
+        print(json.dumps(results, indent=2))
+        all_ok = all(r["healthy"] for r in results.values())
+        return 0 if all_ok else 1
 
     print("=== WorkStation: health check ===\n")
     all_ok = True
@@ -88,18 +105,14 @@ def cmd_health(args: argparse.Namespace) -> int:
         icon = "[OK]  " if result["healthy"] else "[FAIL]"
         status = result.get("status_code", "N/A")
         url = result.get("url", "")
-        print(f"  {icon}  {name:<14}  {url}  →  HTTP {status}")
+        latency = result.get("latency_ms")
+        lat_str = f"  {latency}ms" if latency is not None else ""
+        print(f"  {icon}  {name:<16}  {url}  ->  HTTP {status}{lat_str}")
         if result.get("error"):
-            print(f"         Error: {result['error']}")
-        if result.get("body"):
-            snippet = result["body"][:100].replace("\n", " ")
-            print(f"         {snippet}")
+            print(f"           Error: {result['error']}")
         print()
         if not result["healthy"]:
             all_ok = False
-
-    if args.json:
-        print(json.dumps(results, indent=2))
 
     if all_ok:
         print("All services healthy.")
@@ -111,36 +124,36 @@ def cmd_health(args: argparse.Namespace) -> int:
 
 def cmd_status(args: argparse.Namespace) -> int:
     """Print aggregate status summary."""
-    if not _ENDPOINTS_FILE.exists():
-        print(
-            f"Endpoints config not found: {_ENDPOINTS_FILE}\n"
-            "Copy config/workstation/endpoints.example.yaml to endpoints.yaml first.",
-            file=sys.stderr,
-        )
-        return 1
-
-    services = load_services_from_yaml(_ENDPOINTS_FILE)
+    services = _load_or_die()
     summary = aggregate_status(services)
+
+    if args.json:
+        print(json.dumps(summary, indent=2))
+        return 0 if summary.get("status") == "healthy" else 1
 
     print("=== WorkStation: status ===\n")
 
-    overall = summary.get("overall", "unknown")
-    color = "\033[32m" if overall == "healthy" else "\033[31m"
+    platform_status = summary.get("status", "unknown")
+    if platform_status == "healthy":
+        color = "\033[32m"
+    elif platform_status == "degraded":
+        color = "\033[33m"
+    else:
+        color = "\033[31m"
     reset = "\033[0m"
-    print(f"  Overall: {color}{overall.upper()}{reset}")
+    print(f"  Platform:  {color}{platform_status.upper()}{reset}")
     print(f"  Timestamp: {summary.get('timestamp', 'N/A')}\n")
 
     for name, svc in summary.get("services", {}).items():
-        h = svc.get("healthy", False)
-        icon = "[OK]  " if h else "[FAIL]"
-        latency = svc.get("latency_ms")
-        lat_str = f"  latency={latency}ms" if latency is not None else ""
-        print(f"  {icon}  {name:<14}{lat_str}")
+        healthy = svc.get("status") == "healthy"
+        icon = "[OK]  " if healthy else "[FAIL]"
+        base = svc.get("base_url", "")
+        required = getattr(services.get(name), "required", True)
+        req_label = "" if required else "  (optional)"
+        print(f"  {icon}  {name:<16}  {base}{req_label}")
 
-    if args.json:
-        print("\n" + json.dumps(summary, indent=2))
-
-    return 0 if summary.get("overall") == "healthy" else 1
+    print()
+    return 0 if platform_status == "healthy" else 1
 
 
 # ── Argument parser ───────────────────────────────────────────────────────────
@@ -167,7 +180,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     # status
     p_status = sub.add_parser("status", help="Print aggregate status summary.")
-    p_status.add_argument("--json", action="store_true", help="Output results as JSON.")
+    p_status.add_argument("--json", action="store_true", help="Output status as JSON.")
     p_status.set_defaults(func=cmd_status)
 
     return parser

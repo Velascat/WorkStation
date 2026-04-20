@@ -1,0 +1,5 @@
+services:
+  - name: switchboard
+    required: true
+  - name: 9router
+    required: true

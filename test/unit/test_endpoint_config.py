@@ -17,7 +17,7 @@ import sys
 _REPO_ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(_REPO_ROOT / "tools"))
 
-from workstation_cli.services import ServiceConfig, load_services_from_yaml  # noqa: E402
+from workstation_cli.config import ServiceConfig, load_endpoints as load_services_from_yaml  # noqa: E402
 
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────

@@ -121,3 +121,7 @@ config/switchboard/policy.yaml
 config/switchboard/profiles.yaml
 config/9router/.env
 config/workstation/endpoints.yaml
+
+# FOB operator state
+.fob/
+!.fob/*.example*

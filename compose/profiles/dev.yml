@@ -1,0 +1,48 @@
+# =============================================================================
+# WorkStation — Dev Profile
+# =============================================================================
+# Extends core with developer tooling:
+#   - Mailpit (local SMTP catcher)
+#   - Adminer (DB inspection, if any DB is added)
+#   - Debug log levels for all services
+#
+# Usage:
+#   docker compose -f compose/docker-compose.yml \
+#                  -f compose/profiles/core.yml \
+#                  -f compose/profiles/dev.yml up -d
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  switchboard:
+    environment:
+      LOG_LEVEL: "debug"
+
+  ninerouter:
+    environment:
+      NINE_ROUTER_LOG_LEVEL: "debug"
+
+  # ── Mailpit — local SMTP / email catcher ──────────────────────────────────
+  mailpit:
+    image: axllent/mailpit:latest
+    container_name: workstation-mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"   # SMTP
+      - "8025:8025"   # Web UI
+    networks:
+      - platform
+
+  # ── Dev proxy / request inspector ────────────────────────────────────────
+  # Uncomment if you want to inspect HTTP traffic between services.
+  # mitmproxy:
+  #   image: mitmproxy/mitmproxy:latest
+  #   container_name: workstation-mitmproxy
+  #   command: mitmweb --web-host 0.0.0.0 --listen-host 0.0.0.0
+  #   ports:
+  #     - "8080:8080"   # proxy
+  #     - "8081:8081"   # web UI
+  #   networks:
+  #     - platform

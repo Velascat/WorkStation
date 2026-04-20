@@ -1,0 +1,56 @@
+# =============================================================================
+# SwitchBoard — Request Profiles (section 6.4)
+# =============================================================================
+# Copy to profiles.yaml before starting the stack.
+# Profiles let clients request a named capability tier rather than a specific
+# model. SwitchBoard resolves the profile to a routing hint and forwards it
+# to 9router for final model selection.
+# =============================================================================
+
+version: "1"
+
+# ── Profile definitions ───────────────────────────────────────────────────────
+# Each profile describes a capability tier and maps to a 9router routing_hint.
+# 9router uses the hint to select the appropriate provider and model.
+
+profiles:
+
+  # Standard balanced profile — good accuracy, moderate latency.
+  standard:
+    display_name: "Standard"
+    description: "Balanced accuracy and speed for everyday tasks."
+    routing_hint: "tier:standard"
+    max_tokens: 4096
+    timeout_ms: 20000
+
+  # Fast profile — optimised for low-latency responses.
+  fast:
+    display_name: "Fast"
+    description: "Low-latency model selection; may trade some accuracy for speed."
+    routing_hint: "tier:fast"
+    max_tokens: 2048
+    timeout_ms: 8000
+
+  # Power profile — highest-capability models.
+  power:
+    display_name: "Power"
+    description: "Highest capability tier; use for complex reasoning tasks."
+    routing_hint: "tier:power"
+    max_tokens: 16384
+    timeout_ms: 60000
+
+  # Embedding profile — text embedding requests.
+  embedding:
+    display_name: "Embedding"
+    description: "Text embedding requests routed to embedding-optimised models."
+    routing_hint: "type:embedding"
+    max_tokens: ~
+    timeout_ms: 10000
+
+# ── Default profile ───────────────────────────────────────────────────────────
+# Used when no profile is specified in the request.
+default_profile: standard
+
+# ── Profile selection header ──────────────────────────────────────────────────
+# Clients can request a profile by including this header.
+profile_header: "X-WS-Profile"

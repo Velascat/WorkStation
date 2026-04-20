@@ -1,0 +1,59 @@
+# =============================================================================
+# WorkStation — Observability Profile
+# =============================================================================
+# Adds Prometheus + Grafana stubs for metrics collection and dashboarding.
+#
+# Usage:
+#   docker compose -f compose/docker-compose.yml \
+#                  -f compose/profiles/core.yml \
+#                  -f compose/profiles/observability.yml up -d
+#
+# Grafana UI:  http://localhost:3000  (admin / admin — change on first login)
+# Prometheus:  http://localhost:9090
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ── Prometheus ────────────────────────────────────────────────────────────
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: workstation-prometheus
+    restart: unless-stopped
+    ports:
+      - "9090:9090"
+    volumes:
+      - prometheus_data:/prometheus
+      - ../../config/observability/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--storage.tsdb.retention.time=15d"
+      - "--web.enable-lifecycle"
+    networks:
+      - platform
+
+  # ── Grafana ───────────────────────────────────────────────────────────────
+  grafana:
+    image: grafana/grafana:latest
+    container_name: workstation-grafana
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: "${GRAFANA_ADMIN_PASSWORD:-admin}"
+      GF_USERS_ALLOW_SIGN_UP: "false"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ../../config/observability/grafana/provisioning:/etc/grafana/provisioning:ro
+    depends_on:
+      - prometheus
+    networks:
+      - platform
+
+volumes:
+  prometheus_data:
+    name: workstation-prometheus-data
+  grafana_data:
+    name: workstation-grafana-data

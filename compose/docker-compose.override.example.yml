@@ -1,0 +1,37 @@
+# =============================================================================
+# WorkStation — Docker Compose Dev Overrides (example)
+# =============================================================================
+# Copy this file to docker-compose.override.yml to enable local dev features.
+# The override file is automatically merged by Docker Compose when present.
+#
+# .gitignore excludes docker-compose.override.yml (the live copy).
+# =============================================================================
+
+version: "3.9"
+
+services:
+
+  # ── SwitchBoard dev overrides ────────────────────────────────────────────
+  switchboard:
+    # Mount local source for live-reload development builds.
+    # Comment out if working with pre-built images only.
+    volumes:
+      - ../config/switchboard:/etc/switchboard:rw   # writable for local edits
+      # - /path/to/local/switchboard/src:/app/src   # mount source tree
+    environment:
+      LOG_LEVEL: "debug"
+      # SWITCHBOARD_RELOAD: "true"                  # enable hot reload if supported
+    # Expose an extra debug/profiling port if the image supports it.
+    # ports:
+    #   - "9229:9229"   # Node inspector / pprof
+
+  # ── 9router dev overrides ────────────────────────────────────────────────
+  ninerouter:
+    volumes:
+      - ../config/9router:/etc/ninerouter:rw
+      # - /path/to/local/9router/src:/app/src
+    environment:
+      NINE_ROUTER_LOG_LEVEL: "debug"
+      # NINE_ROUTER_MOCK_PROVIDERS: "true"          # use stub providers locally
+    # ports:
+    #   - "9230:9230"

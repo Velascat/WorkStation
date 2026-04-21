@@ -232,9 +232,9 @@ Current state as of the time this document was written (2026-04-21):
 - [x] `WorkStation/docker/Dockerfile.switchboard` — created
 - [x] `WorkStation/docker/Dockerfile.9router` — created
 - [x] `WorkStation/compose/docker-compose.yml` — updated to build from source
-- [ ] Plane infrastructure not yet in WorkStation (Plane not yet integrated)
+- [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `ControlPlane/deployment/plane/manage.sh` delegates to it
+- [x] `fob demo` command — implemented in `FOB/src/fob/demo.py`
 - [ ] WorkStation `workstation_cli` not yet wired to `fob demo`
-- [ ] `fob demo` command not yet implemented
 
 ---
 

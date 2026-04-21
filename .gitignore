@@ -115,11 +115,13 @@ pids/
 *.pid.lock
 tmp/
 temp/
+runtime/
 
 # ── Config overrides (live copies, not examples) ─────────────────────────────
 config/switchboard/policy.yaml
 config/switchboard/profiles.yaml
 config/9router/.env
+config/plane/.env
 config/workstation/endpoints.yaml
 
 # FOB operator state

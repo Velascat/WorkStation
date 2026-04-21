@@ -153,6 +153,29 @@ Then restart to apply:
 
 ---
 
+## Plane (ControlPlane dependency)
+
+Plane is managed by a separate script, not by `docker-compose.yml`. WorkStation is the canonical owner of this infra.
+
+```bash
+# Start Plane (installs on first run)
+bash scripts/plane.sh up
+
+# Stop Plane
+bash scripts/plane.sh down
+
+# Check reachability
+bash scripts/plane.sh status
+```
+
+Runtime data is stored in `runtime/plane/` (gitignored). On first run, `scripts/plane.sh up` downloads Plane's official setup script from GitHub releases, creates `runtime/plane/plane-app/` with the docker-compose manifest and environment file, and starts all Plane containers.
+
+To configure the port or version before first startup, copy `config/plane/.env.example` to `config/plane/.env` and edit.
+
+After Plane is running, open `http://localhost:8080` to complete workspace setup (admin account, project, API token). These credentials go in ControlPlane's config — not in WorkStation.
+
+---
+
 ## Scaling (Advanced)
 
 To run multiple replicas of 9router (requires a load-balancer in front):

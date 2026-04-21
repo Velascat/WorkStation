@@ -10,6 +10,7 @@ This document lists every service in the WorkStation stack, their roles, ports, 
 |---------------|-----------------------------|--------------------|-----------|----------------|----------------------------------------|-----------------------------------|
 | SwitchBoard   | `workstation-switchboard`   | `switchboard:latest` | 20401   | 20401          | `http://localhost:20401/health`        | API gateway, policy, auth, rate-limiting |
 | 9router       | `workstation-ninerouter`    | `9router:latest`   | 20128     | 20128          | `http://localhost:20128/health`        | Model dispatcher, provider routing |
+| Plane         | `plane-app-*`               | `makeplane/plane-*` | 8080    | 80             | `http://localhost:8080`                | Task board, work-state source of truth (ControlPlane dependency) |
 | Status API    | (future)                    | —                  | 20400     | 20400          | `http://localhost:20400/health`        | Stack-level health aggregation    |
 
 ---
@@ -52,6 +53,22 @@ SwitchBoard uses `http://ninerouter:20128` to reach 9router. This never traverse
 9router   (starts first, no dependencies)
     └──> SwitchBoard   (waits for 9router health check to pass)
 ```
+
+---
+
+## Plane
+
+Plane is a platform dependency managed by WorkStation but **not** included in the core Docker Compose manifest. It is managed separately because it uses Makeplane's official release distribution (not a WorkStation-built image).
+
+**Lifecycle script:** `bash scripts/plane.sh {up|down|status}`
+
+**Runtime data:** `runtime/plane/` (gitignored — populated on first startup)
+
+**Config overrides:** copy `config/plane/.env.example` to `config/plane/.env`
+
+Plane runs on a separate Docker Compose stack (downloaded by `scripts/plane.sh`) and does not share the `workstation-platform` network. ControlPlane connects to it via `http://localhost:8080` (configurable via `CONTROL_PLANE_PLANE_URL`).
+
+See [docs/providers.md](providers.md) for the equivalent note on provider credentials.
 
 ---
 

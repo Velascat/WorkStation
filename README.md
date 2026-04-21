@@ -4,6 +4,8 @@ WorkStation is the local developer platform that deploys and operates the shared
 
 WorkStation does not participate in the request path at runtime. It is a pure infrastructure and operational concern — it owns the configuration, scripts, CLI tooling, and tests.
 
+**Ownership boundary:** WorkStation owns everything that makes services *run* — Dockerfiles, compose manifests, lifecycle scripts, health checks, startup order, port assignments, and environment injection. If you are asking "where does this service run?", the answer lives here. If you are asking "what does this service do?", the answer lives in the service repo. See [`docs/architecture/ownership.md`](docs/architecture/ownership.md) for the full model.
+
 ---
 
 ## Services

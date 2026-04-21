@@ -1,8 +1,20 @@
 # Architecture
 
-## Overview
+> **This document is outdated.** It describes the old SwitchBoard → 9router proxy
+> architecture. `9router` has been removed from the platform.
+>
+> The canonical architecture documentation is now in:
+> - [`docs/architecture/system_overview.md`](architecture/system_overview.md) — full system description
+> - [`docs/architecture/repo_responsibility_matrix.md`](architecture/repo_responsibility_matrix.md) — per-component responsibilities
+> - [`docs/architecture/adr/0001-remove-9router.md`](architecture/adr/0001-remove-9router.md) — why 9router was removed
+>
+> The content below is preserved for historical reference only.
 
-WorkStation is a local developer platform that orchestrates a shared model stack composed of two services: **SwitchBoard** and **9router**. Together they form a proxy layer that sits between client applications and AI model providers.
+---
+
+## Overview (historical)
+
+WorkStation was a local developer platform that orchestrated a shared model stack composed of two services: **SwitchBoard** and **9router**. Together they formed a proxy layer that sat between client applications and AI model providers.
 
 ```
 ┌─────────────────────────────────────────────────────────────┐

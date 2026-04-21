@@ -1,50 +1,74 @@
 # WorkStation
 
-WorkStation is the local developer platform that deploys and operates the shared model stack. It owns the lifecycle of **SwitchBoard** and **9router**, providing a single compose-based entrypoint for spinning up, inspecting, and tearing down the full AI routing stack on any developer machine or CI host.
+WorkStation is the local developer platform that deploys and operates the shared AI
+coding stack. It owns the lifecycle of **SwitchBoard**, the **Plane** task board, and
+the **tiny local models** consumed by the `aider_local` coding lane.
 
-WorkStation does not participate in the request path at runtime. It is a pure infrastructure and operational concern — it owns the configuration, scripts, CLI tooling, and tests.
+WorkStation does not participate in the request path at runtime. It is a pure
+infrastructure and operational concern — Dockerfiles, compose manifests, lifecycle
+scripts, health checks, port assignments, environment injection.
 
-**Ownership boundary:** WorkStation owns everything that makes services *run* — Dockerfiles, compose manifests, lifecycle scripts, health checks, startup order, port assignments, and environment injection. If you are asking "where does this service run?", the answer lives here. If you are asking "what does this service do?", the answer lives in the service repo. See [`docs/architecture/ownership.md`](docs/architecture/ownership.md) for the full model.
+**Ownership boundary:** WorkStation owns everything that makes services *run*. If you
+are asking "where does this service run?", the answer lives here. If you are asking
+"what does this service do?", the answer lives in the service repo. See
+[`docs/architecture/ownership.md`](docs/architecture/ownership.md) for the full model.
+
+**System architecture:** The full platform design, component roles, and the removal of
+9router are documented in
+[`docs/architecture/system_overview.md`](docs/architecture/system_overview.md).
 
 ---
 
 ## Services
 
-| Service     | Port  | Purpose                                                      |
-|-------------|-------|--------------------------------------------------------------|
-| SwitchBoard | 20401 | API gateway — auth, routing policy, rate-limiting            |
-| 9router     | 20128 | Model dispatcher — provider selection, format translation    |
+| Service          | Port | Purpose |
+|------------------|------|---------|
+| SwitchBoard      | 20401 | Execution-lane selector — classifies tasks, applies routing policy, selects lane |
+| Plane            | 8080  | Task board — work state, comments, labels (separate script-managed stack) |
+| tiny local models | local | Serves models for the `aider_local` coding lane (WorkStation-deployed) |
 
-Both services are **required**. The stack is considered healthy only when both are reachable and returning HTTP 200.
+SwitchBoard is required for coding lane dispatch. Plane is required for ControlPlane
+operation. Tiny model deployment is required for the `aider_local` lane.
+
+## What WorkStation Is Not
+
+- **Not the task-prioritization engine.** WorkStation does not decide what work
+  matters next. That is ControlPlane's job.
+
+- **Not the lane selector.** WorkStation deploys SwitchBoard; it does not make lane
+  selection decisions. SwitchBoard owns the policy and the selection logic.
+
+- **Not the coding execution layer.** WorkStation does not run agents, edit files, or
+  invoke CLIs. kodo and the lane runners do that.
+
+- **Not the workflow harness.** WorkStation does not define or execute multi-step
+  coding workflows. That is Archon's job.
+
+- **Not a provider proxy.** WorkStation does not forward LLM API requests to external
+  providers. 9router, which served that role, has been removed from the architecture.
+  See [`docs/architecture/adr/0001-remove-9router.md`](docs/architecture/adr/0001-remove-9router.md).
 
 ---
 
 ## Architecture
 
 ```
-Client Request
-     │
-     ▼  :20401
-┌──────────────┐
-│  SwitchBoard  │  — validates auth, enforces policy, resolves profiles
-└──────┬───────┘
-       │  :20128
-       ▼
-┌──────────────┐
-│   9router    │  — selects provider, translates format, handles retries
-└──────┬───────┘
-       │
-       ▼
-   Providers  (OpenAI, Anthropic, local models, …)
+WorkStation deploys and manages:
+
+  SwitchBoard (:20401)    — execution-lane selector
+  Plane (:8080)           — task board (ControlPlane dependency)
+  tiny local models       — served locally for aider_local lane
+
+System flow (see docs/architecture/system_overview.md for the full picture):
+
+  ControlPlane → SwitchBoard → lane runner
+                                 ├── claude_cli   (Claude CLI, OAuth)
+                                 ├── codex_cli    (Codex CLI, subscription)
+                                 └── aider_local  (Aider + WorkStation models)
 ```
 
-- **SwitchBoard** is the single entry point for all model API traffic. It enforces authentication (API key or JWT), applies routing rules from `config/switchboard/policy.yaml`, resolves capability profiles (fast / standard / power), and rate-limits by key or tier before forwarding to 9router.
-- **9router** receives normalised requests from SwitchBoard, selects the best provider based on the routing hint and availability, translates to provider wire format, and handles retries and failover.
-- **WorkStation** (this repo) owns Docker Compose orchestration, configuration templates, operational scripts, the `workstation_cli` Python CLI, and all tests.
-
-Inter-service traffic travels over the `workstation-platform` Docker bridge network using service-name DNS (`http://ninerouter:20128`). Only the ports listed above are published to the host.
-
-See [docs/architecture.md](docs/architecture.md) for the full diagram and layer breakdown.
+See [`docs/architecture/system_overview.md`](docs/architecture/system_overview.md) for
+the full layered view, component roles, and conceptual flow.
 
 ---
 

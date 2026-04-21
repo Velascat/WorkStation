@@ -1,0 +1,52 @@
+# =============================================================================
+# SwitchBoard — build from source
+# Build context: SwitchBoard repo root (sibling of WorkStation)
+#
+# Usage (from WorkStation/):
+#   docker build -f docker/Dockerfile.switchboard -t switchboard:latest ../SwitchBoard
+# =============================================================================
+
+FROM python:3.12-slim AS builder
+
+WORKDIR /build
+
+# Install build deps
+RUN pip install --no-cache-dir uv
+
+# Copy project definition first for layer caching
+COPY pyproject.toml .
+COPY src/ src/
+
+# Build a wheel so the runtime stage has no build tools
+RUN uv build --wheel --out-dir /dist
+
+
+# =============================================================================
+FROM python:3.12-slim AS runtime
+
+WORKDIR /app
+
+# Install the wheel and its runtime dependencies (no dev extras)
+COPY --from=builder /dist /dist
+RUN pip install --no-cache-dir /dist/*.whl
+
+# Default config directory — operators should volume-mount their own configs here
+RUN mkdir -p /etc/switchboard
+
+# Runtime environment defaults (all overridable via compose env or --env-file)
+ENV SWITCHBOARD_HOST=0.0.0.0
+ENV SWITCHBOARD_PORT=20401
+ENV SWITCHBOARD_LOG_LEVEL=info
+ENV SWITCHBOARD_POLICY_PATH=/etc/switchboard/policy.yaml
+ENV SWITCHBOARD_PROFILES_PATH=/etc/switchboard/profiles.yaml
+ENV SWITCHBOARD_CAPABILITIES_PATH=/etc/switchboard/capabilities.yaml
+ENV SWITCHBOARD_DECISION_LOG_PATH=/var/log/switchboard/decisions.jsonl
+
+RUN mkdir -p /var/log/switchboard
+
+EXPOSE 20401
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=10s --retries=3 \
+    CMD python -c "import urllib.request; urllib.request.urlopen('http://localhost:20401/health')" || exit 1
+
+CMD ["switchboard"]

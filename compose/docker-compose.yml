@@ -1,8 +1,16 @@
 # =============================================================================
 # WorkStation — Docker Compose (production / base)
 # =============================================================================
-# Usage:
+# Usage (from repo root):
 #   docker compose -f compose/docker-compose.yml up -d
+#
+# Both services are built from source.  The build contexts assume SwitchBoard
+# and 9router repos are checked out as siblings of WorkStation:
+#
+#   GitHub/
+#     WorkStation/   ← this repo
+#     SwitchBoard/   ← git clone https://github.com/Velascat/SwitchBoard
+#     9router/       ← git clone https://github.com/decolua/9router
 #
 # For local overrides copy docker-compose.override.example.yml to
 # docker-compose.override.yml and customise.
@@ -26,6 +34,9 @@ services:
 
   # ── SwitchBoard ─────────────────────────────────────────────────────────────
   switchboard:
+    build:
+      context: ../../SwitchBoard
+      dockerfile: ../WorkStation/docker/Dockerfile.switchboard
     image: switchboard:latest
     container_name: workstation-switchboard
     <<: [*default-restart, *default-logging]
@@ -33,8 +44,8 @@ services:
       - "${PORT_SWITCHBOARD:-20401}:20401"
     environment:
       SWITCHBOARD_PORT: "20401"
-      NINE_ROUTER_URL: "${NINE_ROUTER_URL:-http://ninerouter:20128}"
-      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      ROUTER9_BASE_URL: "${NINE_ROUTER_URL:-http://ninerouter:20128}"
+      SWITCHBOARD_LOG_LEVEL: "${LOG_LEVEL:-info}"
     volumes:
       - ../config/switchboard:/etc/switchboard:ro
     networks:
@@ -43,7 +54,7 @@ services:
       ninerouter:
         condition: service_healthy
     healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:20401/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:20401/health')"]
       interval: 15s
       timeout: 5s
       retries: 3
@@ -51,6 +62,9 @@ services:
 
   # ── 9router ──────────────────────────────────────────────────────────────────
   ninerouter:
+    build:
+      context: ../../9router
+      dockerfile: ../WorkStation/docker/Dockerfile.9router
     image: 9router:latest
     container_name: workstation-ninerouter
     <<: [*default-restart, *default-logging]
@@ -59,8 +73,10 @@ services:
     env_file:
       - ../config/9router/.env
     environment:
-      NINE_ROUTER_PORT: "20128"
-      LOG_LEVEL: "${LOG_LEVEL:-info}"
+      PORT: "20128"
+      HOSTNAME: "0.0.0.0"
+    volumes:
+      - ninerouter-data:/app/data
     networks:
       - platform
     healthcheck:
@@ -68,7 +84,7 @@ services:
       interval: 15s
       timeout: 5s
       retries: 3
-      start_period: 10s
+      start_period: 20s
 
 # ─────────────────────────────────────────────────────────────────────────────
 networks:
@@ -77,4 +93,6 @@ networks:
     driver: bridge
 
 # ─────────────────────────────────────────────────────────────────────────────
-volumes: {}
+volumes:
+  ninerouter-data:
+    name: workstation-ninerouter-data

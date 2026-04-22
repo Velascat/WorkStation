@@ -45,8 +45,7 @@ operation. Tiny model deployment is required for the `aider_local` lane.
   coding workflows. That is Archon's job.
 
 - **Not a provider proxy.** WorkStation does not forward LLM API requests to external
-  providers. 9router, which served that role, has been removed from the architecture.
-  See [`docs/architecture/adr/0001-remove-9router.md`](docs/architecture/adr/0001-remove-9router.md).
+  providers.
 
 ---
 

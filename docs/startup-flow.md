@@ -23,7 +23,7 @@ cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
 .\scripts\bootstrap.ps1
 ```
 
-Review `.env` and the config files. No provider proxy configuration is required in the default architecture.
+Review `.env` and the config files. No extra provider-control service is required in the default architecture.
 
 ---
 

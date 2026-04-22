@@ -5,8 +5,7 @@
 # This file is the single source of truth for service URLs used by
 # workstation_cli, health scripts, and tests.
 #
-# 9router has been removed from the architecture. See
-# docs/architecture/adr/0001-remove-9router.md for rationale.
+# The default endpoint set tracks the selector-first architecture.
 # =============================================================================
 
 version: "1"

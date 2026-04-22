@@ -1,6 +1,6 @@
 # Lane Readiness
 
-WorkStation no longer manages a provider proxy. Operator setup now focuses on the execution lanes that SwitchBoard may select.
+Operator setup focuses on the execution lanes that SwitchBoard may select.
 
 ## What to check
 
@@ -22,4 +22,4 @@ The command reports selector and lane readiness for the current architecture.
 
 - `aider_local` depends on WorkStation-managed local model services.
 - Premium lanes are selected by SwitchBoard policy but authenticated outside WorkStation.
-- The default WorkStation stack runs without any provider proxy or dashboard.
+- The default WorkStation stack runs without any provider dashboard.

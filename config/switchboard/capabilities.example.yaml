@@ -2,8 +2,8 @@
 # SwitchBoard — Model Capability Metadata
 # =============================================================================
 # Describes the capabilities and cost characteristics of models available
-# through the stack. Used by SwitchBoard for profile resolution and by
-# 9router for model selection when a routing_hint is provided.
+# through the stack. Used by SwitchBoard for profile metadata and by
+# execution adapters when preparing backend-specific requests.
 #
 # Copy to capabilities.yaml before starting the stack.
 # =============================================================================

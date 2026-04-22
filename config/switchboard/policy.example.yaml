@@ -2,79 +2,27 @@
 # SwitchBoard — Routing Policy (section 6.3)
 # =============================================================================
 # Copy to policy.yaml before starting the stack.
-# This file defines how SwitchBoard routes, authenticates, and rate-limits
-# incoming requests before forwarding them to 9router.
+# This file defines how SwitchBoard evaluates canonical proposals and selects
+# execution lanes.
 # =============================================================================
 
 version: "1"
 
-# ── Default upstream ──────────────────────────────────────────────────────────
-upstream:
-  # URL of the 9router service. In compose this resolves via the service name.
-  url: "${NINE_ROUTER_URL:-http://ninerouter:20128}"
-  timeout_ms: 30000
-  retries: 2
-  retry_on:
-    - connection_error
-    - 502
-    - 503
-
-# ── Authentication ────────────────────────────────────────────────────────────
-auth:
-  # Mode: none | api_key | jwt
-  mode: api_key
-  api_key:
-    # Header to read the key from.
-    header: "X-API-Key"
-    # Path to a file containing valid keys (one per line), OR inline list.
-    # keys_file: /etc/switchboard/api_keys.txt
-    keys:
-      - "sk-dev-placeholder-replace-me"
-
-# ── Rate limiting ─────────────────────────────────────────────────────────────
-rate_limit:
-  enabled: true
-  # Strategy: fixed_window | sliding_window | token_bucket
-  strategy: sliding_window
-  default:
-    requests_per_minute: 120
-    burst: 20
-  # Per-key overrides (keyed by API key or key prefix).
-  overrides: []
-  # - key_prefix: "sk-power-"
-  #   requests_per_minute: 600
-  #   burst: 100
-
-# ── Request routing rules ─────────────────────────────────────────────────────
+# ── Routing rules ─────────────────────────────────────────────────────────────
 # Rules are evaluated top-to-bottom; the first match wins.
-# If no rule matches, the request is forwarded to the default upstream.
 rules:
-  - name: health_passthrough
-    match:
-      path_prefix: "/health"
-    action: passthrough
+  - name: docs_local
+    when:
+      task_type: documentation
+      risk_level: low
+    select_lane: aider_local
+    select_backend: direct_local
 
-  - name: v1_chat_completions
-    match:
-      path_prefix: "/v1/chat/completions"
-    action: forward
-    upstream_override: ~   # use default upstream
-
-  - name: v1_completions
-    match:
-      path_prefix: "/v1/completions"
-    action: forward
-
-  - name: v1_embeddings
-    match:
-      path_prefix: "/v1/embeddings"
-    action: forward
-
-  # Catch-all: forward everything else
-  - name: catch_all
-    match:
-      path_prefix: "/"
-    action: forward
+  - name: code_default
+    when:
+      task_type: coding
+    select_lane: claude_cli
+    select_backend: kodo
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:

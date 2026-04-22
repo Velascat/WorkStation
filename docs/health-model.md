@@ -22,12 +22,11 @@ This document describes how WorkStation determines and reports the health of the
 
 ## Required vs Optional Services
 
-The current stack defines two required services:
+The current stack defines one required service:
 
 | Service     | Required | Port  |
 |-------------|----------|-------|
 | SwitchBoard | yes      | 20401 |
-| 9router     | yes      | 20128 |
 
 Optional services (e.g. observability stack, metrics exporters) can fail without degrading the overall status to `unhealthy`. They will cause a `degraded` status instead, which signals that something is wrong without blocking normal operation.
 
@@ -59,11 +58,6 @@ The `workstation_cli status --json` command returns a JSON object with this shap
       "base_url": "http://localhost:20401",
       "health_url": "http://localhost:20401/health"
     },
-    "9router": {
-      "status": "healthy",
-      "base_url": "http://localhost:20128",
-      "health_url": "http://localhost:20128/health"
-    }
   }
 }
 ```
@@ -80,11 +74,6 @@ The `workstation_cli status --json` command returns a JSON object with this shap
       "status": "healthy",
       "base_url": "http://localhost:20401",
       "health_url": "http://localhost:20401/health"
-    },
-    "9router": {
-      "status": "healthy",
-      "base_url": "http://localhost:20128",
-      "health_url": "http://localhost:20128/health"
     },
     "metrics": {
       "status": "unhealthy",
@@ -109,16 +98,10 @@ In this example `metrics` is an optional service, so the platform reports `degra
       "status": "unhealthy",
       "base_url": "http://localhost:20401",
       "health_url": "http://localhost:20401/health"
-    },
-    "9router": {
-      "status": "healthy",
-      "base_url": "http://localhost:20128",
-      "health_url": "http://localhost:20128/health"
     }
   }
 }
 ```
-
 `switchboard` is required, so any failure there immediately makes the platform `unhealthy`.
 
 ---

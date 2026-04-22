@@ -26,9 +26,6 @@ if (Test-Path $EnvFile) {
 }
 
 $portSwitchboard = [System.Environment]::GetEnvironmentVariable('PORT_SWITCHBOARD') ?? '20401'
-$port9router     = [System.Environment]::GetEnvironmentVariable('PORT_9ROUTER')     ?? '20128'
-$portStatus      = [System.Environment]::GetEnvironmentVariable('PORT_STATUS')      ?? '20400'
-
 $timeoutSec = 5
 $allOk      = $true
 
@@ -53,10 +50,6 @@ function Check-Health {
 Write-Host "=== WorkStation: health check ===" -ForegroundColor Cyan
 Write-Host ""
 Check-Health "SwitchBoard" "http://localhost:$portSwitchboard/health"
-Write-Host ""
-Check-Health "9router    " "http://localhost:$port9router/health"
-Write-Host ""
-Check-Health "Status API " "http://localhost:$portStatus/health"
 Write-Host ""
 
 if ($allOk) {

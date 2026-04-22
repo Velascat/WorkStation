@@ -31,10 +31,6 @@ def endpoints_yaml(tmp_path: Path) -> Path:
             url: "http://localhost:20401"
             health_path: "/health"
             description: "SwitchBoard gateway"
-          ninerouter:
-            url: "http://localhost:20128"
-            health_path: "/health"
-            description: "9router dispatcher"
 
         timeouts:
           connect: 3
@@ -66,7 +62,7 @@ class TestLoadEndpoints:
 
     def test_all_services_loaded(self, endpoints_yaml: Path):
         result = load_endpoints(endpoints_yaml)
-        assert set(result.keys()) == {"switchboard", "ninerouter"}
+        assert set(result.keys()) == {"switchboard"}
 
     def test_returns_service_config_instances(self, endpoints_yaml: Path):
         result = load_endpoints(endpoints_yaml)
@@ -76,7 +72,6 @@ class TestLoadEndpoints:
     def test_urls_correct(self, endpoints_yaml: Path):
         result = load_endpoints(endpoints_yaml)
         assert result["switchboard"].url == "http://localhost:20401"
-        assert result["ninerouter"].url == "http://localhost:20128"
 
     def test_health_path_parsed(self, endpoints_yaml: Path):
         result = load_endpoints(endpoints_yaml)

@@ -32,5 +32,5 @@ echo "── HTTP health checks ────────────────
 echo ""
 echo "── Resource usage ────────────────────────────────────────────────────────"
 docker stats --no-stream \
-  workstation-switchboard workstation-ninerouter 2>/dev/null || \
+  workstation-switchboard 2>/dev/null || \
   echo "  (containers not running)"

@@ -52,10 +52,6 @@ def config_dir(tmp_path: Path) -> Path:
             url: "http://localhost:20401"
             health_path: "/health"
             description: "SwitchBoard gateway"
-          ninerouter:
-            url: "http://localhost:20128"
-            health_path: "/health"
-            description: "9router dispatcher"
           metrics:
             url: "http://localhost:9090"
             health_path: "/health"
@@ -69,8 +65,6 @@ def config_dir(tmp_path: Path) -> Path:
         services:
           - name: switchboard
             required: true
-          - name: ninerouter
-            required: true
           - name: metrics
             required: false
     """)
@@ -78,7 +72,6 @@ def config_dir(tmp_path: Path) -> Path:
     _write(d / "ports.yaml", """\
         ports:
           switchboard: 20401
-          ninerouter: 20128
     """)
 
     return d
@@ -93,8 +86,6 @@ def endpoints_only_dir(tmp_path: Path) -> Path:
         services:
           switchboard:
             url: "http://localhost:20401"
-          ninerouter:
-            url: "http://localhost:20128"
     """)
     return d
 
@@ -107,12 +98,9 @@ class TestLoadServicesMeta:
             services:
               - name: switchboard
                 required: true
-              - name: 9router
-                required: true
         """)
         meta = load_services_meta(p)
         assert meta["switchboard"]["required"] is True
-        assert meta["9router"]["required"] is True
 
     def test_optional_flag(self, tmp_path: Path):
         p = _write(tmp_path / "services.yaml", """\
@@ -149,11 +137,9 @@ class TestLoadPorts:
         p = _write(tmp_path / "ports.yaml", """\
             ports:
               switchboard: 20401
-              ninerouter: 20128
         """)
         ports = load_ports(p)
         assert ports["switchboard"] == 20401
-        assert ports["ninerouter"] == 20128
 
     def test_missing_file_raises(self, tmp_path: Path):
         with pytest.raises(FileNotFoundError):
@@ -178,19 +164,16 @@ class TestLoadConfig:
     def test_services_loaded(self, config_dir: Path):
         cfg = load_config(config_dir)
         assert "switchboard" in cfg.services
-        assert "ninerouter" in cfg.services
         assert "metrics" in cfg.services
 
     def test_required_flags_merged(self, config_dir: Path):
         cfg = load_config(config_dir)
         assert cfg.services["switchboard"].required is True
-        assert cfg.services["ninerouter"].required is True
         assert cfg.services["metrics"].required is False
 
     def test_ports_loaded(self, config_dir: Path):
         cfg = load_config(config_dir)
         assert cfg.ports["switchboard"] == 20401
-        assert cfg.ports["ninerouter"] == 20128
 
     def test_endpoints_only_defaults_to_required(self, endpoints_only_dir: Path):
         """When services.yaml is absent all services default to required=True."""
@@ -248,38 +231,34 @@ class TestAggregateStatus:
     def test_all_required_healthy_is_healthy(self):
         services = _make_services({
             "switchboard": {"url": "http://localhost:20401", "required": True},
-            "ninerouter":  {"url": "http://localhost:20128", "required": True},
         })
         with patch("workstation_cli.status.check_all_health",
-                   side_effect=_mock_health({"switchboard", "ninerouter"})):
+                   side_effect=_mock_health({"switchboard"})):
             result = aggregate_status(services)
         assert result["status"] == "healthy"
 
     def test_required_failing_is_unhealthy(self):
         services = _make_services({
             "switchboard": {"url": "http://localhost:20401", "required": True},
-            "ninerouter":  {"url": "http://localhost:20128", "required": True},
         })
         with patch("workstation_cli.status.check_all_health",
-                   side_effect=_mock_health({"ninerouter"})):
+                   side_effect=_mock_health(set())):
             result = aggregate_status(services)
         assert result["status"] == "unhealthy"
 
     def test_optional_failing_required_ok_is_degraded(self):
         services = _make_services({
             "switchboard": {"url": "http://localhost:20401", "required": True},
-            "ninerouter":  {"url": "http://localhost:20128", "required": True},
             "metrics":     {"url": "http://localhost:9090",  "required": False},
         })
         with patch("workstation_cli.status.check_all_health",
-                   side_effect=_mock_health({"switchboard", "ninerouter"})):
+                   side_effect=_mock_health({"switchboard"})):
             result = aggregate_status(services)
         assert result["status"] == "degraded"
 
     def test_all_unhealthy_is_unhealthy(self):
         services = _make_services({
             "switchboard": {"url": "http://localhost:20401", "required": True},
-            "ninerouter":  {"url": "http://localhost:20128", "required": True},
         })
         with patch("workstation_cli.status.check_all_health",
                    side_effect=_mock_health(set())):
@@ -312,14 +291,12 @@ class TestAggregateStatus:
     def test_service_status_values(self):
         services = _make_services({
             "switchboard": {"url": "http://localhost:20401", "required": True},
-            "ninerouter":  {"url": "http://localhost:20128", "required": True},
         })
         with patch("workstation_cli.status.check_all_health",
                    side_effect=_mock_health({"switchboard"})):
             result = aggregate_status(services)
 
         assert result["services"]["switchboard"]["status"] == "healthy"
-        assert result["services"]["ninerouter"]["status"] == "unhealthy"
 
     def test_timestamp_format(self):
         services = _make_services({

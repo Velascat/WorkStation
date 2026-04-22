@@ -1,7 +1,7 @@
 # =============================================================================
 # WorkStation — Core Profile
 # =============================================================================
-# Minimal stack: SwitchBoard + 9router only.
+# Minimal stack: SwitchBoard only.
 # No observability or dev-tool services.
 #
 # Usage:
@@ -15,16 +15,6 @@ services:
 
   switchboard:
     # Core profile keeps default image and resource constraints minimal.
-    deploy:
-      resources:
-        limits:
-          cpus: "1.0"
-          memory: 512M
-        reservations:
-          cpus: "0.25"
-          memory: 128M
-
-  ninerouter:
     deploy:
       resources:
         limits:

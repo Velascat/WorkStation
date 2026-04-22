@@ -20,7 +20,6 @@ if [[ -f "${REPO_ROOT}/.env" ]]; then
 fi
 
 PORT_SWITCHBOARD="${PORT_SWITCHBOARD:-20401}"
-PORT_9ROUTER="${PORT_9ROUTER:-20128}"
 CURL_TIMEOUT=3
 MAX_WAIT=60
 
@@ -31,10 +30,9 @@ _healthy() {
 echo "=== WorkStation: ensure-up ==="
 echo ""
 
-if _healthy "${PORT_SWITCHBOARD}" && _healthy "${PORT_9ROUTER}"; then
+if _healthy "${PORT_SWITCHBOARD}"; then
   echo "  ✓ Stack already running and healthy."
   echo "    SwitchBoard : http://localhost:${PORT_SWITCHBOARD}"
-  echo "    9router     : http://localhost:${PORT_9ROUTER}"
   exit 0
 fi
 
@@ -59,10 +57,9 @@ echo ""
 echo "  Waiting for services (up to ${MAX_WAIT}s)..."
 ELAPSED=0
 while [[ ${ELAPSED} -lt ${MAX_WAIT} ]]; do
-  if _healthy "${PORT_SWITCHBOARD}" && _healthy "${PORT_9ROUTER}"; then
+  if _healthy "${PORT_SWITCHBOARD}"; then
     echo "  ✓ Stack healthy after ${ELAPSED}s."
     echo "    SwitchBoard : http://localhost:${PORT_SWITCHBOARD}"
-    echo "    9router     : http://localhost:${PORT_9ROUTER}"
     exit 0
   fi
   sleep 2

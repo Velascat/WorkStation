@@ -20,10 +20,6 @@ services:
     environment:
       LOG_LEVEL: "debug"
 
-  ninerouter:
-    environment:
-      NINE_ROUTER_LOG_LEVEL: "debug"
-
   # ── Mailpit — local SMTP / email catcher ──────────────────────────────────
   mailpit:
     image: axllent/mailpit:latest

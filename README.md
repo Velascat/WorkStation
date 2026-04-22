@@ -14,7 +14,7 @@ are asking "where does this service run?", the answer lives here. If you are ask
 [`docs/architecture/ownership.md`](docs/architecture/ownership.md) for the full model.
 
 **System architecture:** The full platform design, component roles, and the removal of
-9router are documented in
+the architecture are documented in
 [`docs/architecture/system_overview.md`](docs/architecture/system_overview.md).
 
 ---
@@ -182,10 +182,8 @@ See [docs/health-model.md](docs/health-model.md) for full semantics and example 
 | Endpoint                                     | Service     | Description                          |
 |----------------------------------------------|-------------|--------------------------------------|
 | `http://localhost:20401/health`              | SwitchBoard | Health check                         |
-| `http://localhost:20401/v1/chat/completions` | SwitchBoard | Chat completions (OpenAI-compatible) |
-| `http://localhost:20401/v1/completions`      | SwitchBoard | Text completions                     |
-| `http://localhost:20401/v1/embeddings`       | SwitchBoard | Embeddings                           |
-| `http://localhost:20401/admin/decisions/recent` | SwitchBoard | Last N lane-selection decisions   |
+| `http://localhost:20401/route`               | SwitchBoard | Canonical `TaskProposal -> LaneDecision` |
+| `http://localhost:20401/route-plan`          | SwitchBoard | Primary, fallback, and escalation plan |
 
 All client traffic targets SwitchBoard (`:20401`).
 
@@ -212,7 +210,7 @@ All client traffic targets SwitchBoard (`:20401`).
 
 # Tail logs for one service
 ./scripts/logs.sh switchboard
-./scripts/logs.sh ninerouter 100   # last 100 lines
+./scripts/logs.sh switchboard 100  # last 100 lines
 ```
 
 ---
@@ -230,7 +228,6 @@ WorkStation/
 │       └── observability.yml
 ├── config/
 │   ├── switchboard/          policy, profiles, capabilities config
-│   ├── 9router/              environment config
 │   └── workstation/          endpoint registry, service list, port map
 ├── scripts/                  Bash + PowerShell helper scripts
 ├── docs/                     Architecture, operations, health model, roadmap

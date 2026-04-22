@@ -4,13 +4,12 @@
 # Usage (from repo root):
 #   docker compose -f compose/docker-compose.yml up -d
 #
-# Both services are built from source.  The build contexts assume SwitchBoard
-# and 9router repos are checked out as siblings of WorkStation:
+# The service is built from source. The build context assumes SwitchBoard is
+# checked out as a sibling of WorkStation:
 #
 #   GitHub/
 #     WorkStation/   ← this repo
 #     SwitchBoard/   ← git clone https://github.com/Velascat/SwitchBoard
-#     9router/       ← git clone https://github.com/decolua/9router
 #
 # For local overrides copy docker-compose.override.example.yml to
 # docker-compose.override.yml and customise.
@@ -44,47 +43,17 @@ services:
       - "${PORT_SWITCHBOARD:-20401}:20401"
     environment:
       SWITCHBOARD_PORT: "20401"
-      ROUTER9_BASE_URL: "${NINE_ROUTER_URL:-http://ninerouter:20128}"
       SWITCHBOARD_LOG_LEVEL: "${LOG_LEVEL:-info}"
     volumes:
       - ../config/switchboard:/etc/switchboard:ro
     networks:
       - platform
-    depends_on:
-      ninerouter:
-        condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:20401/health')"]
       interval: 15s
       timeout: 5s
       retries: 3
       start_period: 10s
-
-  # ── 9router ──────────────────────────────────────────────────────────────────
-  ninerouter:
-    build:
-      context: ../../9router
-      dockerfile: ../WorkStation/docker/Dockerfile.9router
-    image: 9router:latest
-    container_name: workstation-ninerouter
-    <<: [*default-restart, *default-logging]
-    ports:
-      - "${PORT_9ROUTER:-20128}:20128"
-    env_file:
-      - ../config/9router/.env
-    environment:
-      PORT: "20128"
-      HOSTNAME: "0.0.0.0"
-    volumes:
-      - ninerouter-data:/app/data
-    networks:
-      - platform
-    healthcheck:
-      test: ["CMD", "curl", "-sf", "http://localhost:20128/health"]
-      interval: 15s
-      timeout: 5s
-      retries: 3
-      start_period: 20s
 
 # ─────────────────────────────────────────────────────────────────────────────
 networks:
@@ -93,6 +62,4 @@ networks:
     driver: bridge
 
 # ─────────────────────────────────────────────────────────────────────────────
-volumes:
-  ninerouter-data:
-    name: workstation-ninerouter-data
+volumes: {}

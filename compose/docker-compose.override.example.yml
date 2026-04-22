@@ -24,14 +24,3 @@ services:
     # Expose an extra debug/profiling port if the image supports it.
     # ports:
     #   - "9229:9229"   # Node inspector / pprof
-
-  # ── 9router dev overrides ────────────────────────────────────────────────
-  ninerouter:
-    volumes:
-      - ../config/9router:/etc/ninerouter:rw
-      # - /path/to/local/9router/src:/app/src
-    environment:
-      NINE_ROUTER_LOG_LEVEL: "debug"
-      # NINE_ROUTER_MOCK_PROVIDERS: "true"          # use stub providers locally
-    # ports:
-    #   - "9230:9230"

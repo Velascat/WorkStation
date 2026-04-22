@@ -8,7 +8,7 @@ The goals for Phase 1 are to have a reliable, reproducible local stack that any 
 
 **Done / in scope:**
 
-- Docker Compose orchestration for SwitchBoard and 9router.
+- Docker Compose orchestration for the selector stack.
 - `scripts/` — `up`, `down`, `restart`, `health`, `status`, `logs` for both Bash and PowerShell.
 - `workstation_cli` Python CLI with `up`, `down`, `health`, `status`, and `status --json`.
 - Endpoint registry (`config/workstation/endpoints.yaml`) as the single source of truth for service URLs.
@@ -28,7 +28,7 @@ These are not committed to and have no timeline. They represent directions that 
 
 ### Observability
 
-- Prometheus metrics scraping for SwitchBoard and 9router.
+- Prometheus metrics scraping for SwitchBoard and local execution-lane services.
 - Grafana dashboards pre-configured in the `observability` compose profile.
 - Structured JSON logging with correlation IDs across service hops.
 
@@ -48,11 +48,10 @@ These are not committed to and have no timeline. They represent directions that 
 ### Testing
 
 - Integration tests that run against a fully containerised stack in CI.
-- Contract tests verifying that SwitchBoard → 9router communication matches the expected wire format.
+- Contract tests verifying `TaskProposal -> LaneDecision` and local stack health semantics.
 - Load / latency benchmarks for the routing path.
 
 ### Deployment
 
 - Kubernetes manifests (Helm chart or plain YAML) for teams that want to run the stack on a shared cluster.
-- CI image build and publish pipeline for SwitchBoard and 9router.
-- Canary deployment support in 9router (weighted provider routing).
+- CI image build and publish pipeline for SwitchBoard and stack support images.

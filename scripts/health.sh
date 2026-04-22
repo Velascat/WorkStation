@@ -18,9 +18,6 @@ if [[ -f "${REPO_ROOT}/.env" ]]; then
 fi
 
 PORT_SWITCHBOARD="${PORT_SWITCHBOARD:-20401}"
-PORT_9ROUTER="${PORT_9ROUTER:-20128}"
-PORT_STATUS="${PORT_STATUS:-20400}"
-
 CURL_TIMEOUT=5
 ALL_OK=true
 
@@ -53,10 +50,6 @@ check_health() {
 echo "=== WorkStation: health check ==="
 echo ""
 check_health "SwitchBoard" "http://localhost:${PORT_SWITCHBOARD}/health"
-echo ""
-check_health "9router     " "http://localhost:${PORT_9ROUTER}/health"
-echo ""
-check_health "Status API  " "http://localhost:${PORT_STATUS}/health"
 echo ""
 
 if ${ALL_OK}; then

@@ -31,7 +31,7 @@ Write-Host "-- HTTP health checks --" -ForegroundColor DarkGray
 Write-Host ""
 Write-Host "-- Container resource usage --" -ForegroundColor DarkGray
 try {
-    docker stats --no-stream workstation-switchboard workstation-ninerouter
+    docker stats --no-stream workstation-switchboard
 } catch {
     Write-Host "  (containers not running)" -ForegroundColor Yellow
 }

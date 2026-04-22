@@ -12,7 +12,6 @@ The default configuration is tuned for local developer machines.
 
 - **Log level:** `debug` — verbose output to aid debugging.
 - **Hot-reload:** Enable via `docker-compose.override.yml` volume mounts of source code.
-- **Mock providers:** 9router can be configured with `NINE_ROUTER_MOCK_PROVIDERS=true` to return stub responses without hitting real provider APIs.
 - **Relaxed auth:** The placeholder API key (`sk-dev-placeholder-replace-me`) is acceptable locally; never use it in production.
 - **Resource limits:** Minimal CPU/memory constraints (see `compose/profiles/core.yml`).
 
@@ -38,7 +37,6 @@ LOG_LEVEL=debug
 Use the example files as-is for development:
 ```
 config/switchboard/policy.yaml    ← copied from policy.example.yaml
-config/9router/.env               ← only real keys needed if hitting live providers
 ```
 
 ---
@@ -53,7 +51,7 @@ Staging should mirror production as closely as possible while remaining safe to 
 |----------------|----------------------------|--------------------------------|
 | Log level      | debug                      | info                           |
 | Auth keys      | placeholder                | Rotated staging keys           |
-| Providers      | Mocks or real              | Real providers (staging quotas) |
+| External lanes | Optional                   | Real authenticated CLI lanes     |
 | Rate limits    | Permissive                 | Production-like limits         |
 | TLS            | None (localhost)           | TLS termination at reverse proxy |
 
@@ -99,7 +97,5 @@ See `.env.example` at the repo root for the full list of variables and their def
 | Variable            | Dev default            | Prod recommendation          |
 |---------------------|------------------------|------------------------------|
 | `PORT_SWITCHBOARD`  | 20401                  | 20401 (behind reverse proxy) |
-| `PORT_9ROUTER`      | 20128                  | 20128 (internal only)        |
 | `PORT_STATUS`       | 20400                  | 20400 (internal only)        |
 | `LOG_LEVEL`         | debug                  | warn                         |
-| `NINE_ROUTER_URL`   | http://localhost:20128 | http://ninerouter:20128      |

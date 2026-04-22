@@ -74,7 +74,6 @@ Both scripts exit with code `0` if all services return HTTP 200, or `1` if any s
 Manual check via curl:
 ```bash
 curl http://localhost:20401/health   # SwitchBoard
-curl http://localhost:20128/health   # 9router
 ```
 
 ---
@@ -104,7 +103,6 @@ Combines Docker Compose service state, health checks, and resource usage:
 
 # Specific service
 ./scripts/logs.sh switchboard
-./scripts/logs.sh ninerouter
 
 # Last 100 lines for a service
 ./scripts/logs.sh switchboard 100
@@ -114,7 +112,6 @@ Combines Docker Compose service state, health checks, and resource usage:
 ```powershell
 .\scripts\logs.ps1
 .\scripts\logs.ps1 -Service switchboard
-.\scripts\logs.ps1 -Service ninerouter -Tail 100
 ```
 
 Or directly via docker compose:
@@ -176,17 +173,6 @@ After Plane is running, open `http://localhost:8080` to complete workspace setup
 
 ---
 
-## Scaling (Advanced)
-
-To run multiple replicas of 9router (requires a load-balancer in front):
-```bash
-docker compose -f compose/docker-compose.yml up -d --scale ninerouter=3
-```
-
-Note: SwitchBoard's `NINE_ROUTER_URL` must point to the load-balancer, not directly to a single container.
-
----
-
 ## Common Issues
 
 ### Port already in use
@@ -198,7 +184,6 @@ Error: bind: address already in use
 Find the conflicting process:
 ```bash
 lsof -i :20401
-lsof -i :20128
 ```
 
 Either stop the conflicting process or change the host port in `.env`.
@@ -208,19 +193,6 @@ Either stop the conflicting process or change the host port in `.env`.
 Check logs for startup errors:
 ```bash
 docker compose -f compose/docker-compose.yml logs switchboard
-docker compose -f compose/docker-compose.yml logs ninerouter
-```
-
-### SwitchBoard cannot reach 9router
-
-Verify 9router is running:
-```bash
-docker compose -f compose/docker-compose.yml ps
-```
-
-Check that both containers are on the `workstation-platform` network:
-```bash
-docker network inspect workstation-platform
 ```
 
 ### Stale containers from previous sessions

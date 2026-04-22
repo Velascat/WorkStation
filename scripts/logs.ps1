@@ -5,7 +5,7 @@
 #Requires -Version 5.1
 [CmdletBinding()]
 param(
-    # Optional: name of a specific service to tail (switchboard | ninerouter).
+    # Optional: name of a specific service to tail.
     [string]$Service = "",
 
     # Number of tail lines to start from (default: 50).

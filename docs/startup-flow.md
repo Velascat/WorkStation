@@ -15,7 +15,6 @@ Copy all example configuration files to their live locations and pull Docker ima
 cp .env.example .env
 cp config/switchboard/policy.example.yaml   config/switchboard/policy.yaml
 cp config/switchboard/profiles.example.yaml config/switchboard/profiles.yaml
-cp config/9router/.env.example              config/9router/.env
 cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
 ```
 
@@ -24,7 +23,7 @@ cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
 .\scripts\bootstrap.ps1
 ```
 
-Review `.env` and the config files. At minimum, set any provider API keys in `config/9router/.env`.
+Review `.env` and the config files. No provider proxy configuration is required in the default architecture.
 
 ---
 
@@ -56,17 +55,13 @@ docker compose -f compose/docker-compose.yml pull
 .\scripts\up.ps1
 ```
 
-Docker Compose starts the services in dependency order:
-1. **9router** starts first (no dependencies).
-2. **SwitchBoard** starts once 9router passes its health check.
-
-Both services start in detached mode (`-d`). Logs are available via `docker compose logs -f`.
+Docker Compose starts the default selector stack in detached mode (`-d`). Logs are available via `docker compose logs -f`.
 
 ---
 
 ### 4. Health check
 
-Verify that both services are accepting requests on their health endpoints.
+Verify that the default services are accepting requests on their health endpoints.
 
 **Linux / macOS:**
 ```bash
@@ -83,8 +78,6 @@ Expected output when all services are healthy:
 === WorkStation: health check ===
 
   [OK]   SwitchBoard  (http://localhost:20401/health)  →  HTTP 200
-  [OK]   9router      (http://localhost:20128/health)  →  HTTP 200
-
 All services healthy.
 ```
 
@@ -94,14 +87,13 @@ If a service is not yet healthy, wait a few seconds and retry — services may s
 
 ### 5. Ready
 
-The stack is ready to accept requests. Send test traffic to SwitchBoard:
+The stack is ready to accept routing requests. Send a canonical proposal to SwitchBoard:
 
 ```bash
 curl -s \
-  -H "X-API-Key: sk-dev-placeholder-replace-me" \
   -H "Content-Type: application/json" \
-  -d '{"model":"standard","messages":[{"role":"user","content":"Hello"}]}' \
-  http://localhost:20401/v1/chat/completions
+  -d '{"task_id":"demo-1","project_id":"workstation-demo","task_type":"documentation","execution_mode":"goal","goal_text":"Refresh README wording","target":{"repo_key":"docs","clone_url":"https://example.invalid/docs.git","base_branch":"main","allowed_paths":[]},"priority":"normal","risk_level":"low","constraints":{"allowed_paths":[],"require_clean_validation":true},"validation_profile":{"profile_name":"default","commands":[]},"branch_policy":{"push_on_success":true,"open_pr":false},"labels":[]}' \
+  http://localhost:20401/route
 ```
 
 ---
@@ -141,7 +133,6 @@ curl -s \
 | Symptom | Likely cause | Action |
 |---------|-------------|--------|
 | `[FAIL]` on health check immediately after `up` | Containers still initialising | Wait 10 s and re-run `health.sh` |
-| SwitchBoard fails health check, 9router is OK | SwitchBoard config error | Check `docker compose logs workstation-switchboard` |
-| 9router fails health check | Missing provider key or bad `.env` | Check `config/9router/.env`, then restart |
+| SwitchBoard fails health check | SwitchBoard config error | Check `docker compose logs workstation-switchboard` |
 | `docker compose` not found | Docker not installed or PATH issue | Install Docker Desktop / Docker Engine |
-| Port conflict | Another service using :20401 or :20128 | Update `.env` and restart |
+| Port conflict | Another service using :20401 or :20400 | Update `.env` and restart |

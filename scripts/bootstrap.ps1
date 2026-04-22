@@ -48,10 +48,6 @@ Copy-IfMissing `
     (Join-Path $RepoRoot 'config\switchboard\profiles.yaml')
 
 Copy-IfMissing `
-    (Join-Path $RepoRoot 'config\9router\.env.example') `
-    (Join-Path $RepoRoot 'config\9router\.env')
-
-Copy-IfMissing `
     (Join-Path $RepoRoot 'config\workstation\endpoints.example.yaml') `
     (Join-Path $RepoRoot 'config\workstation\endpoints.yaml')
 

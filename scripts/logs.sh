@@ -6,7 +6,6 @@
 # Usage:
 #   ./scripts/logs.sh                  # all services
 #   ./scripts/logs.sh switchboard      # only SwitchBoard
-#   ./scripts/logs.sh ninerouter       # only 9router
 #   ./scripts/logs.sh switchboard 100  # SwitchBoard, last 100 lines
 # =============================================================================
 set -euo pipefail

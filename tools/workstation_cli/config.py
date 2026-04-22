@@ -148,8 +148,8 @@ def load_services_meta(path: Path) -> Dict[str, dict]:
         services:
           - name: switchboard
             required: true
-          - name: 9router
-            required: true
+          - name: status
+            required: false
 
     Returns a dict of {service_name: {"required": bool}}.
     """
@@ -177,7 +177,7 @@ def load_ports(path: Path) -> Dict[str, int]:
 
         ports:
           switchboard: 20401
-          9router: 20128
+          status: 20400
 
     Returns a dict of {service_name: port}.
     """

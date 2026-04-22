@@ -119,20 +119,20 @@ decision: LaneDecision = client.select_lane(proposal)
 
 | Class | Mechanism | When to use |
 |---|---|---|
-| `LocalLaneRoutingClient` | In-process `LaneSelector` import | Default; production + CI |
+| `HttpLaneRoutingClient` | HTTP call to SwitchBoard `/route` | Default; production + CI |
+| `LocalLaneRoutingClient` | In-process `LaneSelector` import | Compatibility-only local/dev use |
 | `StubLaneRoutingClient` | Returns a fixed `LaneDecision` | Unit tests |
 
-`LocalLaneRoutingClient` requires `switchboard` installed in the venv:
+`HttpLaneRoutingClient` is the supported default:
 
 ```bash
-# In ControlPlane repo
-pip install -e ../SwitchBoard
+export CONTROL_PLANE_SWITCHBOARD_URL=http://localhost:20401
 ```
 
 ```python
-from control_plane.routing import LocalLaneRoutingClient
+from control_plane.routing import HttpLaneRoutingClient
 
-client = LocalLaneRoutingClient.with_default_policy()
+client = HttpLaneRoutingClient.from_env()
 decision = client.select_lane(proposal)
 ```
 
@@ -174,7 +174,7 @@ bundle    = ProposalDecisionBundle(proposal=proposal, decision=decision, context
 ### Constructors
 
 ```python
-# Default: LocalLaneRoutingClient with default SwitchBoard policy
+# Default: HttpLaneRoutingClient against the SwitchBoard service boundary
 service = PlanningService.default()
 
 # Inject any LaneRoutingClient
@@ -238,7 +238,7 @@ src/control_plane/
     proposal_builder.py  — build_proposal(), build_proposal_with_result()
   routing/
     __init__.py          — public API
-    client.py            — LaneRoutingClient protocol, LocalLaneRoutingClient, StubLaneRoutingClient
+    client.py            — LaneRoutingClient protocol, HttpLaneRoutingClient, LocalLaneRoutingClient, StubLaneRoutingClient
     service.py           — PlanningService
 ```
 

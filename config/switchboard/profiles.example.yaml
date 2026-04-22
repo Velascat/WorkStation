@@ -1,10 +1,9 @@
 # =============================================================================
 # SwitchBoard — Request Profiles (section 6.4)
 # =============================================================================
-# Copy to profiles.yaml before starting the stack.
-# Profiles let operators describe named capability tiers rather than hard-code
-# execution lanes in every caller. SwitchBoard resolves the profile into the
-# lane-selection policy inputs it needs.
+# Compatibility-only archival example.
+# The supported `/route` runtime is lane/backend-native and does not require
+# operators to provision profile-era routing input files during normal setup.
 # =============================================================================
 
 version: "1"

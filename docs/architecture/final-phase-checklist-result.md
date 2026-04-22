@@ -11,7 +11,7 @@
 - `fixed` WorkStation base compose and startup flow no longer require 9router.
 - `fixed` FOB operator flows no longer center on 9router.
 - `fixed` ControlPlane default worker/reviewer entrypoints stop at planning and routing handoff.
-- `deferred` ControlPlane still carries a quarantined legacy execution service outside the default runtime path.
+- `fixed` ControlPlane legacy execution is now compatibility-only and requires explicit opt-in outside the supported runtime path.
 - `historical` 9router references may remain in ADR and migration documents when explicitly marked as historical context.
 
 ## Notes

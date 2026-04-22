@@ -14,7 +14,6 @@ Copy all example configuration files to their live locations and pull Docker ima
 ```bash
 cp .env.example .env
 cp config/switchboard/policy.example.yaml   config/switchboard/policy.yaml
-cp config/switchboard/profiles.example.yaml config/switchboard/profiles.yaml
 cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
 ```
 

@@ -44,10 +44,6 @@ Copy-IfMissing `
     (Join-Path $RepoRoot 'config\switchboard\policy.yaml')
 
 Copy-IfMissing `
-    (Join-Path $RepoRoot 'config\switchboard\profiles.example.yaml') `
-    (Join-Path $RepoRoot 'config\switchboard\profiles.yaml')
-
-Copy-IfMissing `
     (Join-Path $RepoRoot 'config\workstation\endpoints.example.yaml') `
     (Join-Path $RepoRoot 'config\workstation\endpoints.yaml')
 

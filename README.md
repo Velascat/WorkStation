@@ -123,7 +123,6 @@ cp .env.example .env
 
 # 2. Copy service configs
 cp config/switchboard/policy.example.yaml      config/switchboard/policy.yaml
-cp config/switchboard/profiles.example.yaml    config/switchboard/profiles.yaml
 cp config/workstation/endpoints.example.yaml   config/workstation/endpoints.yaml
 cp config/workstation/services.example.yaml    config/workstation/services.yaml
 cp config/workstation/ports.example.yaml       config/workstation/ports.yaml
@@ -246,7 +245,6 @@ Service configs live under `config/`. Copy each `.example.*` to its live name be
 
 ```bash
 cp config/switchboard/policy.example.yaml      config/switchboard/policy.yaml
-cp config/switchboard/profiles.example.yaml    config/switchboard/profiles.yaml
 cp config/switchboard/capabilities.example.yaml config/switchboard/capabilities.yaml
 cp config/workstation/endpoints.example.yaml   config/workstation/endpoints.yaml
 cp config/workstation/services.example.yaml    config/workstation/services.yaml

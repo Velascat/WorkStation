@@ -180,6 +180,62 @@ incurring API costs on every run.
 
 ---
 
+## Architecture Decisions
+
+These decisions are stable. Later phases must not reopen them without explicit
+evidence and a new ADR.
+
+### Decision A — Adapter-first integration
+
+External execution systems (kodo, Archon, OpenClaw) are integrated through adapters.
+The platform owns canonical contracts: `TaskProposal`, `ExecutionRequest`,
+`ExecutionResult`. Backend-native schemas do not define platform architecture. When a
+backend's API changes, only the adapter changes — upstream contracts stay stable.
+
+### Decision B — kodo is the first backend integration target
+
+kodo is the first execution backend to integrate in full. It has the cleanest
+headless/programmatic integration path via Claude Agent SDK and Codex SDK. This is
+an implementation-order decision, not a declaration that kodo owns the architecture.
+Other backends (Archon for workflow-wrapped executions, future backends) integrate
+through the same adapter boundary.
+
+### Decision C — Archon is optional and bounded
+
+Archon is a useful workflow harness for complex, multi-step executions. It is
+**not** the universal home for all execution lanes. Specifically:
+
+- `aider_local` lane execution remains owned by WorkStation (model deployment) and
+  kodo (execution); it does not require or go through Archon.
+- ControlPlane can invoke kodo directly without Archon when workflow discipline is
+  not needed.
+- Archon is useful for `claude_cli` and `codex_cli` lanes when a YAML-defined
+  plan → implement → validate → PR sequence is needed.
+
+### Decision D — OpenClaw is later and optional
+
+OpenClaw may become an outer operator shell and/or a later integration target. It is
+not required for the initial happy path and should not drive early architectural
+decisions. The system (ControlPlane through kodo) must function without OpenClaw.
+
+### Decision E — No early upstream modifications
+
+Forking or patching Archon, OpenClaw, or kodo upstream is out of scope for Phase 1
+through Phase 5. All integration is done through adapter layers. Upstream
+modification is a later, evidence-based decision that requires a new ADR. If a
+backend's public API is insufficient, the correct response is to raise the gap, not
+to fork the backend.
+
+### Decision F — Upstream patching is evaluated from retained evidence
+
+Even after adapter-first integration is established, upstream modifications remain
+late, bounded, and reviewable. Recurring friction must be evaluated from retained
+execution evidence, support-check failures, tuning findings, and adapter pain
+before a patch proposal is considered. A proposal is not the same thing as an
+accepted roadmap item.
+
+---
+
 ## Sequence Example: Lint Fix Task
 
 ```

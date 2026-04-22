@@ -12,21 +12,28 @@ are deciding where a new file belongs, read this first.
 
 No exceptions without documentation (see [Exceptions](#exceptions)).
 
+Related rule:
+
+> If a backend limitation suggests upstream modification, evaluation and proposal
+> discipline still live with the platform architecture. The upstream repo does
+> not become the new center of the design by default.
+
 ---
 
 ## Ownership matrix
 
 | Artifact | Owner | Examples |
 |----------|-------|---------|
-| Dockerfiles (stack deployment) | `WorkStation` | `docker/Dockerfile.switchboard`, `docker/Dockerfile.9router` |
+| Dockerfiles (stack deployment) | `WorkStation` | `docker/Dockerfile.switchboard` |
 | Docker Compose manifests | `WorkStation` | `compose/docker-compose.yml` |
 | Stack lifecycle scripts | `WorkStation` | `scripts/up.sh`, `scripts/down.sh`, `scripts/health.sh` |
 | Service ports, networks, volumes | `WorkStation` | compose service definitions |
 | Health checks (stack level) | `WorkStation` | compose `healthcheck:` blocks |
 | Startup order, dependency wiring | `WorkStation` | compose `depends_on:` |
 | Reverse-proxy / ingress config | `WorkStation` | (when added) |
-| Stack environment injection | `WorkStation` | `config/9router/.env`, `config/switchboard/*.yaml` |
-| Platform dependency infra (Plane, 9router) | `WorkStation` | Plane compose service, 9router Dockerfile |
+| Stack environment injection | `WorkStation` | `config/switchboard/*.yaml` |
+| Platform dependency infra (Plane) | `WorkStation` | Plane compose service |
+| Tiny local model deployment | `WorkStation` | model serving scripts for `aider_local` lane |
 | Operator entrypoints / demo commands | `FOB` | `fob demo`, `fob brief` |
 | Routing policy and model-selection logic | `SwitchBoard` | `config/policy.yaml`, `PolicyEngine`, `Selector` |
 | Aider/client integration semantics | `SwitchBoard` | `test_aider_compat.py`, `scripts/aider.sh` |
@@ -44,7 +51,7 @@ No exceptions without documentation (see [Exceptions](#exceptions)).
 WorkStation is the composition root for the shared local/dev/demo stack.
 
 **Owns:**
-- Dockerfiles for every service in the shared stack (SwitchBoard, 9router, Plane, and any future service)
+- Dockerfiles for every service in the shared stack (SwitchBoard, Plane, and any future service)
 - All compose manifests and profile variants (dev, demo, prod)
 - Stack lifecycle commands (`up`, `down`, `restart`, `health`, `logs`, `status`)
 - Port assignments and network topology
@@ -112,13 +119,12 @@ FOB owns the operator experience — how humans interact with the platform.
 - Service business logic
 - Infrastructure configuration
 
-### 9router
+### 9router (removed)
 
-9router is a platform dependency — a provider-routing service.
-
-**Ownership:** `WorkStation` owns the Dockerfile and compose service.
-9router has its own repo (`decolua/9router`) with its own application code.
-WorkStation builds it from source.
+9router has been removed from the architecture. See
+[`adr/0001-remove-9router.md`](adr/0001-remove-9router.md) for the full rationale.
+`WorkStation/docker/Dockerfile.9router` and the compose service definition are no
+longer built or maintained.
 
 ### Plane
 
@@ -230,8 +236,8 @@ as a signal that the decision has not been thought through.
 Current state as of the time this document was written (2026-04-21):
 
 - [x] `WorkStation/docker/Dockerfile.switchboard` — created
-- [x] `WorkStation/docker/Dockerfile.9router` — created
-- [x] `WorkStation/compose/docker-compose.yml` — updated to build from source
+- [x] `WorkStation/docker/Dockerfile.9router` — removed (9router removed from architecture; see ADR 0001)
+- [x] `WorkStation/compose/docker-compose.yml` — updated to remove 9router service
 - [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `ControlPlane/deployment/plane/manage.sh` delegates to it
 - [x] `fob demo` command — implemented in `FOB/src/fob/demo.py`
 - [ ] WorkStation `workstation_cli` not yet wired to `fob demo`

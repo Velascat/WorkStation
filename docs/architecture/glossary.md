@@ -98,6 +98,77 @@ A structured output file written after a task execution. Examples: `diff_patch.t
 
 ---
 
+## Contract and Integration Terms
+
+**TaskProposal**
+The structured output of ControlPlane's `decide` stage. Carries a task description,
+target repo, candidate family, confidence score, and evidence bundle. A TaskProposal
+is the canonical unit passed from the decision layer to the dispatch layer. It does
+not contain backend-specific execution syntax.
+
+**LaneDecision**
+The structured output of SwitchBoard's lane-selection step. Records the selected
+lane name, the policy rule that matched, any adaptive adjustments applied, and the
+request correlation ID. A LaneDecision is an audit record, not an execution command.
+
+**Backend**
+An external execution system integrated through an adapter. kodo, Archon, and
+OpenClaw are all backends from the platform's perspective. A backend is responsible
+for running code; it is not responsible for deciding what to run or which lane to use.
+
+**Adapter**
+The boundary layer between the platform's canonical contracts and a specific backend's
+wire format or API. Adapters translate inward (normalise backend responses into
+platform types) and outward (translate platform requests into backend-specific calls).
+The platform owns adapter contracts; backends do not define them.
+
+**adapter-first**
+The default integration posture for external systems. The platform integrates
+through canonical contracts and adapters first, and only later evaluates whether
+upstream modification is justified by retained evidence.
+
+**integration friction**
+A recurring limitation, workaround, or operational annoyance observed at an
+adapter boundary. Friction becomes architecturally meaningful only when frequency,
+severity, and impact justify more than local adaptation.
+
+**upstream patch proposal**
+A review-only recommendation that a narrow upstream change may now be worth
+considering. It is not an implementation commitment and does not change active
+runtime behavior by itself.
+
+**ExecutionRequest**
+A canonical, backend-neutral struct passed from the dispatch layer to a backend
+adapter. Contains: task description, target repo path, lane assignment, budget
+parameters, and any hints from the proposer. Does not contain provider-specific
+fields. Defined by the platform, not by the backend.
+
+**ExecutionResult**
+A canonical, backend-neutral struct returned by a backend adapter to the dispatch
+layer. Contains: outcome status, artifact paths, validation results, and a brief
+summary. Defined by the platform, not by the backend.
+
+**ExecutionArtifact**
+A file produced during or after execution and retained for downstream consumption.
+Examples: `diff_patch.txt`, `validation.json`, `outcome.json`, `stderr.txt`.
+ControlPlane reads artifacts to classify outcomes and drive the feedback loop.
+Artifacts are backend-agnostic; the platform defines the expected schema.
+
+**Telemetry**
+Structured operational data emitted during system operation and retained for
+analysis. Includes lane-selection decisions, execution outcomes, confidence
+calibration events, budget usage, and heartbeat records. Telemetry feeds
+ControlPlane's self-tuning regulator and operator dashboards.
+
+**Contract-owned architecture**
+The design principle that canonical data contracts (TaskProposal, ExecutionRequest,
+ExecutionResult, LaneDecision) are defined and owned by the platform, not by any
+external backend. Backends implement adapters that translate to and from these
+contracts. This means the platform can swap backends without changing upstream
+contract definitions.
+
+---
+
 ## What These Terms Are Not
 
 | Term used here | Is NOT the same as |

@@ -72,6 +72,50 @@ the full layered view, component roles, and conceptual flow.
 
 ---
 
+## Local Lane: aider_local
+
+WorkStation hosts the `aider_local` execution lane — local Aider execution backed
+by tiny local models. This lane runs at zero marginal API cost and is suitable for
+lint fixes, simple edits, and documentation tasks.
+
+```bash
+# Configure (copy example, set enabled: true, configure model endpoints)
+cp config/workstation/local_lane.example.yaml config/workstation/local_lane.yaml
+
+# Check lane status
+python -m workstation_cli lane status aider_local
+
+# Start managed model services (if start_command is configured)
+python -m workstation_cli lane start aider_local
+
+# Stop managed services
+python -m workstation_cli lane stop aider_local
+```
+
+Lane states: `disabled` → `configured` → `starting` → `ready` | `unhealthy` | `failed`
+
+For full setup and troubleshooting, see
+[`docs/operations/local-lane-setup.md`](docs/operations/local-lane-setup.md).
+For the architectural rationale, see
+[`docs/architecture/local-lane.md`](docs/architecture/local-lane.md).
+
+---
+
+## Cross-Repo Architecture Docs
+
+WorkStation carries the canonical architecture docs for the multi-repo platform.
+Recent additions include:
+
+- [docs/architecture/routing-tuning.md](docs/architecture/routing-tuning.md)
+- [docs/architecture/routing-tuning-examples.md](docs/architecture/routing-tuning-examples.md)
+- [docs/architecture/upstream-patch-evaluation.md](docs/architecture/upstream-patch-evaluation.md)
+- [docs/architecture/upstream-patch-evaluation-examples.md](docs/architecture/upstream-patch-evaluation-examples.md)
+
+These documents keep routing tuning, adapter-first integration, and any later
+upstream patch proposals clearly separated from active runtime behavior.
+
+---
+
 ## Quick Start
 
 ```bash
@@ -79,12 +123,11 @@ the full layered view, component roles, and conceptual flow.
 cp .env.example .env
 
 # 2. Copy service configs
-cp config/switchboard/policy.example.yaml   config/switchboard/policy.yaml
-cp config/switchboard/profiles.example.yaml config/switchboard/profiles.yaml
-cp config/9router/.env.example              config/9router/.env
-cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
-cp config/workstation/services.example.yaml  config/workstation/services.yaml
-cp config/workstation/ports.example.yaml     config/workstation/ports.yaml
+cp config/switchboard/policy.example.yaml      config/switchboard/policy.yaml
+cp config/switchboard/profiles.example.yaml    config/switchboard/profiles.yaml
+cp config/workstation/endpoints.example.yaml   config/workstation/endpoints.yaml
+cp config/workstation/services.example.yaml    config/workstation/services.yaml
+cp config/workstation/ports.example.yaml       config/workstation/ports.yaml
 
 # 3. Start the stack
 ./scripts/up.sh
@@ -136,15 +179,15 @@ See [docs/health-model.md](docs/health-model.md) for full semantics and example 
 
 ## Endpoint Reference
 
-| Endpoint                              | Service     | Description                  |
-|---------------------------------------|-------------|------------------------------|
-| `http://localhost:20401/health`       | SwitchBoard | Health check                 |
+| Endpoint                                     | Service     | Description                          |
+|----------------------------------------------|-------------|--------------------------------------|
+| `http://localhost:20401/health`              | SwitchBoard | Health check                         |
 | `http://localhost:20401/v1/chat/completions` | SwitchBoard | Chat completions (OpenAI-compatible) |
-| `http://localhost:20401/v1/completions`     | SwitchBoard | Text completions             |
-| `http://localhost:20401/v1/embeddings`      | SwitchBoard | Embeddings                   |
-| `http://localhost:20128/health`       | 9router     | Health check                 |
+| `http://localhost:20401/v1/completions`      | SwitchBoard | Text completions                     |
+| `http://localhost:20401/v1/embeddings`       | SwitchBoard | Embeddings                           |
+| `http://localhost:20401/admin/decisions/recent` | SwitchBoard | Last N lane-selection decisions   |
 
-All client traffic should target SwitchBoard (`:20401`). Direct access to 9router (`:20128`) is for internal use and debugging only.
+All client traffic targets SwitchBoard (`:20401`).
 
 ---
 
@@ -206,13 +249,14 @@ All environment variables are documented in `.env.example`. Copy to `.env` and a
 Service configs live under `config/`. Copy each `.example.*` to its live name before starting:
 
 ```bash
-cp config/switchboard/policy.example.yaml   config/switchboard/policy.yaml
-cp config/switchboard/profiles.example.yaml config/switchboard/profiles.yaml
+cp config/switchboard/policy.example.yaml      config/switchboard/policy.yaml
+cp config/switchboard/profiles.example.yaml    config/switchboard/profiles.yaml
 cp config/switchboard/capabilities.example.yaml config/switchboard/capabilities.yaml
-cp config/9router/.env.example              config/9router/.env
-cp config/workstation/endpoints.example.yaml config/workstation/endpoints.yaml
-cp config/workstation/services.example.yaml  config/workstation/services.yaml
-cp config/workstation/ports.example.yaml     config/workstation/ports.yaml
+cp config/workstation/endpoints.example.yaml   config/workstation/endpoints.yaml
+cp config/workstation/services.example.yaml    config/workstation/services.yaml
+cp config/workstation/ports.example.yaml       config/workstation/ports.yaml
+# Optional: local lane configuration
+cp config/workstation/local_lane.example.yaml  config/workstation/local_lane.yaml
 ```
 
 Live config files are excluded from version control (see `.gitignore`). Only `.example.*` variants are committed.
@@ -232,6 +276,13 @@ python -m workstation_cli health
 python -m workstation_cli health --json
 python -m workstation_cli status
 python -m workstation_cli status --json
+
+# Local lane commands
+python -m workstation_cli lane status aider_local
+python -m workstation_cli lane health aider_local
+python -m workstation_cli lane start aider_local
+python -m workstation_cli lane stop aider_local
+python -m workstation_cli lane status --json aider_local
 ```
 
 ---
@@ -250,14 +301,22 @@ pytest test/smoke/ -v
 
 ## Docs
 
-| Document                                      | What it covers                               |
-|-----------------------------------------------|----------------------------------------------|
-| [docs/architecture.md](docs/architecture.md)  | Full layer diagram and responsibilities      |
-| [docs/operations.md](docs/operations.md)      | Day-to-day runbook (start, stop, logs, etc.) |
-| [docs/health-model.md](docs/health-model.md)  | Health semantics, required vs optional, JSON |
-| [docs/roadmap.md](docs/roadmap.md)            | Phase 1 goals and future directions          |
-| [docs/service-map.md](docs/service-map.md)    | Service inventory                            |
-| [docs/port-map.md](docs/port-map.md)          | Port assignments                             |
+| Document | What it covers |
+|----------|----------------|
+| [docs/architecture/system_overview.md](docs/architecture/system_overview.md) | Cross-repo architecture, component roles, architecture decisions |
+| [docs/architecture/contracts.md](docs/architecture/contracts.md) | Canonical cross-repo contract models (Phase 3) |
+| [docs/architecture/contracts-examples.md](docs/architecture/contracts-examples.md) | Example JSON payloads for all contract models |
+| [docs/architecture/kodo-adapter.md](docs/architecture/kodo-adapter.md) | kodo backend adapter architecture (Phase 5) |
+| [docs/architecture/kodo-adapter-examples.md](docs/architecture/kodo-adapter-examples.md) | kodo adapter usage examples |
+| [docs/architecture/local-lane.md](docs/architecture/local-lane.md) | aider_local lane design and boundaries |
+| [docs/architecture/repo_responsibility_matrix.md](docs/architecture/repo_responsibility_matrix.md) | Per-repo owns/does-not-own matrix |
+| [docs/architecture/glossary.md](docs/architecture/glossary.md) | Canonical terminology |
+| [docs/architecture/adr/](docs/architecture/adr/) | Architecture decision records |
+| [docs/operations/local-lane-setup.md](docs/operations/local-lane-setup.md) | aider_local lane setup and troubleshooting |
+| [docs/operations.md](docs/operations.md) | Stack runbook (start, stop, logs, etc.) |
+| [docs/health-model.md](docs/health-model.md) | Health semantics, required vs optional, JSON |
+| [docs/service-map.md](docs/service-map.md) | Service inventory |
+| [docs/port-map.md](docs/port-map.md) | Port assignments |
 
 ---
 

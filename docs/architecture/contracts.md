@@ -31,9 +31,9 @@ tasks, it consumes results. Locating contracts here avoids circular dependencies
 SwitchBoard and kodo consume contracts but do not produce them upstream.
 
 When contracts need to be consumed in SwitchBoard or a backend adapter, they are
-imported from a stable release of the `control-plane` package or vendored as
-a separate `platform-contracts` package (future phase). For now, the source of
-truth is `src/control_plane/contracts/`.
+imported from the `control-plane` package or vendored from the same source if a
+consumer cannot depend on that package directly. The source of truth remains
+`src/control_plane/contracts/`.
 
 ---
 
@@ -246,16 +246,37 @@ result model.
 
 ---
 
-## What this phase intentionally leaves unimplemented
+## Current adoption status
 
-Phase 3 defines the contract types. The following are deferred:
+The supported runtime now uses this contract layer directly:
 
-- **Cross-repo import distribution** — packaging contracts as a standalone
-  `platform-contracts` installable is a Phase 4–5 concern.
-- **SwitchBoard adapter wiring** — SwitchBoard does not yet import these types
-  for its domain models. That requires Phase 4 contract adoption.
-- **ControlPlane emission** — ControlPlane does not yet emit `TaskProposal` from
-  its proposer; it continues to use its internal `BoardTask`/`ExecutionRequest`
-  models. Adopting contracts is Phase 4–5 migration work.
-- **Backend adapter implementation** — kodo and Archon adapters that accept
-  `ExecutionRequest` and return `ExecutionResult` are future scope.
+- **Canonical proposal ownership** — ControlPlane owns `TaskProposal` and emits it
+  from the supported planning path.
+- **SwitchBoard contract usage** — SwitchBoard consumes `TaskProposal` at the
+  `/route` boundary and returns canonical routing output (`LaneDecision`, and
+  richer routing-plan artifacts where supported).
+- **Canonical execution handoff** — the supported execute path builds a real
+  `ExecutionRequest` from proposal + routing context and expects a canonical
+  `ExecutionResult` back from the selected adapter.
+- **Bounded adapters** — backend-specific code stays behind adapters such as
+  kodo, Archon, and OpenClaw. Backend-native wire formats do not define the
+  platform contract surface.
+- **Policy / observability / tuning placement** — policy evaluates
+  `TaskProposal + LaneDecision` before execution, observability retains the
+  resulting canonical outcome, and tuning reads retained evidence to produce
+  reviewable recommendations.
+
+Historical phase language in earlier cleanup docs described this adoption as
+future work. That is no longer true for the supported runtime.
+
+## Compatibility-only residue
+
+Some legacy compatibility types still exist, but they are not part of the
+canonical cross-repo contract story:
+
+- `control_plane.domain.BoardTask` remains a Plane-ingest compatibility model for
+  the quarantined legacy execution path.
+- `control_plane.legacy_execution` remains explicitly opt-in and disabled by
+  default.
+- A standalone `platform-contracts` distribution is optional packaging work, not
+  a prerequisite for the current supported architecture.

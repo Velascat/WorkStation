@@ -8,9 +8,9 @@ conflict with what is written here.
 
 ## The Stack in One Sentence
 
-ControlPlane decides what work matters next, SwitchBoard selects the execution lane,
-Archon enforces workflow discipline, kodo performs the coding, and WorkStation keeps
-the local infrastructure running.
+ControlPlane proposes work, SwitchBoard selects the lane and backend, adapters
+execute, Policy constrains, Observability records, Tuning recommends improvements,
+and WorkStation keeps the local infrastructure running.
 
 ---
 
@@ -21,22 +21,15 @@ the local infrastructure running.
 | **WorkStation** | Local infrastructure platform. Runs the services, owns Dockerfiles, compose manifests, lifecycle scripts, and tiny local model deployment. |
 | **SwitchBoard** | Execution-lane selector. Evaluates a declarative policy and routes each task to the appropriate coding lane. |
 | **ControlPlane** | Decision engine. Observes repos, generates insights, proposes work, and drives the autonomy loop. |
+| **Policy** | Pre-execution guardrail layer. Evaluates canonical proposals and routing decisions, then allows, warns, requires review, or blocks. |
+| **Observability** | Retention layer for canonical execution outcomes, artifacts, and normalized traces. |
+| **Tuning** | Evidence-driven recommendation layer. Reads retained outcomes and proposes bounded improvements without silently mutating live policy. |
 | **Archon** | Workflow harness. Imposes structured, reproducible execution steps on top of a coding backend. |
 | **kodo** | Coding execution backend. Orchestrates a multi-agent coding session using Claude Agent SDK or Codex SDK. |
 | **OpenClaw** | Optional outer operator shell. Provides a human-facing runtime above ControlPlane. Not required for the system to function. |
 | **Claude CLI lane** | Premium execution lane. Runs Claude Code CLI under OAuth/subscription billing. |
 | **Codex CLI lane** | Premium execution lane. Runs Codex CLI under OpenAI subscription billing. |
 | **aider local lane** | Cheap execution lane. Runs Aider against WorkStation-deployed tiny models. No external API calls. |
-
----
-
-## What Was Removed
-
-`9router` is no longer part of this architecture. See
-[`adr/0001-remove-9router.md`](adr/0001-remove-9router.md) for the full rationale.
-In summary: the system has moved to CLI-based execution lanes that manage their own
-auth via OAuth/subscription; a provider-credential proxy is no longer needed or
-appropriate.
 
 ---
 
@@ -53,26 +46,26 @@ appropriate.
 │                                                             │
 │  observe → analyze → decide → propose                       │
 └──────────────────────────┬──────────────────────────────────┘
-                           │ task + lane hint
+                           │ TaskProposal
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
 │  SwitchBoard  (execution-lane selector)                     │
 │                                                             │
 │  classify → score → select lane                             │
 └──────────────────────────┬──────────────────────────────────┘
-                           │ selected lane
+                           │ TaskProposal + LaneDecision
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  Archon  (workflow harness)  [optional]                     │
+│  Policy  (pre-execution guardrail)                          │
 │                                                             │
-│  load YAML workflow → execute DAG nodes                     │
+│  allow / warn / require review / block                      │
 └──────────────────────────┬──────────────────────────────────┘
-                           │ delegates execution
+                           │ allowed execution request
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  kodo  (coding execution backend)                           │
+│  Adapter-backed execution                                   │
 │                                                             │
-│  spawn agent → iterate → validate → write artifacts         │
+│  Archon / kodo / direct-local adapters                      │
 └──────────────┬─────────────────────┬───────────────────────┘
                │                     │                    │
                ▼                     ▼                    ▼
@@ -82,6 +75,10 @@ appropriate.
 ```
 
 ```
+ControlPlane observability + tuning
+├── records: canonical ExecutionResult / ExecutionRecord evidence
+└── recommends: bounded reviewable tuning changes
+
 WorkStation
 ├── deploys: SwitchBoard container
 ├── deploys: tiny local models for aider_local lane
@@ -94,24 +91,30 @@ WorkStation
 ## Happy-Path Conceptual Flow
 
 1. **ControlPlane** observes the repo state, derives insights, and decides that a
-   specific improvement task is worth doing. It emits a task proposal.
+   specific improvement task is worth doing. It emits a canonical `TaskProposal`.
 
 2. The proposal reaches **SwitchBoard**. SwitchBoard evaluates the task properties
    (complexity, cost sensitivity, urgency) against its policy and selects an execution
-   lane — for example, `claude_cli` for a complex refactor or `aider_local` for a
-   cheap lint fix.
+   lane/backend pair — for example, `claude_cli` for a complex refactor or
+   `aider_local` for a cheap lint fix.
 
-3. **Archon** (if present) wraps the execution in a YAML-defined workflow: plan →
-   implement → validate → PR. Each node runs in sequence or parallel per the DAG.
+3. **Policy** evaluates the proposal and routing decision before execution. Unsafe
+   work is blocked, sensitive work is gated for review, and only allowed runs proceed.
 
-4. **kodo** performs the actual coding execution within each Archon node (or directly
-   if Archon is absent). It spawns a Claude Code session or Codex session, iterates
-   until the task is done, and writes structured artifacts.
+4. The execution layer builds a canonical `ExecutionRequest` and hands it to a
+   bounded adapter. **Archon** may wrap the execution in a YAML-defined workflow;
+   **kodo** or another adapter performs the actual coding work.
 
 5. The lane runner (**Claude CLI**, **Codex CLI**, or **Aider**) is the process that
    actually edits files. It operates in a git worktree and exits when done.
 
-6. Artifacts (diff, validation results, outcome summary) are written back to
+6. **Observability** retains the canonical outcome, normalized artifacts, and trace
+   data for both executed and policy-blocked runs.
+
+7. **Tuning** reads retained evidence and produces bounded, reviewable improvement
+   recommendations. It does not silently rewrite live routing or autonomy policy.
+
+8. Artifacts (diff, validation results, outcome summary) are written back to
    **ControlPlane** and — if configured — pushed as a PR and transitioned in Plane.
 
 ---
@@ -122,9 +125,11 @@ WorkStation
 OpenClaw
   → ControlPlane
     → SwitchBoard
-      → Archon (optional)
-        → kodo or direct lane runner
+      → Policy
+        → adapter-backed execution
           → Claude CLI / Codex CLI / aider local
+    → Observability
+    → Tuning
 ```
 
 ---
@@ -283,6 +288,3 @@ lane. ControlPlane and SwitchBoard do not own model deployment.
 **Q: Can kodo use a lane other than Claude CLI?**
 Yes. kodo supports Claude Agent SDK (Claude CLI lane) and Codex SDK (Codex CLI lane).
 Aider operates separately in the `aider_local` lane.
-
-**Q: What happened to 9router?**
-Removed. See [`adr/0001-remove-9router.md`](adr/0001-remove-9router.md).

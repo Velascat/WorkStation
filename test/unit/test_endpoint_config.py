@@ -180,8 +180,7 @@ class TestExampleFileParses:
         services = load_services_from_yaml(example)
         assert ":20401" in services["switchboard"].url
 
-    def test_example_no_ninerouter(self):
-        # 9router was removed from the architecture (see ADR 0001).
+    def test_example_contains_only_active_services(self):
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         services = load_services_from_yaml(example)
-        assert "ninerouter" not in services
+        assert set(services) == {"switchboard", "status"}

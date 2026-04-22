@@ -1,5 +1,9 @@
 # Legacy Remediation Summary
 
+Historical remediation note. This file records what was removed or quarantined
+during cleanup; current architecture guidance lives in `system_overview.md` and
+related canonical docs.
+
 This remediation pass aligned the running system with the Phase 1–14 architecture.
 
 ## Removed from default runtime
@@ -19,7 +23,7 @@ This remediation pass aligned the running system with the Phase 1–14 architect
 ## Current runtime truth
 
 ```text
-ControlPlane proposes work -> SwitchBoard selects how -> Adapters execute -> Observability records -> Policy constrains -> Tuning improves.
+ControlPlane proposes work -> SwitchBoard selects lane/backend -> adapters execute -> Policy constrains -> Observability records -> Tuning recommends improvements.
 ```
 
 ## Temporary shims

@@ -2,10 +2,6 @@
 
 All ports used by the WorkStation stack.
 
-9router has been removed from the architecture and its port (20128) is no longer
-reserved. See
-[`docs/architecture/adr/0001-remove-9router.md`](architecture/adr/0001-remove-9router.md).
-
 ---
 
 ## Core Services

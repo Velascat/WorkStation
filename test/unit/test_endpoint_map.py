@@ -166,8 +166,7 @@ class TestExampleFileParses:
         result = load_endpoints(example)
         assert ":20401" in result["switchboard"].url
 
-    def test_example_no_ninerouter(self):
-        # 9router was removed from the architecture (see ADR 0001).
+    def test_example_contains_only_active_endpoints(self):
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         result = load_endpoints(example)
-        assert "ninerouter" not in result
+        assert set(result) == {"switchboard", "status"}

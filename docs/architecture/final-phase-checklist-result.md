@@ -1,5 +1,8 @@
 # Final Phase Checklist Result
 
+Historical verification note. This file is retained as a cleanup result record,
+not as the primary source of current architecture guidance.
+
 ## Status
 
 - `fixed` Canonical `TaskProposal`, `LaneDecision`, `ExecutionRequest`, and `ExecutionResult` remain the intended contract layer.
@@ -17,6 +20,6 @@
 ## Notes
 
 - Active runtime behavior now matches the supported sentence:
-  `ControlPlane proposes work -> SwitchBoard selects how -> Adapters execute -> Observability records -> Policy constrains -> Tuning improves.`
+  `ControlPlane proposes work -> SwitchBoard selects lane/backend -> adapters execute -> Policy constrains -> Observability records -> Tuning recommends improvements.`
 - `RoutingPlan` is an allowed richer routing artifact. The invariant is truthful non-executing routing output, not “only one routing model exists.”
 - Historical 9router material is preserved only where explicitly marked as legacy context; no active runtime/default-ops dependency remains.

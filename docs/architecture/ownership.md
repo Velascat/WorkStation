@@ -119,13 +119,6 @@ FOB owns the operator experience — how humans interact with the platform.
 - Service business logic
 - Infrastructure configuration
 
-### 9router (removed)
-
-9router has been removed from the architecture. See
-[`adr/0001-remove-9router.md`](adr/0001-remove-9router.md) for the full rationale.
-`WorkStation/docker/Dockerfile.9router` and the compose service definition are no
-longer built or maintained.
-
 ### Plane
 
 Plane is a platform dependency — a task-tracking and project-management service.
@@ -236,8 +229,6 @@ as a signal that the decision has not been thought through.
 Current state as of the time this document was written (2026-04-21):
 
 - [x] `WorkStation/docker/Dockerfile.switchboard` — created
-- [x] `WorkStation/docker/Dockerfile.9router` — removed (9router removed from architecture; see ADR 0001)
-- [x] `WorkStation/compose/docker-compose.yml` — updated to remove 9router service
 - [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `ControlPlane/deployment/plane/manage.sh` delegates to it
 - [x] `fob demo` command — implemented in `FOB/src/fob/demo.py`
 - [ ] WorkStation `workstation_cli` not yet wired to `fob demo`

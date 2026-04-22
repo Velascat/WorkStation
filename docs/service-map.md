@@ -3,9 +3,6 @@
 This document lists every service in the WorkStation stack, their roles, ports,
 container names, and health endpoints.
 
-9router has been removed from the architecture. See
-[`docs/architecture/adr/0001-remove-9router.md`](architecture/adr/0001-remove-9router.md).
-
 ---
 
 ## Services

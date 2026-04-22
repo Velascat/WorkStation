@@ -1,5 +1,8 @@
 # WorkStation 9router Removal
 
+Historical migration note. Retained only to document the cutover away from the
+removed provider-proxy runtime.
+
 - Base compose no longer starts or waits on 9router.
 - `.env.example`, startup flow, and provider docs no longer instruct operators to configure `config/9router`.
 - Health scripts validate the current stack instead of a retired proxy topology.

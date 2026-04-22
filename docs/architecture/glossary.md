@@ -174,7 +174,7 @@ contract definitions.
 | Term used here | Is NOT the same as |
 |----------------|--------------------|
 | `lane` | An HTTP route path |
-| `router` | 9router (removed) |
+| `router` | A removed provider proxy or an HTTP route path |
 | `selector` | A CSS selector or DOM concept |
 | `proposal` | A pull request (proposals may eventually become PRs, but they are distinct) |
 | `workflow harness` | The autonomy loop (that is ControlPlane's concern) |

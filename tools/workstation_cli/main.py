@@ -21,6 +21,7 @@ from pathlib import Path
 
 from .config import load_config
 from .health import check_all_health
+from .lane_cli import cmd_lane_health, cmd_lane_start, cmd_lane_status, cmd_lane_stop
 from .status import aggregate_status
 
 # ── Repo paths ────────────────────────────────────────────────────────────────
@@ -182,6 +183,34 @@ def build_parser() -> argparse.ArgumentParser:
     p_status = sub.add_parser("status", help="Print aggregate status summary.")
     p_status.add_argument("--json", action="store_true", help="Output status as JSON.")
     p_status.set_defaults(func=cmd_status)
+
+    # lane
+    p_lane = sub.add_parser("lane", help="Manage the aider_local execution lane.")
+    lane_sub = p_lane.add_subparsers(dest="lane_action", metavar="<action>")
+
+    p_lane_start = lane_sub.add_parser("start", help="Start local model services.")
+    p_lane_start.add_argument("lane_name", nargs="?", default="aider_local")
+    p_lane_start.set_defaults(func=cmd_lane_start)
+
+    p_lane_stop = lane_sub.add_parser("stop", help="Stop local model services.")
+    p_lane_stop.add_argument("lane_name", nargs="?", default="aider_local")
+    p_lane_stop.set_defaults(func=cmd_lane_stop)
+
+    p_lane_status = lane_sub.add_parser("status", help="Show lane state and model health.")
+    p_lane_status.add_argument("lane_name", nargs="?", default="aider_local")
+    p_lane_status.add_argument("--json", action="store_true", help="Output as JSON.")
+    p_lane_status.set_defaults(func=cmd_lane_status)
+
+    p_lane_health = lane_sub.add_parser("health", help="Run a live health check.")
+    p_lane_health.add_argument("lane_name", nargs="?", default="aider_local")
+    p_lane_health.add_argument("--json", action="store_true", help="Output as JSON.")
+    p_lane_health.set_defaults(func=cmd_lane_health)
+
+    def _lane_help(args):
+        p_lane.print_help()
+        return 0
+
+    p_lane.set_defaults(func=_lane_help)
 
     return parser
 

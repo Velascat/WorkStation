@@ -177,16 +177,16 @@ class TestExampleFileParses:
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         assert example.exists(), f"Example file not found: {example}"
         services = load_services_from_yaml(example)
-        assert len(services) >= 2, "Expected at least switchboard and ninerouter."
+        assert len(services) >= 1, "Expected at least switchboard."
         assert "switchboard" in services
-        assert "ninerouter" in services
 
     def test_example_switchboard_port(self):
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         services = load_services_from_yaml(example)
         assert ":20401" in services["switchboard"].url
 
-    def test_example_ninerouter_port(self):
+    def test_example_no_ninerouter(self):
+        # 9router was removed from the architecture (see ADR 0001).
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         services = load_services_from_yaml(example)
-        assert ":20128" in services["ninerouter"].url
+        assert "ninerouter" not in services

@@ -137,9 +137,9 @@ class TestLoadServicesMeta:
         assert example.exists(), f"Missing: {example}"
         meta = load_services_meta(example)
         assert "switchboard" in meta
-        assert "9router" in meta
         assert meta["switchboard"]["required"] is True
-        assert meta["9router"]["required"] is True
+        # 9router was removed from the architecture (see ADR 0001).
+        assert "9router" not in meta
 
 
 # ── Tests: load_ports ─────────────────────────────────────────────────────────
@@ -164,7 +164,8 @@ class TestLoadPorts:
         assert example.exists(), f"Missing: {example}"
         ports = load_ports(example)
         assert ports.get("switchboard") == 20401
-        assert ports.get("9router") == 20128
+        # 9router was removed from the architecture (see ADR 0001).
+        assert "9router" not in ports
 
 
 # ── Tests: load_config ────────────────────────────────────────────────────────

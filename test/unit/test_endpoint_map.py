@@ -163,7 +163,7 @@ class TestExampleFileParses:
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         assert example.exists(), f"Example file missing: {example}"
         result = load_endpoints(example)
-        assert len(result) >= 2
+        assert len(result) >= 1
         assert "switchboard" in result
 
     def test_example_switchboard_port(self):
@@ -171,7 +171,8 @@ class TestExampleFileParses:
         result = load_endpoints(example)
         assert ":20401" in result["switchboard"].url
 
-    def test_example_ninerouter_port(self):
+    def test_example_no_ninerouter(self):
+        # 9router was removed from the architecture (see ADR 0001).
         example = _REPO_ROOT / "config" / "workstation" / "endpoints.example.yaml"
         result = load_endpoints(example)
-        assert ":20128" in result["ninerouter"].url
+        assert "ninerouter" not in result

@@ -4,6 +4,9 @@
 # Copy to endpoints.yaml before running CLI tools or smoke tests.
 # This file is the single source of truth for service URLs used by
 # workstation_cli, health scripts, and tests.
+#
+# 9router has been removed from the architecture. See
+# docs/architecture/adr/0001-remove-9router.md for rationale.
 # =============================================================================
 
 version: "1"
@@ -13,14 +16,7 @@ services:
   switchboard:
     url: "http://localhost:20401"
     health_path: "/health"
-    # Full health endpoint: http://localhost:20401/health
-    description: "SwitchBoard API gateway and policy layer"
-
-  ninerouter:
-    url: "http://localhost:20128"
-    health_path: "/health"
-    # Full health endpoint: http://localhost:20128/health
-    description: "9router model dispatcher"
+    description: "SwitchBoard execution-lane selector"
 
   status:
     url: "http://localhost:20400"

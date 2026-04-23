@@ -12,7 +12,7 @@ This remediation pass aligned the running system with the Phase 1–14 architect
 - provider-router-dependent health semantics
 - WorkStation base compose dependency on the retired provider router
 - FOB provider-dashboard and provider-polling flows
-- ControlPlane default worker/reviewer execution entrypoints
+- ControlPlane legacy worker/reviewer execution entrypoints
 
 ## Kept, but no longer mainline runtime
 
@@ -22,9 +22,11 @@ This remediation pass aligned the running system with the Phase 1–14 architect
 ## Current runtime truth
 
 ```text
-ControlPlane proposes work -> SwitchBoard selects lane/backend -> adapters execute -> Policy constrains -> Observability records -> Tuning recommends improvements.
+ControlPlane proposes work -> SwitchBoard selects lane/backend
+-> ControlPlane enforces policy and dispatches adapters
+-> Observability records -> Tuning recommends improvements.
 ```
 
 ## Temporary shims
 
-- No legacy execution runtime remains on the default path; worker/reviewer entrypoints no longer invoke an internal execution service.
+- No legacy execution runtime remains on the default path; the planning worker and canonical execute entrypoint now describe separate supported ControlPlane boundaries.

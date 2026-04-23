@@ -3,7 +3,8 @@
 WorkStation is the local platform host for the current stack.
 
 ```text
-ControlPlane proposes work -> SwitchBoard selects lane/backend -> adapters execute
+ControlPlane proposes work -> SwitchBoard selects lane/backend
+                           -> ControlPlane execution boundary executes
                                        ^               ^
                                        |               |
                         WorkStation deploys services    local lane infra

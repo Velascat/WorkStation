@@ -26,7 +26,7 @@ The backend adapter role is bounded: it accepts a canonical `ExecutionRequest`, 
 ```
 SwitchBoard selects openclaw lane/backend
           ↓
-ControlPlane lane runner builds ExecutionRequest
+ControlPlane execution boundary builds ExecutionRequest
           ↓
 OpenClawBackendAdapter (Phase 11)
   ├── check_support()      ← suitability check

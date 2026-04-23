@@ -59,7 +59,7 @@ sensitivity, urgency) to feed lane scoring.
 | **Inputs** | Task request with metadata (complexity hints, cost flags, capability requirements) |
 | **Outputs** | Selected lane name + downstream routing info; decision log entry |
 | **Dependencies** | Policy YAML, profiles YAML, capability registry |
-| **Invokes** | The selected lane runner (conceptually) |
+| **Invokes** | Nothing at runtime; SwitchBoard emits routing metadata only |
 | **Invoked by** | ControlPlane, kodo, or any system component that needs a lane assigned |
 
 **Lanes SwitchBoard selects between:**
@@ -93,8 +93,8 @@ sensitivity, urgency) to feed lane scoring.
 
 ## ControlPlane
 
-**Primary responsibility:** Decision engine. Observes repo state, derives insights,
-decides what work matters next, and drives the autonomous task loop.
+**Primary responsibility:** Decision and execution engine. Observes repo state,
+derives insights, decides what work matters next, and drives the autonomous task loop.
 
 **Secondary responsibility:** Platform integration layer (Plane board client, kodo
 invocation wrapper, execution artifact analysis).
@@ -104,7 +104,7 @@ invocation wrapper, execution artifact analysis).
 | **Inputs** | Repo state (git history, lint/test signals, architecture metrics), Plane task board, retained execution artifacts |
 | **Outputs** | Proposal candidates, Plane tasks, execution requests, outcome artifacts, autonomy cycle reports |
 | **Dependencies** | Plane (task board), kodo (execution backend), git |
-| **Invokes** | kodo (directly), SwitchBoard (for lane selection hint), Plane API |
+| **Invokes** | backend adapters through its execution boundary, SwitchBoard, Plane API |
 | **Invoked by** | Operator via CLI, FOB, or OpenClaw |
 
 **In scope:**
@@ -113,13 +113,13 @@ invocation wrapper, execution artifact analysis).
 - Proposal candidate generation with confidence scoring
 - Bounded autonomy loop with suppression guardrails and budgets
 - Plane board integration (task creation, state transitions, comments)
-- kodo dispatch and execution artifact analysis
+- policy-gated execution coordination and backend dispatch
+- backend adapter ownership and execution artifact analysis
 - SwitchBoard client adapter and lane selection usage
 - Execution outcome classification (failure modes, regression detection)
 - Self-tuning regulation (threshold recommendations)
 
 **Out of scope — ControlPlane does not own:**
-- The coding execution (that is kodo's job)
 - Workflow structure and multi-step execution discipline (that is Archon's job)
 - Lane selection policy (that is SwitchBoard's job)
 - Model deployment or infrastructure (that is WorkStation's job)

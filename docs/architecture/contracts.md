@@ -106,9 +106,10 @@ Emitted by SwitchBoard in response to a TaskProposal.
 
 ### ExecutionRequest
 
-Produced by the lane runner after receiving a TaskProposal + LaneDecision.
-Contains everything the backend adapter needs, including execution-layer details
-(workspace path, branch name) that are not present in the proposal.
+Produced by ControlPlane's execution boundary after receiving a TaskProposal +
+LaneDecision. Contains everything the backend adapter needs, including
+execution-layer details (workspace path, branch name) that are not present in
+the proposal.
 
 | Field | Type | Description |
 |-------|------|-------------|

@@ -39,7 +39,7 @@ operation. Tiny model deployment is required for the `aider_local` lane.
   selection decisions. SwitchBoard owns the policy and the selection logic.
 
 - **Not the coding execution layer.** WorkStation does not run agents, edit files, or
-  invoke CLIs. kodo and the lane runners do that.
+  invoke CLIs. ControlPlane's execution boundary and its backend processes do that.
 
 - **Not the workflow harness.** WorkStation does not define or execute multi-step
   coding workflows. That is Archon's job.
@@ -60,10 +60,10 @@ WorkStation deploys and manages:
 
 System flow (see docs/architecture/system_overview.md for the full picture):
 
-  ControlPlane → SwitchBoard → lane runner
-                                 ├── claude_cli   (Claude CLI, OAuth)
-                                 ├── codex_cli    (Codex CLI, subscription)
-                                 └── aider_local  (Aider + WorkStation models)
+  ControlPlane planning → SwitchBoard routing → ControlPlane execution boundary
+                                                     ├── claude_cli   (Claude CLI, OAuth)
+                                                     ├── codex_cli    (Codex CLI, subscription)
+                                                     └── aider_local  (Aider + WorkStation models)
 ```
 
 See [`docs/architecture/system_overview.md`](docs/architecture/system_overview.md) for

@@ -137,7 +137,7 @@ Routing a high-risk feature to the premium lane:
 
 ## ExecutionRequest
 
-Resolved from a lint proposal after the lane runner sets up a workspace:
+Resolved from a lint proposal after ControlPlane's execution boundary sets up a workspace:
 
 ```json
 {

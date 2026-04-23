@@ -163,9 +163,9 @@ workspace. Returns an empty list when git is unavailable or the workspace is
 not a git repo — this is normal, not an error.
 
 **Validation:** the normalizer accepts `validation_ran`, `validation_passed`,
-and `validation_excerpt` from the caller (e.g. a lane runner that ran validation
-commands separately). When not provided, `ValidationSummary(status=SKIPPED)` is
-used.
+and `validation_excerpt` from the caller (e.g. ControlPlane's execution
+boundary when it ran validation commands separately). When not provided,
+`ValidationSummary(status=SKIPPED)` is used.
 
 **Branch push:** always `False` in the adapter. Pushing is a lane-runner concern.
 
@@ -193,8 +193,8 @@ The adapter does not fabricate output it cannot observe:
 - **Changed files:** omitted when `git diff` fails or workspace is unavailable.
   Callers must not assume this list is always populated.
 - **Validation summary:** skipped unless the caller provides it.
-- **Pull request URL:** never set by the adapter; set by the lane runner.
-- **Branch push status:** never set by the adapter; set by the lane runner.
+- **Pull request URL:** never set by the adapter; set by ControlPlane's execution boundary or a higher workflow layer.
+- **Branch push status:** never set by the adapter; set by ControlPlane's execution boundary or a higher workflow layer.
 
 ---
 

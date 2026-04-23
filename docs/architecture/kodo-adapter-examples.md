@@ -87,7 +87,8 @@ KodoPreparedRun(
 ```
 
 **Note:** `validation` is `skipped` because the adapter does not run validation
-commands — that is the lane runner's responsibility. The lane runner may pass
+commands — that is ControlPlane's execution boundary responsibility. That
+boundary may pass
 `validation_ran=True, validation_passed=True` to `normalize()` after running
 validation separately.
 
@@ -189,9 +190,9 @@ SupportCheck(
 
 ---
 
-## Example 5 — Validation passed (lane runner provides result)
+## Example 5 — Validation passed (execution boundary provides result)
 
-A lane runner that executes validation commands separately can pass the
+ControlPlane's execution boundary can pass the
 result into `normalize()`:
 
 ```python

@@ -17,7 +17,9 @@ ControlPlane
   └─ policy/      ← evaluates (proposal, decision) → PolicyDecision
                      ↑ sits between planning/routing and execution
 SwitchBoard
-  └─ lane runners ← only proceed if PolicyDecision.is_allowed or gates pass
+  └─ routing metadata only
+ControlPlane execution boundary
+  └─ adapter dispatch ← only proceeds if PolicyDecision.is_allowed or gates pass
 ```
 
 The engine is stateless. It holds a `PolicyConfig` and evaluates proposals on demand. Nothing in the engine is backend-specific or shell-specific.

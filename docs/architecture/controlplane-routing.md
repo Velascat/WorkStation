@@ -23,7 +23,7 @@ ProposalDecisionBundle
 ```
 
 Each stage is a pure translation with no side effects. The bundle is
-the hand-off point for the execution layer (lane runner + backend adapter).
+the hand-off point for ControlPlane's execution boundary.
 
 ---
 
@@ -209,7 +209,7 @@ class ProposalDecisionBundle:
         # "proposal=<id[:8]> task=<task_id> lane=<lane> backend=<backend> rule=<rule>"
 ```
 
-The execution layer uses `bundle.decision.selected_lane` and
+ControlPlane's execution boundary uses `bundle.decision.selected_lane` and
 `bundle.decision.selected_backend` to choose and invoke the right adapter.
 
 ---

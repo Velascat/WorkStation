@@ -80,8 +80,9 @@ The act of SwitchBoard evaluating a task request against policy and returning a
 lane assignment. Lane selection is policy-driven and happens once per task dispatch.
 
 **execution dispatch**
-The act of sending a task to a specific lane runner (through kodo or directly). Follows
-lane selection.
+The act of ControlPlane's execution boundary turning a routed task into an
+`ExecutionRequest` and invoking the selected bounded adapter. Follows lane
+selection.
 
 **worktree isolation**
 The practice of creating a separate git worktree for each task execution, so parallel
@@ -138,15 +139,16 @@ considering. It is not an implementation commitment and does not change active
 runtime behavior by itself.
 
 **ExecutionRequest**
-A canonical, backend-neutral struct passed from the dispatch layer to a backend
-adapter. Contains: task description, target repo path, lane assignment, budget
-parameters, and any hints from the proposer. Does not contain provider-specific
-fields. Defined by the platform, not by the backend.
+A canonical, backend-neutral struct passed from ControlPlane's execution
+boundary to a backend adapter. Contains: task description, target repo path,
+lane assignment, budget parameters, and any hints from the proposer. Does not
+contain provider-specific fields. Defined by the platform, not by the backend.
 
 **ExecutionResult**
-A canonical, backend-neutral struct returned by a backend adapter to the dispatch
-layer. Contains: outcome status, artifact paths, validation results, and a brief
-summary. Defined by the platform, not by the backend.
+A canonical, backend-neutral struct returned by a backend adapter to
+ControlPlane's execution boundary. Contains: outcome status, artifact paths,
+validation results, and a brief summary. Defined by the platform, not by the
+backend.
 
 **ExecutionArtifact**
 A file produced during or after execution and retained for downstream consumption.

@@ -59,7 +59,7 @@ The line is clean:
 | Deploying/starting the local model server | WorkStation |
 | Checking if the lane is available | WorkStation |
 | Deciding which lane to use for a task | SwitchBoard |
-| Running Aider against the local models | kodo (`aider_local` lane runner) |
+| Running Aider against the local models | kodo (`aider_local` backend process) |
 | Deciding what task to run | ControlPlane |
 
 ---
@@ -81,7 +81,7 @@ ControlPlane → SwitchBoard → [lane decision: aider_local]
 ```
 
 WorkStation sits outside this invocation chain. It deploys and runs the tiny model
-service that the lane runner eventually calls. It also provides lifecycle management
+service that ControlPlane's execution boundary eventually calls. It also provides lifecycle management
 and availability reporting that SwitchBoard can consult before assigning work.
 
 ---

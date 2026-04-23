@@ -8,9 +8,10 @@ conflict with what is written here.
 
 ## The Stack in One Sentence
 
-ControlPlane proposes work, SwitchBoard selects the lane and backend, adapters
-execute, Policy constrains, Observability records, Tuning recommends improvements,
-and WorkStation keeps the local infrastructure running.
+ControlPlane proposes work, SwitchBoard selects the lane and backend,
+ControlPlane's execution boundary enforces policy and dispatches adapters,
+Observability records, Tuning recommends improvements, and WorkStation keeps
+the local infrastructure running.
 
 ---
 
@@ -20,7 +21,7 @@ and WorkStation keeps the local infrastructure running.
 |-----------|------|
 | **WorkStation** | Local infrastructure platform. Runs the services, owns Dockerfiles, compose manifests, lifecycle scripts, and tiny local model deployment. |
 | **SwitchBoard** | Execution-lane selector. Evaluates a declarative policy and routes each task to the appropriate coding lane. |
-| **ControlPlane** | Decision engine. Observes repos, generates insights, proposes work, and drives the autonomy loop. |
+| **ControlPlane** | Decision and execution engine. Observes repos, generates insights, proposes work, consumes routing, enforces policy, dispatches backend adapters, and drives the autonomy loop. |
 | **Policy** | Pre-execution guardrail layer. Evaluates canonical proposals and routing decisions, then allows, warns, requires review, or blocks. |
 | **Observability** | Retention layer for canonical execution outcomes, artifacts, and normalized traces. |
 | **Tuning** | Evidence-driven recommendation layer. Reads retained outcomes and proposes bounded improvements without silently mutating live policy. |
@@ -56,16 +57,9 @@ and WorkStation keeps the local infrastructure running.
                            │ TaskProposal + LaneDecision
                            ▼
 ┌─────────────────────────────────────────────────────────────┐
-│  Policy  (pre-execution guardrail)                          │
+│  ControlPlane execution boundary                            │
 │                                                             │
-│  allow / warn / require review / block                      │
-└──────────────────────────┬──────────────────────────────────┘
-                           │ allowed execution request
-                           ▼
-┌─────────────────────────────────────────────────────────────┐
-│  Adapter-backed execution                                   │
-│                                                             │
-│  Archon / kodo / direct-local adapters                      │
+│  build ExecutionRequest → policy gate → adapter dispatch    │
 └──────────────┬─────────────────────┬───────────────────────┘
                │                     │                    │
                ▼                     ▼                    ▼
@@ -98,20 +92,24 @@ WorkStation
    lane/backend pair — for example, `claude_cli` for a complex refactor or
    `aider_local` for a cheap lint fix.
 
-3. **Policy** evaluates the proposal and routing decision before execution. Unsafe
-   work is blocked, sensitive work is gated for review, and only allowed runs proceed.
+3. **ControlPlane's execution boundary** builds a canonical `ExecutionRequest`
+   from the proposal, routing decision, and runtime workspace context.
 
-4. The execution layer builds a canonical `ExecutionRequest` and hands it to a
-   bounded adapter. **Archon** may wrap the execution in a YAML-defined workflow;
-   **kodo** or another adapter performs the actual coding work.
+4. **Policy** evaluates the proposal and routing decision before adapter
+   invocation. Unsafe work is blocked, sensitive work is gated for review, and
+   only allowed runs proceed.
 
-5. The lane runner (**Claude CLI**, **Codex CLI**, or **Aider**) is the process that
+5. ControlPlane dispatches the selected bounded adapter. **Archon** may wrap
+   the execution in a YAML-defined workflow; **kodo** or another adapter
+   performs the actual coding work.
+
+6. The lane process (**Claude CLI**, **Codex CLI**, or **Aider**) is the process that
    actually edits files. It operates in a git worktree and exits when done.
 
-6. **Observability** retains the canonical outcome, normalized artifacts, and trace
+7. **Observability** retains the canonical outcome, normalized artifacts, and trace
    data for both executed and policy-blocked runs.
 
-7. **Tuning** reads retained evidence and produces bounded, reviewable improvement
+8. **Tuning** reads retained evidence and produces bounded, reviewable improvement
    recommendations. It does not silently rewrite live routing or autonomy policy.
 
 8. Artifacts (diff, validation results, outcome summary) are written back to
@@ -125,9 +123,9 @@ WorkStation
 OpenClaw
   → ControlPlane
     → SwitchBoard
-      → Policy
-        → adapter-backed execution
-          → Claude CLI / Codex CLI / aider local
+    → Policy
+    → adapter-backed execution
+      → Claude CLI / Codex CLI / aider local
     → Observability
     → Tuning
 ```
@@ -165,9 +163,10 @@ graph TD
 
 ## Why the Architecture Is Split This Way
 
-**Strategy and execution are separated.** ControlPlane decides *what* to do; it does
-not know or care which model runs the task. SwitchBoard decides *how* to run it; it
-does not know or care about long-range task strategy.
+**Strategy and execution are cleanly separated inside one boundary.**
+ControlPlane decides *what* to do and owns the policy-gated handoff into
+execution. SwitchBoard decides *how* to run it; it does not know or care about
+long-range task strategy.
 
 **Lane selection is policy-driven, not hardcoded.** Changing cost/quality tradeoffs
 is a SwitchBoard config edit, not a ControlPlane code change.

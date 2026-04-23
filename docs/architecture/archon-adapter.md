@@ -85,7 +85,7 @@ Result of `check_support()`. Indicates whether Archon can handle a given `Execut
 
 ```python
 def execute(self, request) -> ExecutionResult:
-    """Standard canonical interface — used by the lane runner."""
+    """Standard canonical interface — used by ControlPlane's execution boundary."""
 
 def execute_and_capture(self, request) -> tuple[ExecutionResult, ArchonRunCapture | None]:
     """Extended API — used by callers who need the raw capture for BackendDetailRef."""

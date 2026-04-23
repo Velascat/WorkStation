@@ -114,7 +114,7 @@ contract into an observability-oriented model that also accepts artifact
 references.
 
 If validation was skipped (the common case when the kodo adapter runs without
-the lane runner providing validation results), `ValidationEvidence.status`
+the ControlPlane execution boundary providing validation results), `ValidationEvidence.status`
 is `SKIPPED` — not fabricated as passed.
 
 ---

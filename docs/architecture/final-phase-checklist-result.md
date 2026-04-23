@@ -13,11 +13,11 @@ not as the primary source of current architecture guidance.
 - `fixed` SwitchBoard default runtime is selector-only.
 - `fixed` WorkStation base compose and startup flow no longer require the retired provider router.
 - `fixed` FOB operator flows no longer center on the retired provider router.
-- `fixed` ControlPlane default worker/reviewer entrypoints stop at planning and routing handoff.
+- `fixed` ControlPlane default worker entrypoint is planning-only while the supported execute entrypoint remains the canonical execution boundary.
 - `fixed` ControlPlane legacy execution runtime has been removed from the supported code path.
 
 ## Notes
 
 - Active runtime behavior now matches the supported sentence:
-  `ControlPlane proposes work -> SwitchBoard selects lane/backend -> adapters execute -> Policy constrains -> Observability records -> Tuning recommends improvements.`
+  `ControlPlane proposes work -> SwitchBoard selects lane/backend -> ControlPlane enforces policy and dispatches adapters -> Observability records -> Tuning recommends improvements.`
 - `RoutingPlan` is an allowed richer routing artifact. The invariant is truthful non-executing routing output, not “only one routing model exists.”

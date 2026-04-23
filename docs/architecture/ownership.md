@@ -35,8 +35,7 @@ Related rule:
 | Platform dependency infra (Plane) | `WorkStation` | Plane compose service |
 | Tiny local model deployment | `WorkStation` | model serving scripts for `aider_local` lane |
 | Operator entrypoints / demo commands | `FOB` | `fob demo`, `fob brief` |
-| Routing policy and model-selection logic | `SwitchBoard` | `config/policy.yaml`, `PolicyEngine`, `Selector` |
-| Aider/client integration semantics | `SwitchBoard` | `test_aider_compat.py`, `scripts/aider.sh` |
+| Lane-routing policy and selector logic | `SwitchBoard` | `config/policy.yaml`, `LaneSelector`, `DecisionPlanner` |
 | Autonomy loop and Plane/SwitchBoard usage | `ControlPlane` | `loop.py`, `SwitchBoardClient`, `PlaneClient` |
 | Config schema and `.env.example` (per service) | each service repo | `SwitchBoard/.env.example`, `ControlPlane/.env.example` |
 | Test doubles and isolated dev helpers | each service repo | mock gateways, fake stores |
@@ -71,14 +70,11 @@ WorkStation is the composition root for the shared local/dev/demo stack.
 SwitchBoard owns everything about how routing decisions are made.
 
 **Owns:**
-- Request classification logic
-- Policy evaluation engine
-- Model-selection semantics
-- Profile and capability registry schemas
-- Aider/client compatibility layer and reference client scripts (`scripts/aider.sh`)
+- Canonical lane-routing policy
+- Lane selection and planning semantics
 - Service-local `.env.example` and documented env contract
 - Decision log format
-- All test doubles for routing and selection behavior
+- All test doubles for canonical routing behavior
 
 **Does not own:**
 - The Dockerfile used to run SwitchBoard in the shared stack (that is `WorkStation`'s)
@@ -142,7 +138,7 @@ A Dockerfile that builds and runs SwitchBoard as a container.
 
 ### Example B — SwitchBoard routing policy
 
-`config/policy.yaml` defining which profile handles coding requests.
+`config/policy.yaml` defining which lane/backend handles coding requests.
 
 **Belongs in:** `SwitchBoard/config/policy.yaml`
 
@@ -191,18 +187,6 @@ Documents required environment variables for SwitchBoard.
 
 **Why:** The service defines its own contract. WorkStation reads this contract
 and injects appropriate values at runtime, but does not own the schema.
-
----
-
-### Example G — Aider reference client scripts
-
-`scripts/aider.sh` and `scripts/bootstrap_aider.sh` in SwitchBoard.
-
-**Belongs in:** `SwitchBoard/scripts/`
-
-**Why:** These are reference client fixtures used to validate SwitchBoard's
-OpenAI-compatible API. They belong with the service they test. They are not
-infrastructure — Aider is optional, not a required dependency.
 
 ---
 

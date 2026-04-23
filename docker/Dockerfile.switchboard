@@ -38,8 +38,6 @@ ENV SWITCHBOARD_HOST=0.0.0.0
 ENV SWITCHBOARD_PORT=20401
 ENV SWITCHBOARD_LOG_LEVEL=info
 ENV SWITCHBOARD_POLICY_PATH=/etc/switchboard/policy.yaml
-ENV SWITCHBOARD_PROFILES_PATH=/etc/switchboard/profiles.yaml
-ENV SWITCHBOARD_CAPABILITIES_PATH=/etc/switchboard/capabilities.yaml
 ENV SWITCHBOARD_DECISION_LOG_PATH=/var/log/switchboard/decisions.jsonl
 
 RUN mkdir -p /var/log/switchboard

@@ -138,7 +138,7 @@ Then restart to apply:
 
 ## Updating Configuration
 
-1. Edit the live config file (e.g. `config/switchboard/policy.yaml`).
+1. Edit the live lane policy file (`config/switchboard/policy.yaml`).
 2. Restart the affected service:
    ```bash
    docker compose -f compose/docker-compose.yml restart switchboard

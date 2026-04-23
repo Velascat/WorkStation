@@ -78,7 +78,5 @@ does not share the `workstation-platform` network. ControlPlane connects to it v
 |------|---------|-------------|
 | `/health` | SwitchBoard | Service liveness check |
 | `/route` | SwitchBoard | Canonical `TaskProposal -> LaneDecision` route selection |
-| `/v1/completions` | SwitchBoard | OpenAI-compatible completions |
-| `/v1/embeddings` | SwitchBoard | Embedding requests |
 | `/admin/decisions/recent` | SwitchBoard | Last N lane-selection decisions |
 | `/admin/summary` | SwitchBoard | Aggregated decision stats |

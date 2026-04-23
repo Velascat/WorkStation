@@ -1,7 +1,8 @@
 # ControlPlane Routing Architecture
 
 How ControlPlane shapes a `TaskProposal` from planning context, routes it
-through SwitchBoard, and bundles the result for downstream execution.
+through SwitchBoard over the service boundary, and bundles the result for
+downstream execution.
 
 ---
 
@@ -120,8 +121,10 @@ decision: LaneDecision = client.select_lane(proposal)
 | Class | Mechanism | When to use |
 |---|---|---|
 | `HttpLaneRoutingClient` | HTTP call to SwitchBoard `/route` | Default; production + CI |
-| `LocalLaneRoutingClient` | In-process `LaneSelector` import | Compatibility-only local/dev use |
 | `StubLaneRoutingClient` | Returns a fixed `LaneDecision` | Unit tests |
+
+Routing occurs via service boundary only. There is no supported in-process
+SwitchBoard bypass in the live architecture.
 
 `HttpLaneRoutingClient` is the supported default:
 
@@ -156,7 +159,15 @@ stub = StubLaneRoutingClient(
 
 ## PlanningService
 
-`PlanningService` orchestrates the full pipeline in one call:
+`PlanningService` exposes the real stage boundary explicitly:
+
+```python
+service = PlanningService.default()
+proposal = service.build_proposal(context)
+bundle = service.route_proposal(proposal, context=context)
+```
+
+`plan()` remains available as a thin convenience wrapper:
 
 ```python
 service = PlanningService.default()
@@ -166,9 +177,8 @@ bundle = service.plan(context)
 `plan()` is equivalent to:
 
 ```python
-proposal  = build_proposal(context)
-decision  = routing_client.select_lane(proposal)
-bundle    = ProposalDecisionBundle(proposal=proposal, decision=decision, context=context)
+proposal = service.build_proposal(context)
+bundle = service.route_proposal(proposal, context=context)
 ```
 
 ### Constructors
@@ -238,7 +248,7 @@ src/control_plane/
     proposal_builder.py  — build_proposal(), build_proposal_with_result()
   routing/
     __init__.py          — public API
-    client.py            — LaneRoutingClient protocol, HttpLaneRoutingClient, LocalLaneRoutingClient, StubLaneRoutingClient
+    client.py            — LaneRoutingClient protocol, HttpLaneRoutingClient, StubLaneRoutingClient
     service.py           — PlanningService
 ```
 

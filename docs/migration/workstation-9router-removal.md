@@ -1,4 +1,4 @@
-# WorkStation 9router Removal
+# Archival Migration Note: WorkStation 9router Removal
 
 Historical migration note. Retained only to document the cutover away from the
 removed provider-proxy runtime.

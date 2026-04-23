@@ -1,8 +1,11 @@
-# ADR 0001 — Remove 9router from the Architecture
+# ADR 0001 — Archival: Remove 9router from the Architecture
 
 **Status:** Accepted  
 **Date:** 2026-04-21  
 **Deciders:** Platform team
+
+> Archival note: this ADR is retained only as historical record for the removed
+> provider-proxy design. It does not describe any active runtime component.
 
 ---
 

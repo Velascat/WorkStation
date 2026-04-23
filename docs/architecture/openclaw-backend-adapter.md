@@ -151,7 +151,7 @@ if capture:
 | Merge conflict signals | `CONFLICT` |
 | Validation / test failure signals | `VALIDATION_FAILED` |
 | Everything else | `BACKEND_ERROR` |
-| Unsupported request (before invocation) | `POLICY_BLOCKED` |
+| Unsupported request (before invocation) | `UNSUPPORTED_REQUEST` |
 
 ## Suitability Checks
 
@@ -160,7 +160,7 @@ if capture:
 - `repo_key` must be non-empty
 - `workspace_path` must not be empty sentinel (`Path("")` normalizes to `Path(".")`)
 
-Unsupported requests return `POLICY_BLOCKED` immediately without invoking OpenClaw.
+Unsupported requests return `UNSUPPORTED_REQUEST` immediately without invoking OpenClaw.
 
 ## Internal Model Quarantine
 

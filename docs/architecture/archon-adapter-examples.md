@@ -108,7 +108,7 @@ print(config.metadata["proposal_id"])  # from request.proposal_id
 
 ---
 
-## 6. Policy-blocked request returns POLICY_BLOCKED, not an exception
+## 6. Unsupported request returns UNSUPPORTED_REQUEST, not an exception
 
 ```python
 from control_plane.contracts.execution import ExecutionRequest
@@ -128,7 +128,7 @@ bad_request = ExecutionRequest(
 result, capture = adapter.execute_and_capture(bad_request)
 
 assert result.status == ExecutionStatus.FAILED
-assert result.failure_category == FailureReasonCategory.POLICY_BLOCKED
+assert result.failure_category == FailureReasonCategory.UNSUPPORTED_REQUEST
 assert capture is None  # invocation never ran
 ```
 

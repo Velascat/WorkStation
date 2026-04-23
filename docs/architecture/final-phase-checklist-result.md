@@ -21,3 +21,4 @@ not as the primary source of current architecture guidance.
 - Active runtime behavior now matches the supported sentence:
   `ControlPlane proposes work -> SwitchBoard selects lane/backend -> ControlPlane enforces policy and dispatches adapters -> Observability records -> Tuning recommends improvements.`
 - `RoutingPlan` is an allowed richer routing artifact. The invariant is truthful non-executing routing output, not “only one routing model exists.”
+- Historical `9router` references are allowed only in explicitly archival ADR or migration material. Active-facing architecture and runtime docs must not present `9router` as current.

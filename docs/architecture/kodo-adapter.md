@@ -177,7 +177,7 @@ The adapter distinguishes these failure categories:
 
 | Category | When |
 |----------|------|
-| `policy_blocked` | Request failed support check (missing fields) |
+| `unsupported_request` | Request failed adapter support check (missing fields / incompatible request) |
 | `backend_error` | Generic kodo failure; also quota/rate-limit errors |
 | `timeout` | `[timeout:` in stderr |
 | `no_changes` | "nothing to commit" in output |

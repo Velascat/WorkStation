@@ -108,7 +108,7 @@ print(check.supported)         # False
 print(check.unsupported_fields) # ["goal_text"]
 
 result = adapter.execute(bad_request)
-print(result.failure_category)  # FailureReasonCategory.POLICY_BLOCKED
+print(result.failure_category)  # FailureReasonCategory.UNSUPPORTED_REQUEST
 # OpenClaw was never invoked.
 ```
 

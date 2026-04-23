@@ -91,7 +91,7 @@ Changed-file knowledge is represented with explicit certainty levels.
 | `KNOWN` | Files enumerated by the backend (non-empty list) |
 | `NONE` | Backend confirmed no files changed (e.g. `NO_CHANGES` failure category) |
 | `UNKNOWN` | Backend did not report; could not determine |
-| `NOT_APPLICABLE` | Execution never ran (e.g. `POLICY_BLOCKED`) |
+| `NOT_APPLICABLE` | Execution never ran (e.g. `POLICY_BLOCKED`, `UNSUPPORTED_REQUEST`) |
 
 `UNKNOWN` is never coerced into an empty `KNOWN`. Downstream code must handle
 uncertainty explicitly.
@@ -102,7 +102,8 @@ The `source` field records how the evidence was obtained:
 |---|---|
 | `backend_manifest` | Backend produced a non-empty changed-file list |
 | `backend_confirmed_empty` | Backend confirmed via `NO_CHANGES` category |
-| `policy_blocked` | Execution was blocked before it ran |
+| `policy_blocked` | Execution was blocked before it ran by policy |
+| `adapter_unsupported` | Execution never started because the adapter could not support the request |
 | `none` | No information available |
 
 ---

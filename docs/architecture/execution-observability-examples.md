@@ -226,14 +226,14 @@ Note: `validation_report` is primary — it IS surfaced in `key_artifacts`.
 
 ---
 
-## Example 6 — Policy-blocked execution
+## Example 6 — Adapter-unsupported execution
 
 ```python
 ExecutionResult(
     run_id="run-blocked-01",
     status=ExecutionStatus.FAILED,
     success=False,
-    failure_category=FailureReasonCategory.POLICY_BLOCKED,
+    failure_category=FailureReasonCategory.UNSUPPORTED_REQUEST,
     failure_reason="Request not supported by kodo adapter: goal_text is empty",
     artifacts=[],
 )
@@ -243,8 +243,8 @@ ExecutionResult(
 ```
 changed_files_evidence:
   status: NOT_APPLICABLE
-  source: policy_blocked
-  notes: "Execution was blocked by policy; no files were changed."
+  source: adapter_unsupported
+  notes: "Execution did not run because the selected adapter could not support the request."
 ```
 
 **ExecutionTrace:**

@@ -207,7 +207,7 @@ The canonical outcome returned by any backend adapter.
 | `ValidationStatus` | passed, failed, skipped, error |
 | `RiskLevel` | low, medium, high |
 | `Priority` | low, normal, high, critical |
-| `FailureReasonCategory` | validation_failed, backend_error, timeout, no_changes, conflict, policy_blocked, unknown |
+| `FailureReasonCategory` | validation_failed, backend_error, unsupported_request, timeout, no_changes, conflict, policy_blocked, unknown |
 
 ---
 

@@ -183,7 +183,7 @@ SupportCheck(
 {
   "status": "failed",
   "success": false,
-  "failure_category": "policy_blocked",
+  "failure_category": "unsupported_request",
   "failure_reason": "Request not supported by kodo adapter: Required fields missing or empty: goal_text"
 }
 ```

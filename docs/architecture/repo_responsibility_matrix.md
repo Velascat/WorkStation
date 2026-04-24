@@ -141,7 +141,7 @@ GitHub, web UI, CLI).
 | **Outputs** | Executed workflow run with per-node artifacts, PR (if configured), structured outcome |
 | **Dependencies** | Claude Agent SDK or Codex SDK (via AI clients), SQLite/PostgreSQL (run tracking), git |
 | **Invokes** | Claude CLI lane or Codex CLI lane (via SDK clients) |
-| **Invoked by** | SwitchBoard (lane dispatch), ControlPlane, operator CLI, platform adapters |
+| **Invoked by** | ControlPlane execution boundary, operator CLI, platform adapters |
 
 **In scope:**
 - YAML workflow loading, validation, and DAG execution
@@ -255,7 +255,7 @@ sits above ControlPlane and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Invoked by** | kodo or direct SwitchBoard dispatch |
+| **Invoked by** | kodo via subprocess or ControlPlane execution boundary; SwitchBoard selects this lane but does not dispatch execution |
 | **Auth** | None — hits locally deployed models only |
 | **Strengths** | Zero external API cost, always available, fast for simple edits |
 | **Cost profile** | Free / local compute only |

@@ -44,47 +44,48 @@ docker compose -f compose/docker-compose.yml pull
 
 ### 3. Start the stack
 
-**Linux / macOS:**
 ```bash
 ./scripts/up.sh
 ```
 
-**Windows:**
-```powershell
-.\scripts\up.ps1
+`up.sh` starts required services, waits for each to become healthy, and prints a per-component status. It exits non-zero if SwitchBoard does not start — the platform is not usable without it.
+
+Expected output:
+```
+=== WorkStation: starting platform ===
+
+[WorkStation] Validating environment...            [OK]
+
+[WorkStation] Starting SwitchBoard...
+  ...
+[WorkStation] Waiting for SwitchBoard on :20401 (up to 60s)...
+[WorkStation] SwitchBoard (http://localhost:20401) [OK]
+
+[WorkStation] Checking Plane...
+[WorkStation] Plane                                [SKIP] set PLANE_ENABLED=true in .env to enable
+
+[WorkStation] Checking local lane (aider_local)...
+[WorkStation] aider                                [WARN] binary not found — aider_local lane unavailable
+
+=== WorkStation ready ===
+
+  SwitchBoard      http://localhost:20401
+
+  health  →  bash scripts/health.sh
+  status  →  bash scripts/status.sh
+  logs    →  bash scripts/logs.sh
+  stop    →  bash scripts/down.sh
 ```
 
-Docker Compose starts the default selector stack in detached mode (`-d`). Logs are available via `docker compose logs -f`.
+Running `up.sh` a second time is safe — `docker compose up --detach` reuses running containers and the health check returns immediately.
+
+**Optional: start Plane**
+
+Set `PLANE_ENABLED=true` in `.env` to have `up.sh` start Plane automatically. Plane failure is non-blocking — the script warns and continues.
 
 ---
 
-### 4. Health check
-
-Verify that the default services are accepting requests on their health endpoints.
-
-**Linux / macOS:**
-```bash
-./scripts/health.sh
-```
-
-**Windows:**
-```powershell
-.\scripts\health.ps1
-```
-
-Expected output when all services are healthy:
-```
-=== WorkStation: health check ===
-
-  [OK]   SwitchBoard  (http://localhost:20401/health)  →  HTTP 200
-All services healthy.
-```
-
-If a service is not yet healthy, wait a few seconds and retry — services may still be initialising.
-
----
-
-### 5. Ready
+### 4. Ready
 
 The stack is ready to accept routing requests. Send a canonical proposal to SwitchBoard:
 
@@ -131,7 +132,9 @@ curl -s \
 
 | Symptom | Likely cause | Action |
 |---------|-------------|--------|
-| `[FAIL]` on health check immediately after `up` | Containers still initialising | Wait 10 s and re-run `health.sh` |
-| SwitchBoard fails health check | SwitchBoard config error | Check `docker compose logs workstation-switchboard` |
+| `up.sh` exits with `[FAIL] SwitchBoard` | Container failed to become healthy in 60 s | Run `bash scripts/logs.sh switchboard` to inspect |
+| SwitchBoard fails health check after up | Config error in `config/switchboard/policy.yaml` | Fix config, then `bash scripts/restart.sh` |
 | `docker compose` not found | Docker not installed or PATH issue | Install Docker Desktop / Docker Engine |
-| Port conflict | Another service using :20401 or :20400 | Update `.env` and restart |
+| Port conflict on :20401 | Another process using the port | Update `PORT_SWITCHBOARD` in `.env` and restart |
+| Plane `[WARN]` in output | `PLANE_ENABLED=true` but Plane failed | Run `bash scripts/plane.sh status` to diagnose |
+| `aider [WARN]` in output | `aider` not on PATH | Install aider or set up local model path |

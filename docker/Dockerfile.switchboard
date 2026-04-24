@@ -10,7 +10,9 @@ FROM python:3.12-slim AS builder
 
 WORKDIR /build
 
-# Install build deps
+# git is required to fetch the control-plane git dependency at install time
+RUN apt-get update && apt-get install -y --no-install-recommends git \
+    && rm -rf /var/lib/apt/lists/*
 RUN pip install --no-cache-dir uv
 
 # Copy project definition first for layer caching
@@ -19,8 +21,10 @@ COPY LICENSE .
 COPY README.md .
 COPY src/ src/
 
-# Build a wheel so the runtime stage has no build tools
+# Build wheel, then install everything (including git deps) into an isolated
+# venv. The runtime stage copies the venv so it needs no git or build tools.
 RUN uv build --wheel --out-dir /dist
+RUN python -m venv /venv && /venv/bin/pip install --no-cache-dir /dist/*.whl
 
 
 # =============================================================================
@@ -28,9 +32,9 @@ FROM python:3.12-slim AS runtime
 
 WORKDIR /app
 
-# Install the wheel and its runtime dependencies (no dev extras)
-COPY --from=builder /dist /dist
-RUN pip install --no-cache-dir /dist/*.whl
+# Copy the fully-installed venv from builder — no network access needed
+COPY --from=builder /venv /venv
+ENV PATH=/venv/bin:$PATH
 
 # Default config directory — operators should volume-mount their own configs here
 RUN mkdir -p /etc/switchboard

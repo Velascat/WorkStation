@@ -16,6 +16,7 @@ RUN pip install --no-cache-dir uv
 # Copy project definition first for layer caching
 COPY pyproject.toml .
 COPY LICENSE .
+COPY README.md .
 COPY src/ src/
 
 # Build a wheel so the runtime stage has no build tools

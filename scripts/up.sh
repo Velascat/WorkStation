@@ -9,15 +9,21 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 COMPOSE_FILE="${REPO_ROOT}/compose/docker-compose.yml"
 
-# ── Load .env if present ──────────────────────────────────────────────────────
-if [[ -f "${REPO_ROOT}/.env" ]]; then
-  set -a
-  # shellcheck disable=SC1091
-  source "${REPO_ROOT}/.env"
-  set +a
-else
-  echo "[warn] .env not found — using defaults. Run: cp .env.example .env"
+# ── Ensure .env exists ───────────────────────────────────────────────────────
+if [[ ! -f "${REPO_ROOT}/.env" ]]; then
+  if [[ -f "${REPO_ROOT}/.env.example" ]]; then
+    cp "${REPO_ROOT}/.env.example" "${REPO_ROOT}/.env"
+    echo "[info] Created .env from .env.example — edit it to override defaults."
+  else
+    echo "[error] .env not found and no .env.example to copy from." >&2
+    exit 1
+  fi
 fi
+
+set -a
+# shellcheck disable=SC1091
+source "${REPO_ROOT}/.env"
+set +a
 
 echo "=== WorkStation: starting stack ==="
 echo "Compose file: ${COMPOSE_FILE}"

@@ -1,28 +1,49 @@
 # =============================================================================
-# SwitchBoard — Routing Policy (section 6.3)
+# SwitchBoard — Routing Policy
 # =============================================================================
-# Copy to policy.yaml before starting the stack.
-# This file defines how SwitchBoard evaluates canonical proposals and selects
-# execution lanes.
+# Copy this file to policy.yaml before starting the stack.
+# Rules are evaluated top-to-bottom; the first match wins.
+# Any proposal that matches no rule falls through to the built-in fallback:
+#   claude_cli / kodo  (confidence 0.7)
+#
+# Valid task_type values:
+#   lint_fix, bug_fix, simple_edit, test_write, documentation,
+#   refactor, feature, dependency_update, unknown
+#
+# Valid lane names:   claude_cli, codex_cli, aider_local
+# Valid backend names: direct_local, kodo, archon, archon_then_kodo, openclaw
 # =============================================================================
 
 version: "1"
 
 # ── Routing rules ─────────────────────────────────────────────────────────────
-# Rules are evaluated top-to-bottom; the first match wins.
 rules:
-  - name: docs_local
+
+  # Bounded, low-risk code tasks → codex_cli (fast, self-contained)
+  # Requires: codex binary on PATH
+  - name: bounded_code_low_risk
+    when:
+      task_type: [bug_fix, lint_fix, simple_edit]
+      risk_level: low
+    select_lane: codex_cli
+    select_backend: kodo
+
+  # Documentation tasks → claude_cli (better at prose and structured output)
+  # Requires: claude binary on PATH
+  - name: documentation_default
     when:
       task_type: documentation
-      risk_level: low
-    select_lane: aider_local
-    select_backend: direct_local
-
-  - name: code_default
-    when:
-      task_type: coding
     select_lane: claude_cli
     select_backend: kodo
+
+  # Local lane example — uncomment if aider is installed
+  # Requires: aider binary on PATH + local model service
+  # - name: documentation_local
+  #   when:
+  #     task_type: documentation
+  #     risk_level: low
+  #   select_lane: aider_local
+  #   select_backend: direct_local
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 logging:

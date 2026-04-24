@@ -92,7 +92,7 @@ Emitted by SwitchBoard in response to a TaskProposal.
 | `decision_id` | str (uuid) | Unique decision identifier |
 | `proposal_id` | str | Reference to the originating proposal |
 | `selected_lane` | LaneName | claude_cli / codex_cli / aider_local |
-| `selected_backend` | BackendName | kodo / archon / openclaw |
+| `selected_backend` | BackendName | kodo / archon / archon_then_kodo / direct_local / openclaw |
 | `confidence` | float [0–1] | Routing confidence |
 | `policy_rule_matched` | str? | Name of the policy rule that fired |
 | `rationale` | str? | Human-readable explanation |
@@ -200,7 +200,7 @@ The canonical outcome returned by any backend adapter.
 |------|--------|
 | `TaskType` | lint_fix, bug_fix, simple_edit, test_write, documentation, refactor, feature, dependency_update, unknown |
 | `LaneName` | claude_cli, codex_cli, aider_local |
-| `BackendName` | kodo, archon, openclaw |
+| `BackendName` | kodo, archon, archon_then_kodo, direct_local, openclaw |
 | `ExecutionMode` | goal, fix_pr, test_campaign, improve_campaign |
 | `ExecutionStatus` | pending, running, success, failed, skipped, timeout, cancelled |
 | `ArtifactType` | diff, patch, validation_report, log_excerpt, goal_file, pr_url, branch_ref |

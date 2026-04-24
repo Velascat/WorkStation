@@ -8,7 +8,7 @@ All ports used by the WorkStation stack.
 
 | SERVICE     | PORT  | PROTOCOL | PURPOSE                                                   |
 |-------------|-------|----------|-----------------------------------------------------------|
-| SwitchBoard | 20401 | TCP/HTTP | Execution-lane selector — task classification and dispatch |
+| SwitchBoard | 20401 | TCP/HTTP | Execution-lane selector — task classification and lane selection |
 | Status API  | 20400 | TCP/HTTP | Stack-level health and metadata aggregation               |
 
 ---

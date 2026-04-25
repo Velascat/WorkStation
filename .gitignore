@@ -124,8 +124,8 @@ config/plane/.env
 config/workstation/endpoints.yaml
 
 # FOB operator state
-.fob/
-!.fob/*.example*
+.console/
+!.console/*.example*
 config/workstation/services.yaml
 config/workstation/ports.yaml
 config/switchboard/capabilities.yaml

@@ -133,6 +133,16 @@ fi
 
 echo ""
 
+# ── Step 5: OperationsCenter watchers ────────────────────────────────────────
+_log "Starting OperationsCenter watchers..."
+if bash "${SCRIPT_DIR}/workers.sh" start 2>&1 | sed 's/^/  /'; then
+  _ok "OperationsCenter watchers"
+else
+  _warn "OperationsCenter watchers" "failed to start — run: bash scripts/workers.sh start"
+fi
+
+echo ""
+
 # ── Summary ───────────────────────────────────────────────────────────────────
 echo "=== WorkStation ready ==="
 echo ""
@@ -141,7 +151,8 @@ if [[ "${PLANE_ENABLED}" == "true" ]]; then
   printf '  %-16s %s\n' "Plane" "${PLANE_URL}"
 fi
 echo ""
-echo "  health  →  bash scripts/health.sh"
-echo "  status  →  bash scripts/status.sh"
-echo "  logs    →  bash scripts/logs.sh"
-echo "  stop    →  bash scripts/down.sh"
+echo "  health   →  bash scripts/health.sh"
+echo "  status   →  bash scripts/status.sh"
+echo "  logs     →  bash scripts/logs.sh"
+echo "  workers  →  bash scripts/workers.sh status"
+echo "  stop     →  bash scripts/down.sh"

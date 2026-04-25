@@ -250,4 +250,4 @@ trace = builder.build_report(record)
 
 - [contracts.md](contracts.md) — ExecutionResult, ExecutionArtifact, ValidationSummary
 - [kodo-adapter.md](kodo-adapter.md) — how kodo populates ExecutionResult
-- [controlplane-routing.md](controlplane-routing.md) — PlanningService and ProposalDecisionBundle
+- [operations-center-routing.md](operations-center-routing.md) — PlanningService and ProposalDecisionBundle

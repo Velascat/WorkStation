@@ -105,10 +105,10 @@ OperatorConsole owns the operator experience — how humans interact with the pl
 
 **Owns:**
 - Session and workspace management (Zellij, Claude resume)
-- Operator command entrypoints: `fob brief`, `fob demo`, `fob status`, etc.
+- Operator command entrypoints: `console open`, `console demo`, `console status`, etc.
 - Layout definitions and mission file templates
 - Human-facing orchestration that calls into WorkStation or service CLIs
-- Demo command that proves the platform is working (`fob demo`)
+- Demo command that proves the platform is working (`console demo`)
 
 **Does not own:**
 - Platform stack lifecycle internals (delegates to WorkStation)
@@ -168,7 +168,7 @@ belong to the consumer, not to the infrastructure layer.
 
 ---
 
-### Example E — `fob demo`
+### Example E — `console demo`
 
 An operator command that proves the full platform is working.
 
@@ -215,7 +215,7 @@ Current state as of the time this document was written (2026-04-21):
 - [x] `WorkStation/docker/Dockerfile.switchboard` — created
 - [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `OperationsCenter/deployment/plane/manage.sh` delegates to it
 - [x] `console demo` command — implemented in `OperatorConsole/src/operator_console/demo.py`
-- [ ] WorkStation `workstation_cli` not yet wired to `fob demo`
+- [ ] WorkStation `workstation_cli` not yet wired to `console demo`
 
 ---
 

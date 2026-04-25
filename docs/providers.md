@@ -13,7 +13,7 @@ Operator setup focuses on the execution lanes that SwitchBoard may select.
 ## OperatorConsole shortcut
 
 ```bash
-fob providers
+console providers
 ```
 
 The command reports selector and lane readiness for the current architecture.

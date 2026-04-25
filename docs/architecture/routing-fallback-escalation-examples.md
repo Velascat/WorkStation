@@ -1,6 +1,6 @@
 # Routing Fallback and Escalation — Usage Examples
 
-Concrete examples for Phase 9 fallback/escalation policy. All examples use `DecisionPlanner` or `LaneSelector.plan_routes()`.
+Concrete examples for fallback/escalation policy. All examples use `DecisionPlanner` or `LaneSelector.plan_routes()`.
 
 ---
 
@@ -135,11 +135,11 @@ from switchboard.lane.engine import LaneSelector
 selector = LaneSelector()
 proposal = ...
 
-# Simple primary route only (Phase 4 behavior, unchanged)
+# Simple primary route only
 decision = selector.select(proposal)
 # decision.selected_lane, decision.selected_backend
 
-# Full routing plan with alternatives (Phase 9)
+# Full routing plan with alternatives
 plan = selector.plan_routes(proposal)
 # plan.primary, plan.fallbacks, plan.escalations, plan.blocked_candidates
 

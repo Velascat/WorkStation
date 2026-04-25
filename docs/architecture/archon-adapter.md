@@ -1,6 +1,6 @@
 # Archon Adapter Architecture
 
-This document describes the Phase 8 Archon backend adapter — the second execution backend in the contract-owned platform architecture, following the kodo reference pattern.
+This document describes the Archon backend adapter — the second execution backend in the contract-owned platform architecture, following the kodo reference pattern.
 
 ---
 
@@ -8,7 +8,7 @@ This document describes the Phase 8 Archon backend adapter — the second execut
 
 Archon is a workflow-oriented execution engine. It differs from kodo in that it runs multi-step agentic workflows internally (plan → execute → validate) rather than a single subprocess invocation. This makes it powerful but also more opaque.
 
-The adapter integrates Archon as one option within the existing backend selection mechanism — it does not replace or subsume kodo. Hard constraints for this phase:
+The adapter integrates Archon as one option within the existing backend selection mechanism — it does not replace or subsume kodo. Hard constraints:
 
 - Archon is **not** the universal backend
 - `aider_local` lane runs stay on kodo; Archon is not injected there

@@ -186,7 +186,7 @@ incurring API costs on every run.
 
 ## Architecture Decisions
 
-These decisions are stable. Later phases must not reopen them without explicit
+These decisions are stable. They must not be reopened without explicit
 evidence and a new ADR.
 
 ### Decision A — Adapter-first integration
@@ -201,7 +201,7 @@ backend's API changes, only the adapter changes — upstream contracts stay stab
 kodo is the first execution backend to integrate in full. It has the cleanest
 headless/programmatic integration path via Claude Agent SDK and Codex SDK. This is
 an implementation-order decision, not a declaration that kodo owns the architecture.
-Other backends (Archon for workflow-wrapped executions, future backends) integrate
+Other backends (Archon for workflow-wrapped executions, OpenClaw) integrate
 through the same adapter boundary.
 
 ### Decision C — Archon is optional and bounded
@@ -216,17 +216,16 @@ Archon is a useful workflow harness for complex, multi-step executions. It is
 - Archon is useful for `claude_cli` and `codex_cli` lanes when a YAML-defined
   plan → implement → validate → PR sequence is needed.
 
-### Decision D — OpenClaw is later and optional
+### Decision D — OpenClaw is optional
 
-OpenClaw may become an outer operator shell and/or a later integration target. It is
-not required for the initial happy path and should not drive early architectural
-decisions. The system (OperationsCenter through kodo) must function without OpenClaw.
+OpenClaw is an optional outer operator shell and an available integration target. It is
+not required for the core execution path and does not drive architectural decisions.
+The system (OperationsCenter through kodo) functions without OpenClaw.
 
-### Decision E — No early upstream modifications
+### Decision E — No upstream modifications without evidence
 
-Forking or patching Archon, OpenClaw, or kodo upstream is out of scope for Phase 1
-through Phase 5. All integration is done through adapter layers. Upstream
-modification is a later, evidence-based decision that requires a new ADR. If a
+Forking or patching Archon, OpenClaw, or kodo upstream is out of scope; all integration is done through adapter layers. Upstream
+modification is an evidence-based decision that requires a new ADR. If a
 backend's public API is insufficient, the correct response is to raise the gap, not
 to fork the backend.
 

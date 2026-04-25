@@ -162,16 +162,13 @@ lifecycle. If it is absent, WorkStation assumes the service is externally manage
 
 ---
 
-## What this phase intentionally leaves unimplemented
+## What is out of scope for this lane
 
-Phase 2 establishes the local capability. The following are out of scope:
+The following are not in scope:
 
-- SwitchBoard integration (Phase 4) — SwitchBoard consulting WorkStation availability
-- OperationsCenter-to-WorkStation availability API (future phase)
+- OperationsCenter-to-WorkStation live availability API
 - Cross-repo orchestration
 - Queue or scheduler integration
 - Automatic model download or provisioning
 - Distributed deployment
 - Multiple concurrent lane instances
-
-These will be addressed in later phases when contracts are finalised.

@@ -2,11 +2,11 @@
 
 ---
 
-## Phase 1 — Current (Foundation)
+## Foundation — Implemented
 
-The goals for Phase 1 are to have a reliable, reproducible local stack that any developer can spin up in a single command and operate with confidence.
+The foundation provides a reliable, reproducible local stack that any developer can spin up in a single command and operate with confidence.
 
-**Done / in scope:**
+**Implemented:**
 
 - Docker Compose orchestration for the selector stack.
 - `scripts/` — `up`, `down`, `restart`, `health`, `status`, `logs` for both Bash and PowerShell.
@@ -22,7 +22,7 @@ The goals for Phase 1 are to have a reliable, reproducible local stack that any 
 
 ---
 
-## Later — Optional Improvements
+## Optional Improvements
 
 These are not committed to and have no timeline. They represent directions that may become useful as the stack grows.
 

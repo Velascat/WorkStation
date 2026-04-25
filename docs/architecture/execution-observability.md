@@ -9,8 +9,8 @@ why raw backend details are kept separate from normalized summaries.
 
 Without normalized observability, every backend becomes its own source of
 truth. Logs differ. Success/failure meanings drift. Changed-file data becomes
-unreliable or backend-dependent. Future fallback, escalation, and tuning
-phases would have to guess from inconsistent raw evidence.
+unreliable or backend-dependent. Fallback, escalation, and tuning layers would
+have to guess from inconsistent raw evidence.
 
 This layer prevents that by making every execution outcome:
 
@@ -227,7 +227,7 @@ trace = builder.build_report(record)
 - Backend selection — that is SwitchBoard's job
 - Proposal generation — that is OperationsCenter's planning layer
 - Persisting to a database — filesystem-local retention is sufficient
-- Dashboard productization — out of scope for this phase
+- Dashboard productization — out of scope
 - Universal log ingestion for every possible future signal
 
 ---

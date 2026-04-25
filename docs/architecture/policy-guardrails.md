@@ -1,4 +1,4 @@
-# Policy and Guardrails (Phase 12)
+# Policy and Guardrails
 
 ## Purpose
 

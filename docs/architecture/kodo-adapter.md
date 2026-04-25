@@ -1,7 +1,7 @@
 # kodo Adapter Architecture
 
-This document describes the Phase 5 kodo backend adapter — the first real
-execution backend in the contract-owned platform architecture.
+This document describes the kodo backend adapter — the first execution backend
+in the contract-owned platform architecture.
 
 ---
 
@@ -15,8 +15,8 @@ kodo is the best first integration target because it:
 - has an existing subprocess wrapper (`KodoAdapter`) inside OperationsCenter that
   the new canonical adapter can delegate to
 
-This phase establishes the adapter pattern. Later backends (Archon, OpenClaw)
-will follow the same structure.
+This adapter establishes the adapter pattern. Archon and OpenClaw follow the
+same structure.
 
 ---
 
@@ -200,10 +200,10 @@ The adapter does not fabricate output it cannot observe:
 
 ## Relationship to existing KodoAdapter
 
-`KodoBackendAdapter` (Phase 5) wraps `KodoAdapter` (existing subprocess layer).
+`KodoBackendAdapter` wraps `KodoAdapter` (existing subprocess layer).
 
 ```
-KodoBackendAdapter     ← canonical boundary (Phase 5)
+KodoBackendAdapter     ← canonical boundary
   └── KodoBackendInvoker
         └── KodoAdapter ← subprocess layer (existing)
 ```
@@ -216,12 +216,11 @@ error categorization, and the clean `ExecutionRequest → ExecutionResult` bound
 
 ---
 
-## What this phase intentionally leaves unimplemented
+## What this adapter intentionally leaves unimplemented
 
 - **Validation command execution** — the adapter reports validation results
   provided by the caller but does not run validation commands itself. That
   is a lane-runner concern.
 - **Branch push / PR opening** — lane-runner concern.
-- **SwitchBoard availability query for kodo mode** — future phase.
-- **Archon and OpenClaw adapters** — Phase 6+.
-- **Multi-backend fallback** — future phase.
+- **SwitchBoard availability query for kodo mode** — not in scope for this adapter.
+- **Multi-backend fallback** — not in scope for this adapter.

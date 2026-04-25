@@ -1,6 +1,6 @@
 # Archon Adapter — Usage Examples
 
-Concrete examples for the Archon backend adapter (Phase 8). All examples use the OperationsCenter canonical contract types.
+Concrete examples for the Archon backend adapter. All examples use the OperationsCenter canonical contract types.
 
 ---
 

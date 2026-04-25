@@ -1,8 +1,8 @@
-# Evidence-Driven Routing and Backend Strategy Tuning (Phase 13)
+# Evidence-Driven Routing and Backend Strategy Tuning
 
 ## Why this exists
 
-Before Phase 13, the system's routing posture was entirely static: a handcrafted policy model in SwitchBoard that did not change based on observed execution outcomes.
+Without an evidence layer, the system's routing posture is entirely static: a handcrafted policy model in SwitchBoard that does not change based on observed execution outcomes.
 
 That means the system may be wrong about:
 - when `aider_local` is good enough vs. when premium backends win
@@ -10,7 +10,7 @@ That means the system may be wrong about:
 - when OpenClaw's weaker changed-file evidence matters for a use case
 - where validation coverage is a gap
 
-Phase 13 adds a bounded, inspectable analysis layer that reads retained execution evidence and produces reviewable strategy inputs without automating any routing policy change.
+This analysis layer reads retained execution evidence and produces reviewable strategy inputs without automating any routing policy change.
 
 ---
 
@@ -30,7 +30,7 @@ StrategyTuningService.analyze(records)
     ↓
 Human reviewer
     ↓ (if accepted)
-SwitchBoard routing policy update (future phase)
+SwitchBoard routing policy update
 ```
 
 **The tuning layer is read-only with respect to active policy.** It never modifies `PolicyConfig`, `LaneRoutingPolicy`, or any active routing rule. All output is inspectable and subject to human review before any config change.
@@ -157,14 +157,14 @@ StrategyAnalysisReport (frozen, human-reviewable)
 ### Recommendation policy
 - Recommendations are only generated from `MODERATE` or `STRONG` evidence.
 - `WEAK` evidence findings produce no recommendations.
-- All recommendations have `requires_review=True` — Phase 13 does not auto-apply anything.
+- All recommendations have `requires_review=True` — the tuning layer does not auto-apply anything.
 - Each proposal carries `source_finding_ids` for traceability.
 
 ---
 
 ## Recommendation posture
 
-Phase 13 recommendations are conservative and reviewable:
+Recommendations are conservative and reviewable:
 
 | Category | Proposal policy area |
 |----------|---------------------|

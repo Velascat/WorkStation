@@ -2,16 +2,16 @@
 
 ## Purpose
 
-The OpenClaw backend adapter makes OpenClaw available as an execution backend behind the canonical contract layer. It is a Phase 11 addition and is strictly separate from the Phase 10 optional outer-shell integration.
+The OpenClaw backend adapter makes OpenClaw available as an execution backend behind the canonical contract layer. It is strictly separate from the optional outer-shell integration.
 
 ## Why This Is Separate from the Outer Shell
 
 OpenClaw plays two distinct roles in the broader system:
 
-| Role | Phase | Location | Purpose |
-|------|-------|----------|---------|
-| Backend adapter | Phase 11 | `backends/openclaw/` | Execution backend behind canonical contracts |
-| Optional outer shell | Phase 10 | `openclaw_shell/` | Operator/runtime wrapper around the internal architecture |
+| Role | Location | Purpose |
+|------|----------|---------|
+| Backend adapter | `backends/openclaw/` | Execution backend behind canonical contracts |
+| Optional outer shell | `openclaw_shell/` | Operator/runtime wrapper around the internal architecture |
 
 These roles must not be collapsed. If they are:
 - OpenClaw-centric execution truth contaminates the architecture
@@ -28,7 +28,7 @@ SwitchBoard selects openclaw lane/backend
           ↓
 OperationsCenter execution boundary builds ExecutionRequest
           ↓
-OpenClawBackendAdapter (Phase 11)
+OpenClawBackendAdapter
   ├── check_support()      ← suitability check
   ├── map_request()        ← canonical → OpenClawPreparedRun
   ├── OpenClawBackendInvoker
@@ -69,7 +69,7 @@ ExecutionRequest
 - Fallback/escalation policy
 - Proposal shaping
 - Local lane hosting
-- The outer-shell/operator role (Phase 10)
+- The outer-shell/operator role (`openclaw_shell/`)
 - Normalized execution truth for the whole system
 
 ## File Map

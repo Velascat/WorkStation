@@ -1,12 +1,12 @@
 # Routing Fallback and Escalation Architecture
 
-This document describes the Phase 9 fallback and escalation policy in SwitchBoard — how routing turns from a single-choice selector into a controlled decision system with explicit alternative paths.
+This document describes the fallback and escalation policy in SwitchBoard — how routing turns from a single-choice selector into a controlled decision system with explicit alternative paths.
 
 ---
 
 ## Why this exists
 
-Before Phase 9, SwitchBoard could select a primary lane and backend but had no disciplined answer to questions like:
+Without this layer, SwitchBoard can select a primary lane and backend but has no disciplined answer to questions like:
 
 - What if `aider_local` is unavailable right now?
 - What if a task is local-preferred but too risky for the local lane?
@@ -15,7 +15,7 @@ Before Phase 9, SwitchBoard could select a primary lane and backend but had no d
 
 Without explicit policy, those answers become ad hoc code in callers, backend-specific hacks, or silent failures.
 
-Phase 9 prevents this by making fallback and escalation **first-class policy outputs**.
+This layer makes fallback and escalation **first-class policy outputs**.
 
 ---
 
@@ -23,7 +23,7 @@ Phase 9 prevents this by making fallback and escalation **first-class policy out
 
 ### Primary route
 
-The first-choice lane and backend for a task. Selected by the existing `LaneSelector.select()` logic (Phase 4). Unchanged by this phase.
+The first-choice lane and backend for a task. Selected by the existing `LaneSelector.select()` logic.
 
 ### Fallback route
 
@@ -154,8 +154,8 @@ Constraints are enforced visibly, not silently:
 ## Ownership boundary
 
 SwitchBoard owns:
-- Deciding primary route preference (Phase 4, unchanged)
-- Defining acceptable alternative routes (Phase 9)
+- Deciding primary route preference
+- Defining acceptable alternative routes
 - Evaluating constraint blocks and policy exclusions
 - Producing inspectable routing explanations
 
@@ -178,11 +178,11 @@ Execution and orchestration layers own:
 from switchboard.lane.engine import LaneSelector
 from switchboard.lane.planner import DecisionPlanner
 
-# Simple primary route (unchanged from Phase 4)
+# Simple primary route
 selector = LaneSelector()
 decision = selector.select(proposal)      # → LaneDecision
 
-# Full routing plan with alternatives (Phase 9)
+# Full routing plan with alternatives
 plan = selector.plan_routes(proposal)     # → RoutingPlan
 # or
 planner = DecisionPlanner()

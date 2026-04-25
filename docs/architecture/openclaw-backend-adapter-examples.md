@@ -198,7 +198,7 @@ result = adapter.execute(request)
 ## What the adapter does NOT do
 
 - It does not select routes or lanes (SwitchBoard owns that)
-- It does not invoke the outer-shell layer (Phase 10 `openclaw_shell/`)
+- It does not invoke the outer-shell layer (`openclaw_shell/`)
 - It does not define canonical contracts
 - It does not store execution records (observability layer owns that)
 - It does not pretend changed-file lists are authoritative when they are inferred

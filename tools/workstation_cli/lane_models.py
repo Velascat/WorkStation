@@ -3,7 +3,7 @@ lane_models.py — Runtime state and capability models for the aider_local lane.
 
 These types represent observable runtime state. They are intentionally
 backend-neutral — they do not contain SwitchBoard routing logic or
-ControlPlane task proposal logic.
+OperationsCenter task proposal logic.
 """
 
 from __future__ import annotations

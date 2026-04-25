@@ -263,8 +263,8 @@ execution did not run.
 ## Example 7 — Attaching raw backend detail references
 
 ```python
-from control_plane.observability.models import BackendDetailRef
-from control_plane.observability.service import ExecutionObservabilityService
+from operations_center.observability.models import BackendDetailRef
+from operations_center.observability.service import ExecutionObservabilityService
 
 svc = ExecutionObservabilityService.default()
 

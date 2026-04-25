@@ -27,19 +27,19 @@ the architecture are documented in
 | Plane            | 8080  | Task board — work state, comments, labels (separate script-managed stack) |
 | tiny local models | local | Serves models for the `aider_local` coding lane (WorkStation-deployed) |
 
-SwitchBoard is required for coding lane dispatch. Plane is required for ControlPlane
+SwitchBoard is required for coding lane dispatch. Plane is required for OperationsCenter
 operation. Tiny model deployment is required for the `aider_local` lane.
 
 ## What WorkStation Is Not
 
 - **Not the task-prioritization engine.** WorkStation does not decide what work
-  matters next. That is ControlPlane's job.
+  matters next. That is OperationsCenter's job.
 
 - **Not the lane selector.** WorkStation deploys SwitchBoard; it does not make lane
   selection decisions. SwitchBoard owns the policy and the selection logic.
 
 - **Not the coding execution layer.** WorkStation does not run agents, edit files, or
-  invoke CLIs. ControlPlane's execution boundary and its backend processes do that.
+  invoke CLIs. OperationsCenter's execution boundary and its backend processes do that.
 
 - **Not the workflow harness.** WorkStation does not define or execute multi-step
   coding workflows. That is Archon's job.
@@ -55,12 +55,12 @@ operation. Tiny model deployment is required for the `aider_local` lane.
 WorkStation deploys and manages:
 
   SwitchBoard (:20401)    — execution-lane selector
-  Plane (:8080)           — task board (ControlPlane dependency)
+  Plane (:8080)           — task board (OperationsCenter dependency)
   tiny local models       — served locally for aider_local lane
 
 System flow (see docs/architecture/system_overview.md for the full picture):
 
-  ControlPlane planning → SwitchBoard routing → ControlPlane execution boundary
+  OperationsCenter planning → SwitchBoard routing → OperationsCenter execution boundary
                                                      ├── claude_cli   (Claude CLI, OAuth)
                                                      ├── codex_cli    (Codex CLI, subscription)
                                                      └── aider_local  (Aider + WorkStation models)

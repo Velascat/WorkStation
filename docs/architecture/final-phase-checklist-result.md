@@ -12,13 +12,13 @@ not as the primary source of current architecture guidance.
 - `fixed` Supported tuning runtime is recommendation-only.
 - `fixed` SwitchBoard default runtime is selector-only.
 - `fixed` WorkStation base compose and startup flow no longer require the retired provider router.
-- `fixed` FOB operator flows no longer center on the retired provider router.
-- `fixed` ControlPlane default worker entrypoint is planning-only while the supported execute entrypoint remains the canonical execution boundary.
-- `fixed` ControlPlane legacy execution runtime has been removed from the supported code path.
+- `fixed` OperatorConsole operator flows no longer center on the retired provider router.
+- `fixed` OperationsCenter default worker entrypoint is planning-only while the supported execute entrypoint remains the canonical execution boundary.
+- `fixed` OperationsCenter legacy execution runtime has been removed from the supported code path.
 
 ## Notes
 
 - Active runtime behavior now matches the supported sentence:
-  `ControlPlane proposes work -> SwitchBoard selects lane/backend -> ControlPlane enforces policy and dispatches adapters -> Observability records -> Tuning recommends improvements.`
+  `OperationsCenter proposes work -> SwitchBoard selects lane/backend -> OperationsCenter enforces policy and dispatches adapters -> Observability records -> Tuning recommends improvements.`
 - `RoutingPlan` is an allowed richer routing artifact. The invariant is truthful non-executing routing output, not “only one routing model exists.”
 - Historical `9router` references are allowed only in explicitly archival ADR or migration material. Active-facing architecture and runtime docs must not present `9router` as current.

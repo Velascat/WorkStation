@@ -1,4 +1,4 @@
-# ControlPlane Routing Examples
+# OperationsCenter Routing Examples
 
 Concrete examples showing how planning context flows through the proposal
 builder and SwitchBoard routing to produce a `ProposalDecisionBundle`.
@@ -88,7 +88,7 @@ PlanningContext(
     priority="high",
     task_id="TASK-2041",
     project_id="proj-cache",
-    proposer="control-plane",
+    proposer="operations-center",
 )
 ```
 
@@ -211,11 +211,11 @@ except ValueError as e:
 ## Example 7 — Using StubLaneRoutingClient in a test
 
 ```python
-from control_plane.contracts.enums import BackendName, LaneName
-from control_plane.contracts.routing import LaneDecision
-from control_plane.planning.models import PlanningContext
-from control_plane.routing.client import StubLaneRoutingClient
-from control_plane.routing.service import PlanningService
+from operations_center.contracts.enums import BackendName, LaneName
+from operations_center.contracts.routing import LaneDecision
+from operations_center.planning.models import PlanningContext
+from operations_center.routing.client import StubLaneRoutingClient
+from operations_center.routing.service import PlanningService
 
 stub = StubLaneRoutingClient(
     LaneDecision(
@@ -242,8 +242,8 @@ assert bundle.decision.selected_lane == LaneName.CLAUDE_CLI
 ## Example 8 — Full pipeline (proposal → execution request stub)
 
 ```python
-from control_plane.planning.models import PlanningContext
-from control_plane.routing.service import PlanningService
+from operations_center.planning.models import PlanningContext
+from operations_center.routing.service import PlanningService
 
 ctx = PlanningContext(
     goal_text="Upgrade all dependencies to their latest patch versions.",
@@ -264,7 +264,7 @@ service = PlanningService.default()
 bundle = service.plan(ctx)
 
 # Downstream: construct ExecutionRequest from bundle
-from control_plane.contracts.execution import ExecutionRequest
+from operations_center.contracts.execution import ExecutionRequest
 from pathlib import Path
 
 request = ExecutionRequest(

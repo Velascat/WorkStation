@@ -4,8 +4,8 @@
 
 ```python
 from pathlib import Path
-from control_plane.backends.openclaw import OpenClawBackendAdapter
-from control_plane.contracts.execution import ExecutionRequest
+from operations_center.backends.openclaw import OpenClawBackendAdapter
+from operations_center.contracts.execution import ExecutionRequest
 
 adapter = OpenClawBackendAdapter.with_stub(
     outcome="success",
@@ -40,7 +40,7 @@ print(capture.changed_files_source)   # "git_diff" | "event_stream" | "unknown"
 print(capture.events)                 # raw event list — NOT in ExecutionResult
 
 # Store events as BackendDetailRef via observability layer:
-from control_plane.observability.models import BackendDetailRef
+from operations_center.observability.models import BackendDetailRef
 import json, tempfile, pathlib
 
 if capture.events:
@@ -151,7 +151,7 @@ print(result.failure_category) # FailureReasonCategory.NO_CHANGES
 ## Using in tests with the stub factory
 
 ```python
-from control_plane.backends.openclaw import OpenClawBackendAdapter
+from operations_center.backends.openclaw import OpenClawBackendAdapter
 from pathlib import Path
 
 # Minimal success stub:
@@ -175,9 +175,9 @@ assert capture.changed_files_source == "event_stream"  # when no workspace
 Subclass `OpenClawRunner` to connect to your real implementation:
 
 ```python
-from control_plane.backends.openclaw.invoke import OpenClawRunner, OpenClawRunResult
-from control_plane.backends.openclaw.models import OpenClawPreparedRun
-from control_plane.backends.openclaw import OpenClawBackendAdapter
+from operations_center.backends.openclaw.invoke import OpenClawRunner, OpenClawRunResult
+from operations_center.backends.openclaw.models import OpenClawPreparedRun
+from operations_center.backends.openclaw import OpenClawBackendAdapter
 
 class MyOpenClawRunner(OpenClawRunner):
     def run(self, prepared: OpenClawPreparedRun) -> OpenClawRunResult:

@@ -194,7 +194,7 @@ Common limitations surfaced:
 ## File map
 
 ```
-src/control_plane/tuning/
+src/operations_center/tuning/
   routing_models.py     — BackendComparisonSummary, StrategyFinding,
                           RoutingTuningProposal, StrategyAnalysisReport,
                           EvidenceStrength, ReliabilityClass, ChangeEvidenceClass, LatencyClass

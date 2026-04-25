@@ -11,7 +11,7 @@ early architectural assumption.
 
 ## Why This Is Late
 
-The platform was deliberately designed so ControlPlane, SwitchBoard, and the
+The platform was deliberately designed so OperationsCenter, SwitchBoard, and the
 adapter layer could move forward without assuming early upstream changes.
 
 By the time this evaluation exists, the system has:

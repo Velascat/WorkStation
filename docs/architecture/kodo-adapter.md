@@ -12,7 +12,7 @@ kodo is the best first integration target because it:
 - supports headless/programmatic execution via subprocess
 - has a clean direct-run posture (not workflow-heavy)
 - returns structured outcome signals via exit code + output
-- has an existing subprocess wrapper (`KodoAdapter`) inside ControlPlane that
+- has an existing subprocess wrapper (`KodoAdapter`) inside OperationsCenter that
   the new canonical adapter can delegate to
 
 This phase establishes the adapter pattern. Later backends (Archon, OpenClaw)
@@ -34,10 +34,10 @@ will follow the same structure.
 ## What the adapter does not own
 
 - Routing policy — that is SwitchBoard's job
-- Task proposal generation — that is ControlPlane domain logic
+- Task proposal generation — that is OperationsCenter domain logic
 - Local model hosting — that is WorkStation's job
 - Cross-backend orchestration — that is Archon's job
-- Canonical contract definition — that is `control_plane.contracts`
+- Canonical contract definition — that is `operations_center.contracts`
 
 ---
 
@@ -73,7 +73,7 @@ ExecutionResult          ← canonical, JSON-serialisable, frozen
 ## Module layout
 
 ```
-src/control_plane/backends/kodo/
+src/operations_center/backends/kodo/
   __init__.py    — public API: KodoBackendAdapter, SupportCheck
   adapter.py     — KodoBackendAdapter (entry point)
   mapper.py      — check_support(), map_request()
@@ -85,15 +85,15 @@ src/control_plane/backends/kodo/
 ```
 
 All kodo-specific types are quarantined inside this namespace. They do not
-appear in ControlPlane domain code, SwitchBoard, or WorkStation.
+appear in OperationsCenter domain code, SwitchBoard, or WorkStation.
 
 ---
 
 ## Usage
 
 ```python
-from control_plane.backends.kodo import KodoBackendAdapter
-from control_plane.config.settings import KodoSettings
+from operations_center.backends.kodo import KodoBackendAdapter
+from operations_center.config.settings import KodoSettings
 
 adapter = KodoBackendAdapter.from_settings(
     settings=KodoSettings(),
@@ -163,7 +163,7 @@ workspace. Returns an empty list when git is unavailable or the workspace is
 not a git repo — this is normal, not an error.
 
 **Validation:** the normalizer accepts `validation_ran`, `validation_passed`,
-and `validation_excerpt` from the caller (e.g. ControlPlane's execution
+and `validation_excerpt` from the caller (e.g. OperationsCenter's execution
 boundary when it ran validation commands separately). When not provided,
 `ValidationSummary(status=SKIPPED)` is used.
 
@@ -193,8 +193,8 @@ The adapter does not fabricate output it cannot observe:
 - **Changed files:** omitted when `git diff` fails or workspace is unavailable.
   Callers must not assume this list is always populated.
 - **Validation summary:** skipped unless the caller provides it.
-- **Pull request URL:** never set by the adapter; set by ControlPlane's execution boundary or a higher workflow layer.
-- **Branch push status:** never set by the adapter; set by ControlPlane's execution boundary or a higher workflow layer.
+- **Pull request URL:** never set by the adapter; set by OperationsCenter's execution boundary or a higher workflow layer.
+- **Branch push status:** never set by the adapter; set by OperationsCenter's execution boundary or a higher workflow layer.
 
 ---
 

@@ -225,7 +225,7 @@ This phase establishes local capability. The following are not yet built:
 - **Automatic model download** — models must be pulled with `ollama pull` before use.
 - **SwitchBoard availability query** — SwitchBoard does not yet query WorkStation for
   lane availability; that is a Phase 4 concern.
-- **Cross-repo task assignment** — ControlPlane does not yet route tasks to this lane
+- **Cross-repo task assignment** — OperationsCenter does not yet route tasks to this lane
   automatically; that requires Phase 3 contracts and Phase 4-5 integration.
 - **Multi-machine deployment** — the lane is single-machine only.
 - **Automatic model selection** — Aider is called with a configured model; there is

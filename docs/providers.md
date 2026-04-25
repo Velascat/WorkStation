@@ -10,7 +10,7 @@ Operator setup focuses on the execution lanes that SwitchBoard may select.
 | Local execution lane | WorkStation | `python -m workstation_cli lane status aider_local` |
 | Premium CLI lanes | User environment | Verify the relevant CLI (`claude`, `codex`) is installed and authenticated |
 
-## FOB shortcut
+## OperatorConsole shortcut
 
 ```bash
 fob providers

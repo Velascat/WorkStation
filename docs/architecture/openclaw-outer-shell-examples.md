@@ -3,8 +3,8 @@
 ## Triggering a Run
 
 ```python
-from control_plane.openclaw_shell.bridge import OpenClawBridge
-from control_plane.openclaw_shell.models import OperatorContext
+from operations_center.openclaw_shell.bridge import OpenClawBridge
+from operations_center.openclaw_shell.models import OperatorContext
 
 bridge = OpenClawBridge.default()
 
@@ -60,8 +60,8 @@ print(summary.recorded_at)   # None — not set in lightweight path
 After an execution record has been retained by the observability layer:
 
 ```python
-from control_plane.observability.recorder import ExecutionRecorder
-from control_plane.observability.trace import RunReportBuilder
+from operations_center.observability.recorder import ExecutionRecorder
+from operations_center.observability.trace import RunReportBuilder
 
 recorder = ExecutionRecorder()
 builder = RunReportBuilder()

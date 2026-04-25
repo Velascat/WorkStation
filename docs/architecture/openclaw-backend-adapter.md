@@ -26,7 +26,7 @@ The backend adapter role is bounded: it accepts a canonical `ExecutionRequest`, 
 ```
 SwitchBoard selects openclaw lane/backend
           ↓
-ControlPlane execution boundary builds ExecutionRequest
+OperationsCenter execution boundary builds ExecutionRequest
           ↓
 OpenClawBackendAdapter (Phase 11)
   ├── check_support()      ← suitability check
@@ -75,7 +75,7 @@ ExecutionRequest
 ## File Map
 
 ```
-src/control_plane/backends/openclaw/
+src/operations_center/backends/openclaw/
   __init__.py     public surface: OpenClawBackendAdapter
   adapter.py      OpenClawBackendAdapter — canonical entry point
   mapper.py       check_support(), map_request() — pure functions

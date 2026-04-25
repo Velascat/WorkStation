@@ -96,7 +96,7 @@ decision = engine.evaluate(proposal, lane_decision)
 ## Example 5: PR required but not set → REQUIRE_REVIEW
 
 ```python
-from control_plane.policy.models import BranchGuardrail
+from operations_center.policy.models import BranchGuardrail
 
 # Custom policy: PR required
 policy = RepoPolicy(
@@ -145,7 +145,7 @@ print(explanation.scope_reasoning)
 ## Example 7: Config validation catching contradictions
 
 ```python
-from control_plane.policy.validate import validate_config
+from operations_center.policy.validate import validate_config
 
 bad_policy = RepoPolicy(
     repo_key="bad-repo",

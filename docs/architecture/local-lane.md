@@ -35,7 +35,7 @@ complement.
   services. It does not decide when to use the lane, which tasks to assign, or what
   the routing policy is. That is SwitchBoard's job.
 - **Repo-global decision policy.** Task proposal, confidence scoring, and strategic
-  decision-making live in ControlPlane. WorkStation reports availability; it does not
+  decision-making live in OperationsCenter. WorkStation reports availability; it does not
   shape the task queue.
 
 ---
@@ -51,7 +51,7 @@ must be started, stopped, health-checked, and reported on. All of that is
 infrastructure operation — WorkStation's domain.
 
 The lane is definitively **not** a SwitchBoard concern (policy selection), a
-ControlPlane concern (task proposal), or a kodo concern (execution orchestration).
+OperationsCenter concern (task proposal), or a kodo concern (execution orchestration).
 The line is clean:
 
 | Concern | Owner |
@@ -60,14 +60,14 @@ The line is clean:
 | Checking if the lane is available | WorkStation |
 | Deciding which lane to use for a task | SwitchBoard |
 | Running Aider against the local models | kodo (`aider_local` backend process) |
-| Deciding what task to run | ControlPlane |
+| Deciding what task to run | OperationsCenter |
 
 ---
 
 ## Architecture position
 
 ```
-ControlPlane → SwitchBoard → [lane decision: aider_local]
+OperationsCenter → SwitchBoard → [lane decision: aider_local]
                                        │
                                        ▼
                              kodo (aider_local runner)
@@ -81,7 +81,7 @@ ControlPlane → SwitchBoard → [lane decision: aider_local]
 ```
 
 WorkStation sits outside this invocation chain. It deploys and runs the tiny model
-service that ControlPlane's execution boundary eventually calls. It also provides lifecycle management
+service that OperationsCenter's execution boundary eventually calls. It also provides lifecycle management
 and availability reporting that SwitchBoard can consult before assigning work.
 
 ---
@@ -167,7 +167,7 @@ lifecycle. If it is absent, WorkStation assumes the service is externally manage
 Phase 2 establishes the local capability. The following are out of scope:
 
 - SwitchBoard integration (Phase 4) — SwitchBoard consulting WorkStation availability
-- ControlPlane-to-WorkStation availability API (future phase)
+- OperationsCenter-to-WorkStation availability API (future phase)
 - Cross-repo orchestration
 - Queue or scheduler integration
 - Automatic model download or provisioning

@@ -49,7 +49,7 @@ derived on demand — it is never the primary record.
 ## Module layout
 
 ```
-src/control_plane/observability/
+src/operations_center/observability/
   __init__.py          — public API
   models.py            — BackendDetailRef, ExecutionRecord
   changed_files.py     — ChangedFilesEvidence, ChangedFilesStatus, normalize_changed_files()
@@ -115,7 +115,7 @@ contract into an observability-oriented model that also accepts artifact
 references.
 
 If validation was skipped (the common case when the kodo adapter runs without
-the ControlPlane execution boundary providing validation results), `ValidationEvidence.status`
+the OperationsCenter execution boundary providing validation results), `ValidationEvidence.status`
 is `SKIPPED` — not fabricated as passed.
 
 ---
@@ -150,7 +150,7 @@ preserving full raw evidence for incident investigation.
 ### Basic recording
 
 ```python
-from control_plane.observability.service import ExecutionObservabilityService
+from operations_center.observability.service import ExecutionObservabilityService
 
 svc = ExecutionObservabilityService.default()
 record, trace = svc.observe(
@@ -173,7 +173,7 @@ for w in trace.warnings:
 ### With raw detail references
 
 ```python
-from control_plane.observability.models import BackendDetailRef
+from operations_center.observability.models import BackendDetailRef
 
 refs = [
     BackendDetailRef(
@@ -193,7 +193,7 @@ record, trace = svc.observe(result, raw_detail_refs=refs)
 ### Direct layer use
 
 ```python
-from control_plane.observability import (
+from operations_center.observability import (
     ArtifactNormalizer,
     ExecutionRecorder,
     RunReportBuilder,
@@ -225,7 +225,7 @@ trace = builder.build_report(record)
 
 - Backend invocation — that is the backend adapter's job
 - Backend selection — that is SwitchBoard's job
-- Proposal generation — that is ControlPlane's planning layer
+- Proposal generation — that is OperationsCenter's planning layer
 - Persisting to a database — filesystem-local retention is sufficient
 - Dashboard productization — out of scope for this phase
 - Universal log ingestion for every possible future signal
@@ -236,11 +236,11 @@ trace = builder.build_report(record)
 
 | Concern | Owner |
 |---|---|
-| Normalized execution records | `ControlPlane: observability/recorder.py` |
-| Artifact classification | `ControlPlane: observability/artifacts.py` |
-| Changed-file certainty | `ControlPlane: observability/changed_files.py` |
-| Validation normalization | `ControlPlane: observability/validation.py` |
-| Inspectable traces | `ControlPlane: observability/trace.py` |
+| Normalized execution records | `OperationsCenter: observability/recorder.py` |
+| Artifact classification | `OperationsCenter: observability/artifacts.py` |
+| Changed-file certainty | `OperationsCenter: observability/changed_files.py` |
+| Validation normalization | `OperationsCenter: observability/validation.py` |
+| Inspectable traces | `OperationsCenter: observability/trace.py` |
 | Raw backend detail capture | Backend adapter (e.g. `backends/kodo/normalize.py`) |
 | Backend output format | Each backend adapter, internally |
 

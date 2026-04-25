@@ -22,7 +22,7 @@ services run on a developer machine.
 | **Outputs** | Running containers (SwitchBoard, Plane), deployed tiny models, health status |
 | **Dependencies** | Docker, docker-compose, Plane setup script (makeplane releases) |
 | **Invokes** | Nothing at runtime. Lifecycle scripts manage containers. |
-| **Invoked by** | Operator via scripts or FOB. ControlPlane's `manage.sh` delegates plane lifecycle here. |
+| **Invoked by** | Operator via scripts or OperatorConsole. OperationsCenter's `manage.sh` delegates plane lifecycle here. |
 
 **In scope:**
 - Dockerfiles for every service in the shared stack
@@ -37,7 +37,7 @@ services run on a developer machine.
 
 **Out of scope — WorkStation does not own:**
 - What SwitchBoard's policy rules do or how lanes are scored
-- What ControlPlane decides to work on next
+- What OperationsCenter decides to work on next
 - What Archon's workflow steps are
 - kodo's execution logic or agent orchestration
 - Service-internal config schemas (those live in their own repos)
@@ -60,7 +60,7 @@ sensitivity, urgency) to feed lane scoring.
 | **Outputs** | Selected lane name + downstream routing info; decision log entry |
 | **Dependencies** | Policy YAML, profiles YAML, capability registry |
 | **Invokes** | Nothing at runtime; SwitchBoard emits routing metadata only |
-| **Invoked by** | ControlPlane, kodo, or any system component that needs a lane assigned |
+| **Invoked by** | OperationsCenter, kodo, or any system component that needs a lane assigned |
 
 **Lanes SwitchBoard selects between:**
 - `claude_cli` — Claude Code CLI, premium, OAuth/subscription
@@ -84,14 +84,14 @@ sensitivity, urgency) to feed lane scoring.
 - Task prioritization or strategic decisions about what to work on
 - Workflow structure or multi-step execution discipline
 - Deployment of models or infrastructure
-- ControlPlane's autonomy logic
+- OperationsCenter's autonomy logic
 
 > **SwitchBoard is a selector, not a proxy.** It chooses the lane; it does not
 > impersonate a provider or sit in the request path between a client and an LLM API.
 
 ---
 
-## ControlPlane
+## OperationsCenter
 
 **Primary responsibility:** Decision and execution engine. Observes repo state,
 derives insights, decides what work matters next, and drives the autonomous task loop.
@@ -105,7 +105,7 @@ invocation wrapper, execution artifact analysis).
 | **Outputs** | Proposal candidates, Plane tasks, execution requests, outcome artifacts, autonomy cycle reports |
 | **Dependencies** | Plane (task board), kodo (execution backend), git |
 | **Invokes** | backend adapters through its execution boundary, SwitchBoard, Plane API |
-| **Invoked by** | Operator via CLI, FOB, or OpenClaw |
+| **Invoked by** | Operator via CLI, OperatorConsole, or OpenClaw |
 
 **In scope:**
 - Repo observation (git signals, lint, test, architecture, benchmark, security)
@@ -119,11 +119,11 @@ invocation wrapper, execution artifact analysis).
 - Execution outcome classification (failure modes, regression detection)
 - Self-tuning regulation (threshold recommendations)
 
-**Out of scope — ControlPlane does not own:**
+**Out of scope — OperationsCenter does not own:**
 - Workflow structure and multi-step execution discipline (that is Archon's job)
 - Lane selection policy (that is SwitchBoard's job)
 - Model deployment or infrastructure (that is WorkStation's job)
-- The Plane stack itself (WorkStation owns Plane infra; ControlPlane owns the client)
+- The Plane stack itself (WorkStation owns Plane infra; OperationsCenter owns the client)
 
 ---
 
@@ -141,7 +141,7 @@ GitHub, web UI, CLI).
 | **Outputs** | Executed workflow run with per-node artifacts, PR (if configured), structured outcome |
 | **Dependencies** | Claude Agent SDK or Codex SDK (via AI clients), SQLite/PostgreSQL (run tracking), git |
 | **Invokes** | Claude CLI lane or Codex CLI lane (via SDK clients) |
-| **Invoked by** | ControlPlane execution boundary, operator CLI, platform adapters |
+| **Invoked by** | OperationsCenter execution boundary, operator CLI, platform adapters |
 
 **In scope:**
 - YAML workflow loading, validation, and DAG execution
@@ -153,12 +153,12 @@ GitHub, web UI, CLI).
 - Bundled default workflows (fix-issue, smart-pr-review, idea-to-pr, etc.)
 
 **Out of scope — Archon does not own:**
-- Strategic decisions about what work to do (that is ControlPlane's job)
+- Strategic decisions about what work to do (that is OperationsCenter's job)
 - Lane selection policy (that is SwitchBoard's job)
 - Infrastructure deployment (that is WorkStation's job)
 - kodo's orchestration logic (Archon uses Claude/Codex SDK directly, not kodo)
 
-> **Archon is optional.** ControlPlane can invoke kodo directly without Archon when
+> **Archon is optional.** OperationsCenter can invoke kodo directly without Archon when
 > workflow discipline is not required.
 
 ---
@@ -177,7 +177,7 @@ structured artifact output.
 | **Outputs** | Code changes (committed to branch), validation results, diff artifacts, outcome JSON |
 | **Dependencies** | Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`) or Codex SDK; git |
 | **Invokes** | Claude CLI (via SDK), Codex CLI (via subprocess + JSONL), aider (via subprocess) |
-| **Invoked by** | ControlPlane, Archon (within workflow nodes) |
+| **Invoked by** | OperationsCenter, Archon (within workflow nodes) |
 
 **In scope:**
 - Multi-agent coding session orchestration
@@ -190,7 +190,7 @@ structured artifact output.
 
 **Out of scope — kodo does not own:**
 - System-wide policy or lane selection (that is SwitchBoard's job)
-- Task proposal and prioritization (that is ControlPlane's job)
+- Task proposal and prioritization (that is OperationsCenter's job)
 - Workflow structure and multi-step DAG (that is Archon's job)
 - Infrastructure deployment (that is WorkStation's job)
 - Long-range strategy about what repos to improve
@@ -200,16 +200,16 @@ structured artifact output.
 ## OpenClaw
 
 **Primary responsibility:** Optional outer operator shell. Human-facing runtime that
-sits above ControlPlane and provides a unified control surface.
+sits above OperationsCenter and provides a unified control surface.
 
 **Secondary responsibility:** Session management, workspace ergonomics, operator UX.
 
 | Field | Detail |
 |-------|--------|
 | **Inputs** | Operator commands, mission files, platform events |
-| **Outputs** | Directed work requests to ControlPlane, workspace state |
-| **Dependencies** | ControlPlane, WorkStation lifecycle scripts |
-| **Invokes** | ControlPlane (directs what to work on), WorkStation scripts (stack lifecycle) |
+| **Outputs** | Directed work requests to OperationsCenter, workspace state |
+| **Dependencies** | OperationsCenter, WorkStation lifecycle scripts |
+| **Invokes** | OperationsCenter (directs what to work on), WorkStation scripts (stack lifecycle) |
 | **Invoked by** | Human operator |
 
 **In scope:**
@@ -219,11 +219,11 @@ sits above ControlPlane and provides a unified control surface.
 - Human-in-the-loop control over the autonomy loop
 
 **Out of scope — OpenClaw does not own:**
-- ControlPlane's autonomy logic
+- OperationsCenter's autonomy logic
 - SwitchBoard's lane selection
 - Any core execution or infrastructure
 
-> **OpenClaw is optional.** The system (ControlPlane through kodo) functions without
+> **OpenClaw is optional.** The system (OperationsCenter through kodo) functions without
 > it. OpenClaw adds operator ergonomics on top of an already-functioning autonomous
 > system.
 
@@ -255,7 +255,7 @@ sits above ControlPlane and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Invoked by** | kodo via subprocess or ControlPlane execution boundary; SwitchBoard selects this lane but does not dispatch execution |
+| **Invoked by** | kodo via subprocess or OperationsCenter execution boundary; SwitchBoard selects this lane but does not dispatch execution |
 | **Auth** | None — hits locally deployed models only |
 | **Strengths** | Zero external API cost, always available, fast for simple edits |
 | **Cost profile** | Free / local compute only |
@@ -267,7 +267,7 @@ sits above ControlPlane and provides a unified control surface.
 
 ```
 OpenClaw (optional)
-  └─invokes─► ControlPlane
+  └─invokes─► OperationsCenter
                 └─invokes─► SwitchBoard (lane selection)
                 └─invokes─► kodo
                               └─invokes─► claude_cli lane

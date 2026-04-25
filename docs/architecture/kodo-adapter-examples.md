@@ -87,7 +87,7 @@ KodoPreparedRun(
 ```
 
 **Note:** `validation` is `skipped` because the adapter does not run validation
-commands — that is ControlPlane's execution boundary responsibility. That
+commands — that is OperationsCenter's execution boundary responsibility. That
 boundary may pass
 `validation_ran=True, validation_passed=True` to `normalize()` after running
 validation separately.
@@ -192,7 +192,7 @@ SupportCheck(
 
 ## Example 5 — Validation passed (execution boundary provides result)
 
-ControlPlane's execution boundary can pass the
+OperationsCenter's execution boundary can pass the
 result into `normalize()`:
 
 ```python
@@ -225,9 +225,9 @@ result = normalize(
 ## Using the adapter directly
 
 ```python
-from control_plane.backends.kodo import KodoBackendAdapter
-from control_plane.config.settings import KodoSettings
-from control_plane.contracts.execution import ExecutionRequest
+from operations_center.backends.kodo import KodoBackendAdapter
+from operations_center.config.settings import KodoSettings
+from operations_center.contracts.execution import ExecutionRequest
 from pathlib import Path
 
 adapter = KodoBackendAdapter.from_settings(

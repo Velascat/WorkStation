@@ -11,14 +11,14 @@ Policy and guardrails are first-class system concerns. They do not live inside a
 ## Architecture Position
 
 ```
-ControlPlane
+OperationsCenter
   └─ planning/    ← produces TaskProposal
   └─ routing/     ← produces LaneDecision
   └─ policy/      ← evaluates (proposal, decision) → PolicyDecision
                      ↑ sits between planning/routing and execution
 SwitchBoard
   └─ routing metadata only
-ControlPlane execution boundary
+OperationsCenter execution boundary
   └─ adapter dispatch ← only proceeds if PolicyDecision.is_allowed or gates pass
 ```
 
@@ -190,7 +190,7 @@ Each `ValidationRequirement` targets a set of risk levels (and optionally task t
 ## File Map
 
 ```
-src/control_plane/policy/
+src/operations_center/policy/
   __init__.py        — public API
   models.py          — all typed models (config + decision)
   defaults.py        — DEFAULT_REPO_POLICY, DEFAULT_POLICY_CONFIG

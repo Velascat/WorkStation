@@ -2,7 +2,7 @@
 
 ## Purpose
 
-OpenClaw is an optional outer shell around the ControlPlane + SwitchBoard architecture. It provides an operator-facing command surface without modifying the internal contract-owned architecture. The system runs fully without OpenClaw active.
+OpenClaw is an optional outer shell around the OperationsCenter + SwitchBoard architecture. It provides an operator-facing command surface without modifying the internal contract-owned architecture. The system runs fully without OpenClaw active.
 
 ## Position in the Architecture
 
@@ -13,7 +13,7 @@ OpenClaw (outer shell — optional)
             ├── PlanningService       (routing + proposals)
             └── ExecutionObservabilityService  (record + trace)
 
-ControlPlane core (unchanged, does not import from openclaw_shell/)
+OperationsCenter core (unchanged, does not import from openclaw_shell/)
     ├── contracts/
     ├── planning/
     ├── routing/
@@ -113,16 +113,16 @@ The observability `conftest.py` fixtures (`make_result()`, `make_changed_file()`
 |---------|-------|
 | Routing policy rules | SwitchBoard |
 | Fallback/escalation policy | SwitchBoard |
-| Canonical contract definitions | ControlPlane contracts/ |
-| Backend invocation | ControlPlane backends/ |
-| Execution record storage | ControlPlane observability/ |
-| Task proposal creation | ControlPlane planning/ |
+| Canonical contract definitions | OperationsCenter contracts/ |
+| Backend invocation | OperationsCenter backends/ |
+| Execution record storage | OperationsCenter observability/ |
+| Task proposal creation | OperationsCenter planning/ |
 | LaneDecision | SwitchBoard routing |
 
 ## File Map
 
 ```
-src/control_plane/openclaw_shell/
+src/operations_center/openclaw_shell/
     __init__.py        module version constant
     models.py          OperatorContext, ShellRunHandle, ShellStatusSummary,
                        ShellInspectionResult, ShellActionResult

@@ -7,8 +7,8 @@ Concrete examples for Phase 9 fallback/escalation policy. All examples use `Deci
 ## 1. Safe local task — no remote escalation allowed
 
 ```python
-from control_plane.contracts import TaskProposal
-from control_plane.contracts.enums import TaskType, RiskLevel
+from operations_center.contracts import TaskProposal
+from operations_center.contracts.enums import TaskType, RiskLevel
 from switchboard.lane.planner import DecisionPlanner
 
 proposal = TaskProposal(

@@ -1,6 +1,6 @@
-# ControlPlane Routing Architecture
+# OperationsCenter Routing Architecture
 
-How ControlPlane shapes a `TaskProposal` from planning context, routes it
+How OperationsCenter shapes a `TaskProposal` from planning context, routes it
 through SwitchBoard over the service boundary, and bundles the result for
 downstream execution.
 
@@ -8,7 +8,7 @@ downstream execution.
 
 ## Overview
 
-ControlPlane's planning and routing pipeline has three stages:
+OperationsCenter's planning and routing pipeline has three stages:
 
 ```
 PlanningContext
@@ -24,14 +24,14 @@ ProposalDecisionBundle
 ```
 
 Each stage is a pure translation with no side effects. The bundle is
-the hand-off point for ControlPlane's execution boundary.
+the hand-off point for OperationsCenter's execution boundary.
 
 ---
 
 ## PlanningContext
 
 `PlanningContext` is a frozen dataclass that carries raw task intent before it
-is translated into canonical types. It is ControlPlane-internal and never
+is translated into canonical types. It is OperationsCenter-internal and never
 crosses a repo boundary.
 
 ```python
@@ -64,7 +64,7 @@ class PlanningContext:
     project_id: str
     constraints_text: Optional[str]
     labels: list[str]
-    proposer: str           # "control-plane" (default)
+    proposer: str           # "operations-center" (default)
 
     # Branch policy
     push_on_success: bool   # True (default)
@@ -93,7 +93,7 @@ The proposal builder is a pure function. It:
 No backend knowledge. No routing logic. No external calls.
 
 ```python
-from control_plane.planning import build_proposal, PlanningContext
+from operations_center.planning import build_proposal, PlanningContext
 
 ctx = PlanningContext(
     goal_text="Fix all ruff errors in src/",
@@ -110,7 +110,7 @@ proposal = build_proposal(ctx)
 ## LaneRoutingClient
 
 `LaneRoutingClient` is a `Protocol` — a structural interface that isolates how
-SwitchBoard is called. ControlPlane's service layer calls only:
+SwitchBoard is called. OperationsCenter's service layer calls only:
 
 ```python
 decision: LaneDecision = client.select_lane(proposal)
@@ -129,11 +129,11 @@ SwitchBoard bypass in the live architecture.
 `HttpLaneRoutingClient` is the supported default:
 
 ```bash
-export CONTROL_PLANE_SWITCHBOARD_URL=http://localhost:20401
+export OPERATIONS_CENTER_SWITCHBOARD_URL=http://localhost:20401
 ```
 
 ```python
-from control_plane.routing import HttpLaneRoutingClient
+from operations_center.routing import HttpLaneRoutingClient
 
 client = HttpLaneRoutingClient.from_env()
 decision = client.select_lane(proposal)
@@ -142,9 +142,9 @@ decision = client.select_lane(proposal)
 `StubLaneRoutingClient` injects a fixed decision — no SwitchBoard dependency:
 
 ```python
-from control_plane.routing import StubLaneRoutingClient
-from control_plane.contracts.routing import LaneDecision
-from control_plane.contracts.enums import LaneName, BackendName
+from operations_center.routing import StubLaneRoutingClient
+from operations_center.contracts.routing import LaneDecision
+from operations_center.contracts.enums import LaneName, BackendName
 
 stub = StubLaneRoutingClient(
     LaneDecision(
@@ -219,7 +219,7 @@ class ProposalDecisionBundle:
         # "proposal=<id[:8]> task=<task_id> lane=<lane> backend=<backend> rule=<rule>"
 ```
 
-ControlPlane's execution boundary uses `bundle.decision.selected_lane` and
+OperationsCenter's execution boundary uses `bundle.decision.selected_lane` and
 `bundle.decision.selected_backend` to choose and invoke the right adapter.
 
 ---
@@ -228,20 +228,20 @@ ControlPlane's execution boundary uses `bundle.decision.selected_lane` and
 
 | Concern | Owner |
 |---|---|
-| Planning context → TaskProposal | `ControlPlane: planning/proposal_builder.py` |
+| Planning context → TaskProposal | `OperationsCenter: planning/proposal_builder.py` |
 | Routing policy and lane selection | `SwitchBoard: lane/engine.py` |
-| Calling SwitchBoard | `ControlPlane: routing/client.py` |
-| Bundling proposal + decision | `ControlPlane: routing/service.py` |
+| Calling SwitchBoard | `OperationsCenter: routing/client.py` |
+| Bundling proposal + decision | `OperationsCenter: routing/service.py` |
 | Executing the task | Lane runner (downstream, outside this scope) |
 
-ControlPlane never embeds routing logic. All policy lives in SwitchBoard.
+OperationsCenter never embeds routing logic. All policy lives in SwitchBoard.
 
 ---
 
 ## Module layout
 
 ```
-src/control_plane/
+src/operations_center/
   planning/
     __init__.py          — public API
     models.py            — PlanningContext, ProposalBuildResult, ProposalDecisionBundle

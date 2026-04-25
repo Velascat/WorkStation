@@ -1,6 +1,6 @@
 # Archon Adapter — Usage Examples
 
-Concrete examples for the Archon backend adapter (Phase 8). All examples use the ControlPlane canonical contract types.
+Concrete examples for the Archon backend adapter (Phase 8). All examples use the OperationsCenter canonical contract types.
 
 ---
 
@@ -8,8 +8,8 @@ Concrete examples for the Archon backend adapter (Phase 8). All examples use the
 
 ```python
 from pathlib import Path
-from control_plane.backends.archon.adapter import ArchonBackendAdapter
-from control_plane.backends.archon.invoke import StubArchonAdapter, ArchonRunResult
+from operations_center.backends.archon.adapter import ArchonBackendAdapter
+from operations_center.backends.archon.invoke import StubArchonAdapter, ArchonRunResult
 
 # Use a stub for tests/local dev
 stub = StubArchonAdapter(ArchonRunResult(
@@ -58,8 +58,8 @@ assert result.failure_category == FailureReasonCategory.VALIDATION_FAILED
 ## 3. Capturing workflow events for observability
 
 ```python
-from control_plane.backends.archon.adapter import ArchonBackendAdapter
-from control_plane.observability.models import BackendDetailRef
+from operations_center.backends.archon.adapter import ArchonBackendAdapter
+from operations_center.observability.models import BackendDetailRef
 
 result, capture = adapter.execute_and_capture(request)
 
@@ -82,7 +82,7 @@ assert not hasattr(result, "workflow_events")
 ## 4. Checking support before dispatch
 
 ```python
-from control_plane.backends.archon.mapper import check_support
+from operations_center.backends.archon.mapper import check_support
 
 check = check_support(request)
 if not check.supported:
@@ -96,7 +96,7 @@ if not check.supported:
 ## 5. Mapping an `ExecutionRequest` to `ArchonWorkflowConfig`
 
 ```python
-from control_plane.backends.archon.mapper import map_request
+from operations_center.backends.archon.mapper import map_request
 
 config = map_request(request, workflow_type="fix_pr")
 
@@ -111,8 +111,8 @@ print(config.metadata["proposal_id"])  # from request.proposal_id
 ## 6. Unsupported request returns UNSUPPORTED_REQUEST, not an exception
 
 ```python
-from control_plane.contracts.execution import ExecutionRequest
-from control_plane.contracts.enums import ExecutionStatus, FailureReasonCategory
+from operations_center.contracts.execution import ExecutionRequest
+from operations_center.contracts.enums import ExecutionStatus, FailureReasonCategory
 
 bad_request = ExecutionRequest(
     proposal_id="prop-1",
@@ -137,7 +137,7 @@ assert capture is None  # invocation never ran
 ## 7. Timeout handling
 
 ```python
-from control_plane.backends.archon.invoke import StubArchonAdapter, ArchonRunResult
+from operations_center.backends.archon.invoke import StubArchonAdapter, ArchonRunResult
 
 timeout_stub = StubArchonAdapter(ArchonRunResult(
     outcome="timeout",
@@ -173,8 +173,8 @@ assert result.failure_category == FailureReasonCategory.TIMEOUT
 ## 9. Direct invocation via `ArchonBackendInvoker`
 
 ```python
-from control_plane.backends.archon.invoke import ArchonBackendInvoker
-from control_plane.backends.archon.mapper import map_request
+from operations_center.backends.archon.invoke import ArchonBackendInvoker
+from operations_center.backends.archon.mapper import map_request
 
 config = map_request(request)
 invoker = ArchonBackendInvoker(adapter=stub)
@@ -192,7 +192,7 @@ print(capture.artifacts)         # [ArchonArtifactCapture(label="archon log", ..
 ## 10. Normalizing a capture to `ExecutionResult`
 
 ```python
-from control_plane.backends.archon.normalize import normalize
+from operations_center.backends.archon.normalize import normalize
 
 result = normalize(
     capture,

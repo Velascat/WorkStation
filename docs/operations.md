@@ -150,7 +150,7 @@ Then restart to apply:
 
 ---
 
-## Plane (ControlPlane dependency)
+## Plane (OperationsCenter dependency)
 
 Plane is managed by a separate script, not by `docker-compose.yml`. WorkStation is the canonical owner of this infra.
 
@@ -169,7 +169,7 @@ Runtime data is stored in `runtime/plane/` (gitignored). On first run, `scripts/
 
 To configure the port or version before first startup, copy `config/plane/.env.example` to `config/plane/.env` and edit.
 
-After Plane is running, open `http://localhost:8080` to complete workspace setup (admin account, project, API token). These credentials go in ControlPlane's config — not in WorkStation.
+After Plane is running, open `http://localhost:8080` to complete workspace setup (admin account, project, API token). These credentials go in OperationsCenter's config — not in WorkStation.
 
 ---
 

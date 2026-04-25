@@ -1,7 +1,7 @@
 # Canonical Cross-Repo Contracts
 
 This document defines the platform's canonical data contracts — the typed,
-backend-agnostic models that structure communication between ControlPlane,
+backend-agnostic models that structure communication between OperationsCenter,
 SwitchBoard, and execution backends (kodo, Archon, etc.).
 
 ---
@@ -16,31 +16,31 @@ They are:
 - **Validated** — Pydantic enforces field constraints at construction time
 - **Frozen** — all contract models are immutable after construction
 
-Contracts are not internal domain models. ControlPlane has internal models
+Contracts are not internal domain models. OperationsCenter has internal models
 (`BoardTask`, `RepoTarget`) that are Plane-workflow-specific and stay inside
-ControlPlane. Contracts are the surface where components meet.
+OperationsCenter. Contracts are the surface where components meet.
 
 ---
 
 ## Canonical ownership
 
-> Contracts live in ControlPlane (`src/control_plane/contracts/`).
+> Contracts live in OperationsCenter (`src/operations_center/contracts/`).
 
-ControlPlane is the upstream origin of all work in the system. It proposes
+OperationsCenter is the upstream origin of all work in the system. It proposes
 tasks, it consumes results. Locating contracts here avoids circular dependencies:
 SwitchBoard and kodo consume contracts but do not produce them upstream.
 
 When contracts need to be consumed in SwitchBoard or a backend adapter, they are
-imported from the `control-plane` package or vendored from the same source if a
+imported from the `operations-center` package or vendored from the same source if a
 consumer cannot depend on that package directly. The source of truth remains
-`src/control_plane/contracts/`.
+`src/operations_center/contracts/`.
 
 ---
 
 ## Module layout
 
 ```
-src/control_plane/contracts/
+src/operations_center/contracts/
 ├── __init__.py      — public API, re-exports all canonical types
 ├── enums.py         — TaskType, LaneName, BackendName, ExecutionStatus, ...
 ├── common.py        — TaskTarget, ExecutionConstraints, ValidationProfile,
@@ -57,7 +57,7 @@ src/control_plane/contracts/
 
 ### TaskProposal
 
-Emitted by ControlPlane when it decides a task is worth attempting.
+Emitted by OperationsCenter when it decides a task is worth attempting.
 
 | Field | Type | Description |
 |-------|------|-------------|
@@ -70,7 +70,7 @@ Emitted by ControlPlane when it decides a task is worth attempting.
 | `constraints_text` | str? | Natural-language constraints |
 | `target` | TaskTarget | Repo, branch, allowed paths |
 | `priority` | Priority | low / normal / high / critical |
-| `risk_level` | RiskLevel | ControlPlane's risk estimate |
+| `risk_level` | RiskLevel | OperationsCenter's risk estimate |
 | `constraints` | ExecutionConstraints | Timeout, max files, validation policy |
 | `validation_profile` | ValidationProfile | Commands to run, fail-fast flag |
 | `branch_policy` | BranchPolicy | Branch prefix, push-on-success, open-PR |
@@ -106,7 +106,7 @@ Emitted by SwitchBoard in response to a TaskProposal.
 
 ### ExecutionRequest
 
-Produced by ControlPlane's execution boundary after receiving a TaskProposal +
+Produced by OperationsCenter's execution boundary after receiving a TaskProposal +
 LaneDecision. Contains everything the backend adapter needs, including
 execution-layer details (workspace path, branch name) that are not present in
 the proposal.
@@ -233,9 +233,9 @@ not be mutated after construction.
 **str-based enums.** All enums extend `str`. This means enum values pass `json.dumps`
 without a custom serialiser and display as plain strings in logs.
 
-**No internal types in contracts.** Contracts do not reference ControlPlane's
+**No internal types in contracts.** Contracts do not reference OperationsCenter's
 internal domain types (`BoardTask`, `RepoTarget`). Those live in
-`src/control_plane/domain/models.py` and are ControlPlane-internal.
+`src/operations_center/domain/models.py` and are OperationsCenter-internal.
 
 **Auto-generated IDs.** `proposal_id`, `decision_id`, `run_id`, and `artifact_id`
 are UUID strings generated at construction time. Callers can override them to
@@ -251,7 +251,7 @@ result model.
 
 The supported runtime now uses this contract layer directly:
 
-- **Canonical proposal ownership** — ControlPlane owns `TaskProposal` and emits it
+- **Canonical proposal ownership** — OperationsCenter owns `TaskProposal` and emits it
   from the supported planning path.
 - **SwitchBoard contract usage** — SwitchBoard consumes `TaskProposal` at the
   `/route` boundary and returns canonical routing output (`LaneDecision`, and
@@ -275,9 +275,9 @@ future work. That is no longer true for the supported runtime.
 Some legacy compatibility types still exist, but they are not part of the
 canonical cross-repo contract story:
 
-- `control_plane.domain.BoardTask` remains a Plane-ingest compatibility model for
+- `operations_center.domain.BoardTask` remains a Plane-ingest compatibility model for
   the quarantined legacy execution path.
-- `control_plane.legacy_execution` remains explicitly opt-in and disabled by
+- `operations_center.legacy_execution` remains explicitly opt-in and disabled by
   default.
 - A standalone `platform-contracts` distribution is optional packaging work, not
   a prerequisite for the current supported architecture.

@@ -109,5 +109,5 @@ this complexity serves no purpose.
 - `WorkStation/docs/architecture.md` — superseded by `system_overview.md`
 - `WorkStation/README.md` — updated to remove 9router from services table
 
-No existing ControlPlane or kodo code depends on 9router directly. The change is
+No existing OperationsCenter or kodo code depends on 9router directly. The change is
 primarily an infrastructure and SwitchBoard adapter concern.

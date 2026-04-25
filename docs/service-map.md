@@ -10,7 +10,7 @@ container names, and health endpoints.
 | Service | Container Name | Image | Host Port | Container Port | Health Endpoint | Role |
 |---------|----------------|-------|-----------|----------------|-----------------|------|
 | SwitchBoard | `workstation-switchboard` | `switchboard:latest` | 20401 | 20401 | `http://localhost:20401/health` | Execution-lane selector — classifies tasks, evaluates policy, selects lane |
-| Plane | `plane-app-*` | `makeplane/plane-*` | 8080 | 80 | `http://localhost:8080` | Task board, work-state source of truth (ControlPlane dependency) |
+| Plane | `plane-app-*` | `makeplane/plane-*` | 8080 | 80 | `http://localhost:8080` | Task board, work-state source of truth (OperationsCenter dependency) |
 | tiny local models | (host process) | — | varies | — | — | Serves models for the `aider_local` coding lane (WorkStation-deployed) |
 | Status API | (future) | — | 20400 | 20400 | `http://localhost:20400/health` | Stack-level health aggregation |
 
@@ -67,8 +67,8 @@ official release distribution (not a WorkStation-built image).
 **Config overrides:** copy `config/plane/.env.example` to `config/plane/.env`
 
 Plane runs on a separate Docker Compose stack (downloaded by `scripts/plane.sh`) and
-does not share the `workstation-platform` network. ControlPlane connects to it via
-`http://localhost:8080` (configurable via `CONTROL_PLANE_PLANE_URL`).
+does not share the `workstation-platform` network. OperationsCenter connects to it via
+`http://localhost:8080` (configurable via `OPERATIONS_CENTER_PLANE_URL`).
 
 ---
 

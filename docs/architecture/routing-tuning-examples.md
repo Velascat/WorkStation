@@ -3,7 +3,7 @@
 ## Example 1: Local lane performing well for bounded tasks
 
 ```python
-from control_plane.tuning import StrategyTuningService
+from operations_center.tuning import StrategyTuningService
 
 # records: 10 runs, kodo@aider_local, bug_fix, low risk, 90% success, fast latency
 service = StrategyTuningService.default()
@@ -144,7 +144,7 @@ for p in report.recommendations:
 ## Example 6: Per-task-type comparison
 
 ```python
-from control_plane.tuning import compare_by_task_type
+from operations_center.tuning import compare_by_task_type
 
 # Group records by (lane, backend, task_type) using task_type from metadata
 summaries = compare_by_task_type(records)
@@ -183,8 +183,8 @@ for lim in report.limitations:
 ## Example 8: Dependency injection for testing
 
 ```python
-from control_plane.tuning import StrategyTuningService, BackendComparisonSummary
-from control_plane.tuning.routing_models import EvidenceStrength, ReliabilityClass, ChangeEvidenceClass
+from operations_center.tuning import StrategyTuningService, BackendComparisonSummary
+from operations_center.tuning.routing_models import EvidenceStrength, ReliabilityClass, ChangeEvidenceClass
 
 stub_summary = BackendComparisonSummary(
     backend="stub",

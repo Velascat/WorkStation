@@ -34,12 +34,12 @@ Related rule:
 | Stack environment injection | `WorkStation` | `config/switchboard/*.yaml` |
 | Platform dependency infra (Plane) | `WorkStation` | Plane compose service |
 | Tiny local model deployment | `WorkStation` | model serving scripts for `aider_local` lane |
-| Operator entrypoints / demo commands | `FOB` | `fob demo`, `fob brief` |
+| Operator entrypoints / demo commands | `OperatorConsole` | `console demo`, `console open` |
 | Lane-routing policy and selector logic | `SwitchBoard` | `config/policy.yaml`, `LaneSelector`, `DecisionPlanner` |
-| Autonomy loop and Plane/SwitchBoard usage | `ControlPlane` | `loop.py`, `SwitchBoardClient`, `PlaneClient` |
-| Config schema and `.env.example` (per service) | each service repo | `SwitchBoard/.env.example`, `ControlPlane/.env.example` |
+| Autonomy loop and Plane/SwitchBoard usage | `OperationsCenter` | `loop.py`, `SwitchBoardClient`, `PlaneClient` |
+| Config schema and `.env.example` (per service) | each service repo | `SwitchBoard/.env.example`, `OperationsCenter/.env.example` |
 | Test doubles and isolated dev helpers | each service repo | mock gateways, fake stores |
-| Operator UX and workspace ergonomics | `FOB` | session management, layout, mission files |
+| Operator UX and workspace ergonomics | `OperatorConsole` | session management, layout, mission files |
 
 ---
 
@@ -61,8 +61,8 @@ WorkStation is the composition root for the shared local/dev/demo stack.
 
 **Does not own:**
 - What SwitchBoard's policy rules do
-- How ControlPlane reasons about tasks
-- What FOB's workspace looks like
+- How OperationsCenter reasons about tasks
+- What OperatorConsole's workspace looks like
 - Service-internal config schemas
 
 ### SwitchBoard
@@ -81,9 +81,9 @@ SwitchBoard owns everything about how routing decisions are made.
 - Compose service definitions or port assignments
 - Health checks in the stack (though the service provides a `/health` endpoint)
 
-### ControlPlane
+### OperationsCenter
 
-ControlPlane owns how autonomous agents reason, act, and use platform services.
+OperationsCenter owns how autonomous agents reason, act, and use platform services.
 
 **Owns:**
 - Autonomy loop behavior and proposal/decision logic
@@ -91,17 +91,17 @@ ControlPlane owns how autonomous agents reason, act, and use platform services.
 - Plane client adapter and API usage semantics (`PlaneClient`)
 - Executor adapters (Aider, Kodo) and how tasks are dispatched
 - Task parsing and workflow semantics
-- ControlPlane-local `.env.example` and documented env contract
+- OperationsCenter-local `.env.example` and documented env contract
 - Test doubles for Plane, SwitchBoard, and executor interactions
 
 **Does not own:**
 - The Plane stack required to run Plane (that is `WorkStation`'s)
 - The SwitchBoard stack (that is `WorkStation`'s)
-- How FOB launches the operator workspace
+- How OperatorConsole launches the operator workspace
 
-### FOB
+### OperatorConsole
 
-FOB owns the operator experience — how humans interact with the platform.
+OperatorConsole owns the operator experience — how humans interact with the platform.
 
 **Owns:**
 - Session and workspace management (Zellij, Claude resume)
@@ -120,7 +120,7 @@ FOB owns the operator experience — how humans interact with the platform.
 Plane is a platform dependency — a task-tracking and project-management service.
 
 **Ownership:** `WorkStation` owns the Plane compose service and infrastructure.
-ControlPlane owns the Plane client adapter and all usage semantics.
+OperationsCenter owns the Plane client adapter and all usage semantics.
 
 ---
 
@@ -148,22 +148,22 @@ A Dockerfile that builds and runs SwitchBoard as a container.
 
 ### Example C — Plane local stack
 
-A compose service definition for Plane (required by ControlPlane).
+A compose service definition for Plane (required by OperationsCenter).
 
 **Belongs in:** `WorkStation/compose/docker-compose.yml`
 
-**Why:** Plane is a platform dependency. That ControlPlane needs it does not change where
+**Why:** Plane is a platform dependency. That OperationsCenter needs it does not change where
 the runnable infra lives. The service repo describes what it needs; WorkStation provides it.
 
 ---
 
 ### Example D — Plane API client
 
-`ControlPlane/src/control_plane/adapters/plane/client.py` — Python adapter for the Plane API.
+`OperationsCenter/src/operations_center/adapters/plane/client.py` — Python adapter for the Plane API.
 
-**Belongs in:** `ControlPlane`
+**Belongs in:** `OperationsCenter`
 
-**Why:** This is application behavior — how ControlPlane uses Plane. The usage semantics
+**Why:** This is application behavior — how OperationsCenter uses Plane. The usage semantics
 belong to the consumer, not to the infrastructure layer.
 
 ---
@@ -172,10 +172,10 @@ belong to the consumer, not to the infrastructure layer.
 
 An operator command that proves the full platform is working.
 
-**Belongs in:** `FOB`
+**Belongs in:** `OperatorConsole`
 
-**Why:** This is an operator-facing entrypoint. FOB owns the operator experience.
-The demo delegates lifecycle actions to WorkStation and service calls to SwitchBoard/ControlPlane.
+**Why:** This is an operator-facing entrypoint. OperatorConsole owns the operator experience.
+The demo delegates lifecycle actions to WorkStation and service calls to SwitchBoard/OperationsCenter.
 
 ---
 
@@ -213,8 +213,8 @@ as a signal that the decision has not been thought through.
 Current state as of the time this document was written (2026-04-21):
 
 - [x] `WorkStation/docker/Dockerfile.switchboard` — created
-- [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `ControlPlane/deployment/plane/manage.sh` delegates to it
-- [x] `fob demo` command — implemented in `FOB/src/fob/demo.py`
+- [x] Plane infrastructure — `WorkStation/scripts/plane.sh` is canonical; `OperationsCenter/deployment/plane/manage.sh` delegates to it
+- [x] `console demo` command — implemented in `OperatorConsole/src/operator_console/demo.py`
 - [ ] WorkStation `workstation_cli` not yet wired to `fob demo`
 
 ---
@@ -227,7 +227,7 @@ Current state as of the time this document was written (2026-04-21):
 | Where do compose service definitions go? | `WorkStation/compose/docker-compose.yml` |
 | Where does a health check script go? | `WorkStation/scripts/health.sh` |
 | Where does service-local config schema go? | the service repo (e.g. `SwitchBoard/config/`) |
-| Where does a demo/orchestration command go? | `FOB` |
+| Where does a demo/orchestration command go? | `OperatorConsole` |
 | Where does Plane startup logic go? | `WorkStation` |
-| Where does ControlPlane's Plane client go? | `ControlPlane` |
+| Where does OperationsCenter's Plane client go? | `OperationsCenter` |
 | Where does SwitchBoard's routing policy go? | `SwitchBoard` |

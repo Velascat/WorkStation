@@ -46,7 +46,7 @@ A lint-fix proposal for a small service repo, low risk, standard priority:
     "allowed_base_branches": ["main"]
   },
   "proposed_at": "2026-04-22T09:00:00Z",
-  "proposer": "control-plane",
+  "proposer": "operations-center",
   "labels": ["lint", "automated"]
 }
 ```
@@ -90,7 +90,7 @@ A feature proposal with higher risk and a PR requirement:
     "allowed_base_branches": ["main", "develop"]
   },
   "proposed_at": "2026-04-22T14:30:00Z",
-  "proposer": "control-plane",
+  "proposer": "operations-center",
   "labels": ["feature", "auth", "review-required"]
 }
 ```
@@ -137,7 +137,7 @@ Routing a high-risk feature to the premium lane:
 
 ## ExecutionRequest
 
-Resolved from a lint proposal after ControlPlane's execution boundary sets up a workspace:
+Resolved from a lint proposal after OperationsCenter's execution boundary sets up a workspace:
 
 ```json
 {
@@ -340,7 +340,7 @@ Failed run: validation did not pass:
 The following shows how IDs chain across the full lifecycle for a single task:
 
 ```
-ControlPlane emits:
+OperationsCenter emits:
   TaskProposal
     proposal_id: "a1b2c3d4-..."
     task_id:     "TASK-1042"

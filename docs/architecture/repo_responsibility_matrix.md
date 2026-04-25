@@ -206,7 +206,7 @@ sits above OperationsCenter and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Inputs** | Operator commands, mission files, platform events |
+| **Inputs** | Operator commands, context files, platform events |
 | **Outputs** | Directed work requests to OperationsCenter, workspace state |
 | **Dependencies** | OperationsCenter, WorkStation lifecycle scripts |
 | **Invokes** | OperationsCenter (directs what to work on), WorkStation scripts (stack lifecycle) |
@@ -215,7 +215,7 @@ sits above OperationsCenter and provides a unified control surface.
 **In scope:**
 - Operator-facing entrypoints and command surface
 - Session and workspace management
-- Mission file management
+- Context file management
 - Human-in-the-loop control over the autonomy loop
 
 **Out of scope — OpenClaw does not own:**

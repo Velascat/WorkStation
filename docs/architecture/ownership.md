@@ -39,7 +39,7 @@ Related rule:
 | Autonomy loop and Plane/SwitchBoard usage | `OperationsCenter` | `loop.py`, `SwitchBoardClient`, `PlaneClient` |
 | Config schema and `.env.example` (per service) | each service repo | `SwitchBoard/.env.example`, `OperationsCenter/.env.example` |
 | Test doubles and isolated dev helpers | each service repo | mock gateways, fake stores |
-| Operator UX and workspace ergonomics | `OperatorConsole` | session management, layout, mission files |
+| Operator UX and workspace ergonomics | `OperatorConsole` | session management, layout, context files |
 
 ---
 
@@ -106,7 +106,7 @@ OperatorConsole owns the operator experience — how humans interact with the pl
 **Owns:**
 - Session and workspace management (Zellij, Claude resume)
 - Operator command entrypoints: `console open`, `console demo`, `console status`, etc.
-- Layout definitions and mission file templates
+- Layout definitions and context file templates
 - Human-facing orchestration that calls into WorkStation or service CLIs
 - Demo command that proves the platform is working (`console demo`)
 

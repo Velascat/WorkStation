@@ -110,14 +110,14 @@ echo ""
 _log "Checking Plane..."
 
 if [[ "${PLANE_ENABLED}" == "true" ]]; then
-  _log "Starting Plane (this may take a minute)..."
+  _log "Starting Plane (this may take a minute on first install)..."
   if bash "${SCRIPT_DIR}/plane.sh" up; then
     _ok "Plane (${PLANE_URL})"
   else
     _warn "Plane" "did not start — check: bash scripts/plane.sh status"
   fi
 else
-  _skip "Plane" "set PLANE_ENABLED=true in .env to enable"
+  _warn "Plane" "PLANE_ENABLED is not set to true in .env — board features disabled"
 fi
 
 echo ""

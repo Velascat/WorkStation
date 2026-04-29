@@ -1,0 +1,8 @@
+repo_key: WorkStation
+src_root: runtime
+tests_root: test
+
+# Minimum baseline — runs Custodian's generic C1-C8 only.
+# WorkStation has no `src/` — its primary code lives under `runtime/`.
+# Add `plugins:` and `detectors:` here when this repo grows its own
+# `_custodian/` overlay layer (see OperationsCenter for a worked example).

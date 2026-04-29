@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Velascat
 """
 lane_models.py — Runtime state and capability models for the aider_local lane.
 

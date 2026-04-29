@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: AGPL-3.0-only
+# Copyright (C) 2026 Velascat
 """
 test_stack_health.py — Smoke tests for the running WorkStation stack.
 

@@ -23,7 +23,7 @@ from pathlib import Path
 
 from .config import load_config
 from .health import check_all_health
-from .lane_cli import cmd_lane_health, cmd_lane_start, cmd_lane_status, cmd_lane_stop
+from .lane_cli import cmd_lane_doctor, cmd_lane_health, cmd_lane_start, cmd_lane_status, cmd_lane_stop
 from .status import aggregate_status
 
 # ── Repo paths ────────────────────────────────────────────────────────────────
@@ -207,6 +207,11 @@ def build_parser() -> argparse.ArgumentParser:
     p_lane_health.add_argument("lane_name", nargs="?", default="aider_local")
     p_lane_health.add_argument("--json", action="store_true", help="Output as JSON.")
     p_lane_health.set_defaults(func=cmd_lane_health)
+
+    p_lane_doctor = lane_sub.add_parser("doctor", help="Full pre-flight check for the lane.")
+    p_lane_doctor.add_argument("lane_name", nargs="?", default="aider_local")
+    p_lane_doctor.add_argument("--json", action="store_true", help="Output as JSON.")
+    p_lane_doctor.set_defaults(func=cmd_lane_doctor)
 
     def _lane_help(args):
         p_lane.print_help()

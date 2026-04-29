@@ -1,0 +1,39 @@
+# WorkStation — local AI inference stack
+# Runs Ollama in a Docker container for CPU-only inference.
+#
+# Usage:
+#   docker compose -f compose/docker-compose.local-ai.yml up -d
+#   docker compose -f compose/docker-compose.local-ai.yml down
+#
+# Pull the model after starting:
+#   docker exec workstation-ollama ollama pull qwen2.5-coder:3b
+#
+# Or use the helper scripts:
+#   bash scripts/ollama-up.sh
+#   bash scripts/ollama-pull-model.sh qwen2.5-coder:3b
+
+version: "3.9"
+
+services:
+  ollama:
+    image: ollama/ollama:latest
+    container_name: workstation-ollama
+    restart: unless-stopped
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    environment:
+      # CPU-only mode: unset CUDA_VISIBLE_DEVICES or set to empty string
+      - CUDA_VISIBLE_DEVICES=
+    # Ollama listens on 0.0.0.0:11434 by default inside the container
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  ollama_data:
+    name: workstation_ollama_data

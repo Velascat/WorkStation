@@ -33,14 +33,14 @@ lane:
 # managed externally (e.g. Ollama as a system service).
 #
 # Recommended defaults for constrained hardware (8 GB RAM):
-#   primary:   qwen2.5-coder:1.5b   (~1 GB VRAM, fast, good at code)
-#   secondary: deepseek-coder:1.3b  (~0.8 GB VRAM, lighter, fast inference)
+#   primary:   qwen2.5-coder:3b    (~2 GB RAM, CPU-practical, good at code tasks)
+#   secondary: qwen2.5-coder:1.5b  (~1 GB RAM, lighter, faster inference)
 #
 # To list available models in Ollama: ollama list
 
 models:
   - name: primary
-    model_id: qwen2.5-coder:1.5b
+    model_id: qwen2.5-coder:3b
     endpoint: "http://localhost:11434"
     health_path: "/api/tags"
     connect_timeout: 5
@@ -49,8 +49,8 @@ models:
     # stop_command: null
 
   - name: secondary
-    model_id: deepseek-coder:1.3b
-    endpoint: "http://localhost:11435"
+    model_id: qwen2.5-coder:1.5b
+    endpoint: "http://localhost:11434"
     health_path: "/api/tags"
     connect_timeout: 5
     read_timeout: 30

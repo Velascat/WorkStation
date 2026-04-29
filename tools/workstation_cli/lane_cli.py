@@ -194,3 +194,82 @@ def cmd_lane_health(args) -> int:
     _print_status(status, json_output=json_output)
 
     return 0 if status.ready else 1
+
+
+def cmd_lane_doctor(args) -> int:
+    """Full pre-flight check for the aider_local lane."""
+    import shutil
+
+    json_output = getattr(args, "json", False)
+    config_path = getattr(args, "config", None)
+
+    checks: list[tuple[str, bool, str]] = []  # (label, passed, detail)
+
+    # 1. Config file exists
+    path = config_path or _REPO_ROOT / "config" / "workstation" / "local_lane.yaml"
+    config_exists = path is not None and Path(path).exists()
+    checks.append(("config file", config_exists, str(path) if config_exists else f"not found at {path}"))
+
+    # 2. Config parses
+    config = None
+    if config_exists:
+        try:
+            from .lane_config import load_local_lane_config
+            config = load_local_lane_config(Path(path))
+            checks.append(("config parses", True, f"lane={config.lane_name}, enabled={config.enabled}"))
+        except Exception as exc:
+            checks.append(("config parses", False, str(exc)))
+    else:
+        config = None
+        checks.append(("config parses", False, "skipped — no config file"))
+
+    # 3. Lane is enabled
+    enabled = config is not None and config.enabled
+    checks.append(("lane enabled", enabled, "" if enabled else "set lane.enabled: true in config"))
+
+    # 4. aider binary
+    aider_binary = (config.lane_name if config else None) or "aider"
+    aider_path = shutil.which("aider")
+    checks.append(("aider binary", aider_path is not None, aider_path or "not found in PATH"))
+
+    # 5. Ollama reachable (check first model endpoint)
+    ollama_ok = False
+    ollama_detail = "no models configured"
+    if config and config.models:
+        model = config.models[0]
+        try:
+            import urllib.request
+            urllib.request.urlopen(model.health_url, timeout=5)
+            ollama_ok = True
+            ollama_detail = f"reachable at {model.endpoint}"
+        except Exception as exc:
+            ollama_detail = f"{model.endpoint} — {type(exc).__name__}: {exc}"
+    checks.append(("ollama reachable", ollama_ok, ollama_detail))
+
+    # 6. Models configured
+    model_count = len(config.models) if config else 0
+    checks.append(("models configured", model_count > 0, f"{model_count} model(s)"))
+
+    all_passed = all(passed for _, passed, _ in checks)
+
+    if json_output:
+        import json
+        print(json.dumps({
+            "lane": _AIDER_LOCAL,
+            "all_passed": all_passed,
+            "checks": [{"name": label, "passed": passed, "detail": detail}
+                       for label, passed, detail in checks],
+        }, indent=2))
+    else:
+        print(f"\n=== WorkStation: lane doctor [{_AIDER_LOCAL}] ===\n")
+        for label, passed, detail in checks:
+            icon = "\033[32m[OK]  \033[0m" if passed else "\033[31m[FAIL]\033[0m"
+            suffix = f"  \033[90m{detail}\033[0m" if detail else ""
+            print(f"  {icon}  {label}{suffix}")
+        print()
+        if all_passed:
+            print("  \033[32mAll checks passed. Lane is ready.\033[0m\n")
+        else:
+            print("  \033[31mSome checks failed. See above for details.\033[0m\n")
+
+    return 0 if all_passed else 1

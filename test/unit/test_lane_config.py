@@ -346,5 +346,5 @@ class TestExampleFileParses:
         example = _REPO_ROOT / "config" / "workstation" / "local_lane.example.yaml"
         cfg = load_local_lane_config(example)
         endpoints = [m.endpoint for m in cfg.models]
+        # Both models use the same Ollama instance on port 11434 — differentiated by model_id
         assert "http://localhost:11434" in endpoints
-        assert "http://localhost:11435" in endpoints

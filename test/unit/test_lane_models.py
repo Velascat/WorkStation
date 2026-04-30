@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: AGPL-3.0-only
+# SPDX-License-Identifier: SSPL-1.0
 # Copyright (C) 2026 Velascat
 """
 test_lane_models.py — Unit tests for lane runtime state models.

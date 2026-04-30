@@ -315,5 +315,5 @@ pytest test/smoke/ -v
 
 ## License
 
-GNU Affero General Public License v3.0 — see [LICENSE](LICENSE).
+Server Side Public License, Version 1 (SSPL-1.0) — see [LICENSE](LICENSE).
 

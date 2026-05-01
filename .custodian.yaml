@@ -6,3 +6,9 @@ tests_root: test
 # WorkStation has no `src/` — its primary code lives under `runtime/`.
 # Add `plugins:` and `detectors:` here when this repo grows its own
 # `_custodian/` overlay layer (see OperationsCenter for a worked example).
+
+tools:
+  ruff: true
+  vulture: true
+  # mypy/ty: enable when type annotations are stable
+  # semgrep: true  # add rules/semgrep/ dir with custom rules to enable

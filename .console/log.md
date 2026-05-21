@@ -1,5 +1,11 @@
 # Mission Log
 
+## 2026-05-21 — Add closing console-context fence to CLAUDE.md
+
+Added <!-- /console-context --> end marker so OperatorConsole only
+replaces its managed block and leaves repo-owned content untouched.
+
+
 ## 2026-05-18 — chore(custodian): allow workspace_cli in c13, document PLATFORM_MANIFEST_PATH
 
 Added workspace_cli.py to .custodian/config.yaml c13_allowed_paths (consistent

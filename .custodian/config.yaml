@@ -47,6 +47,13 @@ audit:
     - provider
     - workflow_events
     - workspace_path
+    # ADR 0002 (manifest-cognition) work order references symbols defined in
+    # sibling repos (ContextLifecycle, RepoGraph, PlatformManifest) that K1
+    # cannot see — same cross-repo phantom pattern as the entries above.
+    - also_hosts                # PM/PrivM manifest YAML field; parsed by RepoGraph
+    - find_anchor_for_path      # RepoGraph public API
+    - lineage_id                # CL hydrate/capture parameter
+    - session_id                # CL_SESSION_ID env var + path component
   known_values:
     - abandoned
     - debug

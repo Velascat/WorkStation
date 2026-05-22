@@ -1,5 +1,13 @@
 # Mission Log
 
+## 2026-05-22 — P6: resolve K1 phantoms for work order 0002, push
+
+Branch: `feat/work-order-0002-manifest-cognition` (rebased on main).
+
+Phase 6 of the work order. K1 still flagged `also_hosts`, `find_anchor_for_path`, `lineage_id`, `session_id` — these are now real symbols, but they live in sibling repos (PlatformManifest YAML field; RepoGraph public API; CL public API + env var) that PD's Custodian view can't see. Same cross-repo phantom pattern as the existing `common_words` entries (workflow_events, provider, etc.), which was explicitly the operator's intended resolution per the 2026-05-22 log entry that wrote "those resolve naturally when Phases 1–2 ship the corresponding code in CL and RepoGraph".
+
+Option (a): added the four symbols to `.custodian/config.yaml > audit.common_words` with an inline comment explaining cross-repo origin. Least-invasive — keeps the work-order prose intact (it's the active spec) and reuses the documented escape hatch instead of inventing a new one.
+
 ## 2026-05-22 — Fix B1 leak and DC7 orphan in work order 0002
 
 Custodian pre-push caught a B1 boundary violation in `0002-work-order-manifest-cognition.md`: literal private-repo name (`VideoFoundry`) appeared in example YAML. PD is public-scope, so concrete private names belong only to PrivateManifest's tracked files. Scrubbed to `example-private-repo-A` with an inline note explaining the omission.

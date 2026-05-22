@@ -281,8 +281,10 @@ repos:
 # PrivateManifest/private_manifest.yaml
 visibility_scope: private
 repos:
-  - name: VideoFoundry
+  - name: example-private-repo-A
   # ... other private repos owned by this manifest
+  #     (concrete names intentionally omitted — PD is public-scope and
+  #      private-repo names belong to PrivateManifest's tracked files only)
 
 # Hypothetical PrivateProjectFoo/private_project_foo_manifest.yaml
 visibility_scope: private

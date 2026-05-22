@@ -1,5 +1,13 @@
 # Mission Log
 
+## 2026-05-22 — Fix B1 leak and DC7 orphan in work order 0002
+
+Custodian pre-push caught a B1 boundary violation in `0002-work-order-manifest-cognition.md`: literal private-repo name (`VideoFoundry`) appeared in example YAML. PD is public-scope, so concrete private names belong only to PrivateManifest's tracked files. Scrubbed to `example-private-repo-A` with an inline note explaining the omission.
+
+Custodian also flagged the work order as a DC7 orphan (no tracked doc linked to it). Added `docs/architecture/adr/README.md` as the ADR index linking both 0001 and 0002.
+
+Four K1 phantom-symbol findings (`also_hosts`, `find_anchor_for_path`, `lineage_id`, `session_id`) remain — per operator decision, those resolve naturally when Phases 1–2 ship the corresponding code in CL and RepoGraph. Push to remote deferred until then.
+
 ## 2026-05-22 — Work order 0002: clarify Phase 2 boundaries (RepoGraph owns manifest discovery)
 
 Refined Phase 2 of work order 0002 after Dave caught a boundary smell: an earlier sketch had CL passing `REPOGRAPH_ROOT` to RepoGraph, effectively making CL responsible for manifest discovery. Wrong — RepoGraph is the semantic library of topological connections and owns the full topology including which manifests exist.

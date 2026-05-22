@@ -27,7 +27,7 @@ print(plan.primary.backend)                  # "direct_local"
 print(plan.fallbacks.candidates)             # []  — all remote paths blocked
 print(plan.blocked_candidates[0].reason)     # "Fallback route blocked by constraint label(s): local_only"
 print(plan.blocked_candidates[0].eligibility_status)  # "blocked_by_constraint"
-print(plan.blocked_reasoning)                # "Constraint-blocked: claude_cli/kodo"
+print(plan.blocked_reasoning)                # "Constraint-blocked: claude_cli/team_executor"
 ```
 
 ---
@@ -47,8 +47,8 @@ plan = DecisionPlanner().plan(proposal)
 print(plan.primary.lane)                     # "aider_local"
 print(plan.primary.backend)                  # "direct_local"
 print(plan.fallbacks.candidates[0].lane)     # "claude_cli"
-print(plan.fallbacks.candidates[0].backend)  # "kodo"
-print(plan.fallbacks.reasoning)              # "1 fallback route(s) available. First: claude_cli/kodo."
+print(plan.fallbacks.candidates[0].backend)  # "team_executor"
+print(plan.fallbacks.reasoning)              # "1 fallback route(s) available. First: claude_cli/team_executor."
 print(plan.escalations.candidates)           # [] — low risk, no escalation warranted
 ```
 
@@ -56,7 +56,7 @@ print(plan.escalations.candidates)           # [] — low risk, no escalation wa
 
 ## 3. Complex task that routes directly to workflow primary
 
-Refactor and feature tasks with medium/high risk are routed to `archon_then_kodo` as primary — no escalation needed.
+Refactor and feature tasks with medium/high risk are routed to `dag_executor` as primary — no escalation needed.
 
 ```python
 proposal = TaskProposal(
@@ -69,14 +69,14 @@ proposal = TaskProposal(
 plan = DecisionPlanner().plan(proposal)
 
 print(plan.primary.lane)                            # "claude_cli"
-print(plan.primary.backend)                         # "archon_then_kodo"
+print(plan.primary.backend)                         # "dag_executor"
 print(plan.primary.estimated_capability_class)      # "workflow"
 print(plan.escalations.candidates)                  # [] — already at workflow tier
 ```
 
 ---
 
-## 4. High-risk bug fix that lands on kodo with workflow escalation
+## 4. High-risk bug fix that lands on team_executor with workflow escalation
 
 ```python
 proposal = TaskProposal(
@@ -89,10 +89,10 @@ proposal = TaskProposal(
 plan = DecisionPlanner().plan(proposal)
 
 print(plan.primary.lane)                            # "claude_cli"
-print(plan.primary.backend)                         # "kodo"
-print(plan.escalations.candidates[0].backend)       # "archon_then_kodo"
+print(plan.primary.backend)                         # "team_executor"
+print(plan.escalations.candidates[0].backend)       # "dag_executor"
 print(plan.escalations.candidates[0].reason)        # "High-risk change benefits from structured workflow..."
-print(plan.policy_summary)                          # "primary=claude_cli/kodo; escalations=1"
+print(plan.policy_summary)                          # "primary=claude_cli/team_executor; escalations=1"
 ```
 
 ---
@@ -156,26 +156,26 @@ from switchboard.lane.policy import AlternativeRoute, LaneRoutingPolicy, Fallbac
 
 policy = LaneRoutingPolicy(
     rules=[...],
-    fallback=FallbackPolicy(lane="claude_cli", backend="kodo"),
+    fallback=FallbackPolicy(lane="claude_cli", backend="team_executor"),
     alternative_routes=[
         # Fallback: local → premium if local unavailable (blocked if local_only)
         AlternativeRoute(
             name="local_to_remote",
             lane="claude_cli",
-            backend="kodo",
+            backend="team_executor",
             role="fallback",
             from_lanes=["aider_local"],
             blocked_by_labels=["local_only", "no_remote"],
             confidence=0.85,
             reason="Premium lane available if local execution fails.",
         ),
-        # Escalation: kodo → workflow for high risk (blocked if no_remote)
+        # Escalation: team_executor → workflow for high risk (blocked if no_remote)
         AlternativeRoute(
-            name="kodo_to_workflow",
+            name="team_executor_to_workflow",
             lane="claude_cli",
-            backend="archon_then_kodo",
+            backend="dag_executor",
             role="escalation",
-            from_backends=["kodo"],
+            from_backends=["team_executor"],
             applies_when={"risk_level": "high"},
             blocked_by_labels=["no_remote"],
             confidence=0.88,
@@ -238,7 +238,7 @@ print(f"Blocked reasoning: {plan.blocked_reasoning}")
 ## 10. Policy summary format
 
 ```
-primary=claude_cli/kodo; fallbacks=1; escalations=2; blocked=1
+primary=claude_cli/team_executor; fallbacks=1; escalations=2; blocked=1
 ```
 
 Fields present only when non-zero:

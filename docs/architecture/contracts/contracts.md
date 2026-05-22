@@ -2,7 +2,7 @@
 
 This document defines the platform's canonical data contracts — the typed,
 backend-agnostic models that structure communication between OperationsCenter,
-SwitchBoard, and execution backends (kodo, Archon, etc.).
+SwitchBoard, and execution backends (TeamExecutor, DAGExecutor, etc.).
 
 ---
 
@@ -11,7 +11,7 @@ SwitchBoard, and execution backends (kodo, Archon, etc.).
 Contracts are Pydantic v2 models that travel across component boundaries.
 They are:
 
-- **Backend-agnostic** — they do not reference kodo, Archon, or any specific runner
+- **Backend-agnostic** — they do not reference TeamExecutor, DAGExecutor, or any specific runner
 - **Serialisable** — all fields round-trip cleanly through JSON
 - **Validated** — Pydantic enforces field constraints at construction time
 - **Frozen** — all contract models are immutable after construction
@@ -134,7 +134,7 @@ Emitted by SwitchBoard in response to a TaskProposal.
 | `decision_id` | str (uuid) | Unique decision identifier |
 | `proposal_id` | str | Reference to the originating proposal |
 | `selected_lane` | LaneName | claude_cli / codex_cli / aider_local |
-| `selected_backend` | BackendName | kodo / archon / archon_then_kodo / direct_local / openclaw |
+| `selected_backend` | BackendName | team_executor / dag_executor / direct_local / openclaw |
 | `confidence` | float [0–1] | Routing confidence |
 | `policy_rule_matched` | str? | Name of the policy rule that fired |
 | `rationale` | str? | Human-readable explanation |
@@ -242,7 +242,7 @@ The canonical outcome returned by any backend adapter.
 |------|--------|
 | `TaskType` | lint_fix, bug_fix, simple_edit, test_write, documentation, refactor, feature, dependency_update, unknown |
 | `LaneName` | claude_cli, codex_cli, aider_local |
-| `BackendName` | kodo, archon, archon_then_kodo, direct_local, openclaw |
+| `BackendName` | team_executor, dag_executor, direct_local, openclaw |
 | `ExecutionMode` | goal, fix_pr, test_campaign, improve_campaign |
 | `ExecutionStatus` | pending, running, success, failed, skipped, timeout, cancelled |
 | `ArtifactType` | diff, patch, validation_report, log_excerpt, goal_file, pr_url, branch_ref |
@@ -302,7 +302,7 @@ The supported runtime now uses this contract layer directly:
   `ExecutionRequest` from proposal + routing context and expects a canonical
   `ExecutionResult` back from the selected adapter.
 - **Bounded adapters** — backend-specific code stays behind adapters such as
-  kodo, Archon, and OpenClaw. Backend-native wire formats do not define the
+  TeamExecutor, DAGExecutor, and OpenClaw. Backend-native wire formats do not define the
   platform contract surface.
 - **Policy / observability / tuning placement** — policy evaluates
   `TaskProposal + LaneDecision` before execution, observability retains the

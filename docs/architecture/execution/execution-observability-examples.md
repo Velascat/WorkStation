@@ -28,7 +28,7 @@ ExecutionResult(
     artifacts=[
         ExecutionArtifact(artifact_type=ArtifactType.DIFF, label="pre-merge diff", content="..."),
         ExecutionArtifact(artifact_type=ArtifactType.VALIDATION_REPORT, label="ruff output", content="All checks passed."),
-        ExecutionArtifact(artifact_type=ArtifactType.LOG_EXCERPT, label="kodo run log", content="kodo: done"),
+        ExecutionArtifact(artifact_type=ArtifactType.LOG_EXCERPT, label="team_executor run log", content="team_executor: done"),
     ],
 )
 ```
@@ -52,7 +52,7 @@ artifact_index:
 
 **ExecutionTrace:**
 ```
-headline: SUCCESS | kodo @ claude_cli | run=run-rich
+headline: SUCCESS | team_executor @ claude_cli | run=run-rich
 summary:  Run run-rich; changed 2 files; 2 files changed, 14 insertions(+), 3 deletions(-); validation=passed (2/2 passed)
 warnings: []
 ```
@@ -69,9 +69,9 @@ ExecutionResult(
     success=False,
     changed_files=[],
     failure_category=FailureReasonCategory.BACKEND_ERROR,
-    failure_reason="kodo exited 1: tool call failed",
+    failure_reason="team_executor exited 1: tool call failed",
     artifacts=[
-        ExecutionArtifact(artifact_type=ArtifactType.LOG_EXCERPT, label="kodo run log", content="kodo: exit 1"),
+        ExecutionArtifact(artifact_type=ArtifactType.LOG_EXCERPT, label="team_executor run log", content="team_executor: exit 1"),
     ],
 )
 ```
@@ -93,8 +93,8 @@ artifact_index:
 
 **ExecutionTrace:**
 ```
-headline: FAILED | kodo @ claude_cli | run=run-fail
-summary:  Run run-fail; failed: kodo exited 1: tool call failed
+headline: FAILED | team_executor @ claude_cli | run=run-fail
+summary:  Run run-fail; failed: team_executor exited 1: tool call failed
 warnings:
   - changed-file manifest unavailable; backend did not report file changes
   - validation was skipped for this run
@@ -151,7 +151,7 @@ ExecutionResult(
     success=False,
     changed_files=[],
     failure_category=FailureReasonCategory.NO_CHANGES,
-    failure_reason="kodo: no changes detected",
+    failure_reason="team_executor: no changes detected",
 )
 ```
 
@@ -215,7 +215,7 @@ validation_evidence:
 
 **ExecutionTrace:**
 ```
-headline: FAILED | kodo @ claude_cli | run=run-part
+headline: FAILED | team_executor @ claude_cli | run=run-part
 summary:  Run run-part; failed: validation failed: mypy errors detected; validation=failed (2/3 passed)
 key_artifacts: [validation_report]
 warnings:
@@ -234,7 +234,7 @@ ExecutionResult(
     status=ExecutionStatus.FAILED,
     success=False,
     failure_category=FailureReasonCategory.UNSUPPORTED_REQUEST,
-    failure_reason="Request not supported by kodo adapter: goal_text is empty",
+    failure_reason="Request not supported by team_executor adapter: goal_text is empty",
     artifacts=[],
 )
 ```
@@ -272,19 +272,19 @@ refs = [
     BackendDetailRef(
         detail_type="stderr_log",
         path="/tmp/workspaces/run-abc/stderr.txt",
-        description="kodo stderr captured during run",
+        description="team_executor stderr captured during run",
         is_required_for_debug=True,
     ),
     BackendDetailRef(
         detail_type="jsonl_stream",
         path="/tmp/workspaces/run-abc/events.jsonl",
-        description="kodo JSONL event stream",
+        description="team_executor JSONL event stream",
     ),
 ]
 
 record, trace = svc.observe(
     result,
-    backend="kodo",
+    backend="team_executor",
     lane="claude_cli",
     raw_detail_refs=refs,
     notes="nightly lint cycle",

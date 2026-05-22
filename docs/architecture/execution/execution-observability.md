@@ -18,7 +18,7 @@ This layer prevents that by making every execution outcome:
 - **inspectable** — queryable as a structured record
 - **honest** — uncertainty is represented explicitly (changed files may be
   unknown; validation may have been skipped)
-- **comparable** — the same model works for kodo, Archon, OpenClaw, etc.
+- **comparable** — the same model works for team_executor, DAGExecutor, OpenClaw, etc.
 
 ---
 
@@ -114,7 +114,7 @@ The `source` field records how the evidence was obtained:
 contract into an observability-oriented model that also accepts artifact
 references.
 
-If validation was skipped (the common case when the kodo adapter runs without
+If validation was skipped (the common case when the team_executor adapter runs without
 the OperationsCenter execution boundary providing validation results), `ValidationEvidence.status`
 is `SKIPPED` — not fabricated as passed.
 
@@ -131,7 +131,7 @@ Instead, `BackendDetailRef` provides a bounded reference:
 BackendDetailRef(
     detail_type="stderr_log",
     path="/tmp/workspaces/run-abc/stderr.txt",
-    description="kodo stderr from run run-abc123",
+    description="team_executor stderr from run run-abc123",
     is_required_for_debug=True,
 )
 ```
@@ -155,13 +155,13 @@ from operations_center.observability.service import ExecutionObservabilityServic
 svc = ExecutionObservabilityService.default()
 record, trace = svc.observe(
     result,
-    backend="kodo",
+    backend="team_executor",
     lane="claude_cli",
     notes="triggered by Plane watcher",
 )
 
 print(trace.headline)
-# SUCCESS | kodo @ claude_cli | run=a1b2c3d4
+# SUCCESS | team_executor @ claude_cli | run=a1b2c3d4
 
 print(trace.summary)
 # Run a1b2c3d4; changed 2 files; 2 files changed, 14 insertions(+); validation=passed (2/2 passed)
@@ -212,7 +212,7 @@ print(cfe.status)  # KNOWN / NONE / UNKNOWN / NOT_APPLICABLE
 
 # build record
 recorder = ExecutionRecorder()
-record = recorder.record(result, backend="kodo")
+record = recorder.record(result, backend="team_executor")
 
 # build trace
 builder = RunReportBuilder()
@@ -241,7 +241,7 @@ trace = builder.build_report(record)
 | Changed-file certainty | `OperationsCenter: observability/changed_files.py` |
 | Validation normalization | `OperationsCenter: observability/validation.py` |
 | Inspectable traces | `OperationsCenter: observability/trace.py` |
-| Raw backend detail capture | Backend adapter (e.g. `backends/kodo/normalize.py`) |
+| Raw backend detail capture | Backend adapter (e.g. `backends/team_executor/normalize.py`) |
 | Backend output format | Each backend adapter, internally |
 
 ---
@@ -249,5 +249,5 @@ trace = builder.build_report(record)
 ## See also
 
 - [contracts.md](../contracts/contracts.md) — ExecutionResult, ExecutionArtifact, ValidationSummary
-- [kodo-adapter.md](../adapters/kodo-adapter.md) — how kodo populates ExecutionResult
+- [team_executor-adapter.md](../adapters/team_executor-adapter.md) — how team_executor populates ExecutionResult
 - [operations-center-routing.md](../routing/operations-center-routing.md) — PlanningService and ProposalDecisionBundle

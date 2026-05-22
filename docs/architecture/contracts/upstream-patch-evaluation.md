@@ -3,7 +3,7 @@
 ## Purpose
 
 This document explains the late-stage, evidence-based process for deciding
-whether external systems such as `openclaw`, `archon`, or `kodo` justify any
+whether external systems such as `openclaw`, `dag_executor`, or `team_executor` justify any
 upstream patching, forking, or deeper native integration work.
 
 The baseline posture remains adapter-first. Upstream modification is not an

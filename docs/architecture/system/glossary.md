@@ -43,9 +43,9 @@ does not decide what to work on — it only controls how execution proceeds once
 is in flight.
 
 **coding backend**
-The component that performs the actual code edits inside a lane. kodo is the coding
-backend. It spawns an agent session, drives it to completion, and writes structured
-artifacts. kodo does not select lanes and does not decide what to work on.
+The component that performs the actual code edits inside a lane. TeamExecutor is the
+coding backend. It spawns an agent session, drives it to completion, and writes structured
+artifacts. TeamExecutor does not select lanes and does not decide what to work on.
 
 **outer shell**
 An optional operator-facing runtime that sits above OperationsCenter. OpenClaw is the
@@ -89,7 +89,7 @@ selection.
 
 **worktree isolation**
 The practice of creating a separate git worktree for each task execution, so parallel
-runs never share a working tree. Both kodo and Archon use worktree isolation.
+runs never share a working tree. TeamExecutor and DAGExecutor use worktree isolation.
 
 **task board**
 Plane. The canonical source of truth for task state, comments, and labels. OperationsCenter
@@ -122,7 +122,7 @@ SwitchBoard version. It references the proposal by ID and does not embed
 execution logic.
 
 **Backend**
-An external execution system integrated through an adapter. kodo, Archon, and
+An execution system integrated through an adapter. TeamExecutor, DAGExecutor, and
 OpenClaw are all backends from the platform's perspective. A backend is responsible
 for running code; it is not responsible for deciding what to run or which lane to use.
 

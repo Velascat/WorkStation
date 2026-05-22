@@ -73,7 +73,7 @@ this complexity serves no purpose.
 |------------------------|-----------|
 | Provider credential management | CLI OAuth (each lane manages its own auth) |
 | Provider format translation | Claude Agent SDK / Codex SDK (each handles its own wire format) |
-| Retry and failover across providers | kodo's execution loop; lane-level retry logic |
+| Retry and failover across providers | TeamExecutor's execution loop; lane-level retry logic |
 | Local model serving | PlatformDeployment (deploys tiny models for `aider_local` lane) |
 | Provider selection | SwitchBoard lane selection (chooses which lane, not which API) |
 
@@ -109,5 +109,5 @@ this complexity serves no purpose.
 - `PlatformDeployment/docs/architecture.md` — superseded by `system_overview.md`
 - `PlatformDeployment/README.md` — updated to remove 9router from services table
 
-No existing OperationsCenter or kodo code depends on 9router directly. The change is
+No existing OperationsCenter or TeamExecutor code depends on 9router directly. The change is
 primarily an infrastructure and SwitchBoard adapter concern.

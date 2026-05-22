@@ -29,7 +29,7 @@ privacy:
 # ---------------------------------------------------------------------------
 audit:
   # PlatformDeployment docs frequently reference symbols and values that live in
-  # OTHER repos (Archon, Kodo, OperationsCenter) since WS hosts adapter
+  # OTHER repos (TeamExecutor, DAGExecutor, OperationsCenter) since WS hosts adapter
   # integration documentation. These aren't phantoms — they're cross-repo
   # references. K1/K2 doesn't have cross-repo awareness yet.
   common_words:
@@ -43,7 +43,6 @@ audit:
     - debug
     - failure_category
     - success
-    - kodo_mode
     - output_text
     - provider
     - workflow_events

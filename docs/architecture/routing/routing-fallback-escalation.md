@@ -10,7 +10,7 @@ Without this layer, SwitchBoard can select a primary lane and backend but has no
 
 - What if `aider_local` is unavailable right now?
 - What if a task is local-preferred but too risky for the local lane?
-- What if `kodo` is selected but the task complexity calls for workflow orchestration?
+- What if `team_executor` is selected but the task complexity calls for workflow orchestration?
 - What is the next acceptable path if the primary is blocked?
 
 Without explicit policy, those answers become ad hoc code in callers, backend-specific hacks, or silent failures.
@@ -29,7 +29,7 @@ The first-choice lane and backend for a task. Selected by the existing `LaneSele
 
 A lower-preference alternative used when the primary route is **unavailable or fails** at execution time.
 
-Fallbacks are cheaper or simpler paths. Example: local task primary is `aider_local`/`direct_local`; fallback is `claude_cli`/`kodo` if local execution is unavailable.
+Fallbacks are cheaper or simpler paths. Example: local task primary is `aider_local`/`direct_local`; fallback is `claude_cli`/`team_executor` if local execution is unavailable.
 
 Fallbacks are **not** used automatically. The execution layer decides whether and when to act on them.
 
@@ -37,9 +37,9 @@ Fallbacks are **not** used automatically. The execution layer decides whether an
 
 A higher-capability alternative used when the primary route is **likely insufficient** — the task is more complex, higher-risk, or needs stronger validation discipline than the primary provides.
 
-Escalations are **policy-recommended**, not automatic. Example: `claude_cli`/`kodo` primary for a high-risk task escalates to `claude_cli`/`archon_then_kodo` for structured workflow discipline.
+Escalations are **policy-recommended**, not automatic. Example: `claude_cli`/`team_executor` primary for a high-risk task escalates to `claude_cli`/`dag_executor` for structured workflow discipline.
 
-Escalation to `archon_then_kodo` requires positive justification (task shape or risk level). It is not offered merely because a higher tier exists.
+Escalation to `dag_executor` requires positive justification (task shape or risk level). It is not offered merely because a higher tier exists.
 
 ### Blocked candidate
 
@@ -144,7 +144,7 @@ Defines a potential fallback or escalation in the policy:
 Constraints are enforced visibly, not silently:
 
 1. A proposal with `local_only` label → all remote alternatives have `blocked_by_labels=["local_only"]` → they appear in `blocked_candidates` with `BLOCKED_BY_CONSTRAINT` status and the blocking label named.
-2. A policy with `excluded_backends=["archon_then_kodo"]` → Archon alternatives appear in `blocked_candidates` with `BLOCKED_BY_POLICY`.
+2. A policy with `excluded_backends=["dag_executor"]` → dag_executor alternatives appear in `blocked_candidates` with `BLOCKED_BY_POLICY`.
 3. A path that simply isn't warranted (e.g. escalation for low-risk task) → does not appear at all. Not warranted is distinct from blocked.
 
 **The distinction matters:** execution layers need to know whether a path is "never use this" vs "don't use this first" vs "not applicable here."
@@ -209,19 +209,19 @@ proposal: low-risk local task → aider_local primary, remote fallback available
 ### Escalate when risk demands it
 
 ```
-local primary + medium/high risk → escalation to claude_cli/kodo available
-kodo primary + high risk → escalation to archon_then_kodo available
+local primary + medium/high risk → escalation to claude_cli/team_executor available
+team_executor primary + high risk → escalation to dag_executor available
 ```
 
 ### Workflow only when warranted
 
 ```
-kodo primary + refactor/feature task type → archon_then_kodo escalation
-kodo primary + high risk → archon_then_kodo escalation
-refactor/feature + medium/high risk → archon_then_kodo as PRIMARY (direct, via premium_structured rule)
+team_executor primary + refactor/feature task type → dag_executor escalation
+team_executor primary + high risk → dag_executor escalation
+refactor/feature + medium/high risk → dag_executor as PRIMARY (direct, via premium_structured rule)
 ```
 
-Note: if a task is structured enough to need workflow, the default policy often routes it to `archon_then_kodo` as the primary rather than offering it as an escalation. Escalation is for tasks that landed on kodo first but could benefit from workflow discipline.
+Note: if a task is structured enough to need workflow, the default policy often routes it to `dag_executor` as the primary rather than offering it as an escalation. Escalation is for tasks that landed on team_executor first but could benefit from workflow discipline.
 
 ---
 
@@ -238,7 +238,7 @@ policy = LaneRoutingPolicy(
         AlternativeRoute(
             name="my_fallback",
             lane="claude_cli",
-            backend="kodo",
+            backend="team_executor",
             role="fallback",
             from_lanes=["aider_local"],
             blocked_by_labels=["local_only"],

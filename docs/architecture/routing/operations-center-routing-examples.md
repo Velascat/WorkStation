@@ -61,7 +61,7 @@ PlanningContext(
   "decision_id": "c3d4e5f6-...",
   "proposal_id": "a1b2c3d4-...",
   "selected_lane": "aider_local",
-  "selected_backend": "kodo",
+  "selected_backend": "team_executor",
   "confidence": 0.95,
   "policy_rule_matched": "local_low_risk"
 }
@@ -69,7 +69,7 @@ PlanningContext(
 
 **run_summary:**
 ```
-proposal=a1b2c3d4 task=auto-lint-fix-e3b0c442 lane=aider_local backend=kodo rule=local_low_risk
+proposal=a1b2c3d4 task=auto-lint-fix-e3b0c442 lane=aider_local backend=team_executor rule=local_low_risk
 ```
 
 ---
@@ -97,7 +97,7 @@ PlanningContext(
 ```json
 {
   "selected_lane": "claude_cli",
-  "selected_backend": "kodo",
+  "selected_backend": "team_executor",
   "confidence": 0.90,
   "policy_rule_matched": "medium_implementation"
 }
@@ -105,7 +105,7 @@ PlanningContext(
 
 ---
 
-## Example 3 — Refactor, high risk → claude_cli + archon_then_kodo
+## Example 3 — Refactor, high risk → claude_cli + dag_executor
 
 **PlanningContext:**
 
@@ -127,7 +127,7 @@ PlanningContext(
 ```json
 {
   "selected_lane": "claude_cli",
-  "selected_backend": "archon_then_kodo",
+  "selected_backend": "dag_executor",
   "confidence": 0.85,
   "policy_rule_matched": "premium_structured"
 }

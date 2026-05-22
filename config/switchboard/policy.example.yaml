@@ -4,14 +4,14 @@
 # Copy this file to policy.yaml before starting the stack.
 # Rules are evaluated top-to-bottom; the first match wins.
 # Any proposal that matches no rule falls through to the built-in fallback:
-#   claude_cli / kodo  (confidence 0.7)
+#   claude_cli / team_executor  (confidence 0.7)
 #
 # Valid task_type values:
 #   lint_fix, bug_fix, simple_edit, test_write, documentation,
 #   refactor, feature, dependency_update, unknown
 #
 # Valid lane names:   claude_cli, codex_cli, aider_local
-# Valid backend names: direct_local, kodo, archon, archon_then_kodo, openclaw
+# Valid backend names: direct_local, team_executor, dag_executor, openclaw
 # =============================================================================
 
 version: "1"
@@ -26,7 +26,7 @@ rules:
       task_type: [bug_fix, lint_fix, simple_edit]
       risk_level: low
     select_lane: codex_cli
-    select_backend: kodo
+    select_backend: team_executor
 
   # Documentation tasks → claude_cli (better at prose and structured output)
   # Requires: claude binary on PATH
@@ -34,7 +34,7 @@ rules:
     when:
       task_type: documentation
     select_lane: claude_cli
-    select_backend: kodo
+    select_backend: team_executor
 
   # Local lane example — uncomment if aider is installed
   # Requires: aider binary on PATH + local model service

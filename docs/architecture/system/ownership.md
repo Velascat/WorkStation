@@ -89,7 +89,7 @@ OperationsCenter owns how autonomous agents reason, act, and use platform servic
 - Autonomy loop behavior and proposal/decision logic
 - SwitchBoard client adapter and usage semantics (`SwitchBoardClient`)
 - Plane client adapter and API usage semantics (`PlaneClient`)
-- Executor adapters (Aider, Kodo) and how tasks are dispatched
+- Executor adapters (Aider, TeamExecutor) and how tasks are dispatched
 - Task parsing and workflow semantics
 - OperationsCenter-local `.env.example` and documented env contract
 - Test doubles for Plane, SwitchBoard, and executor interactions
@@ -152,10 +152,10 @@ Generic runtime mechanics — dispatches RxP `RuntimeInvocation` by
 
 **Does not own:**
 - Orchestration, planning, lane selection
-- Backend semantics (kodo, archon, openclaw belong to OperationsCenter)
+- Backend semantics (team_executor, dag_executor, openclaw belong to OperationsCenter)
 - Source/fork tracking (belongs to SourceRegistry)
 
-OC backend adapters (kodo, archon, openclaw, direct_local, aider_local) all
+OC backend adapters (team_executor, dag_executor, openclaw, direct_local, aider_local) all
 delegate subprocess execution through CoreRunner.
 
 ### SourceRegistry

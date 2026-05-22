@@ -16,7 +16,7 @@ are asking "where does this service run?", the answer lives here. If you are ask
 
 ## What this repo is
 
-- Service Dockerfiles and compose manifests for SwitchBoard, Plane, archon, and aider_local tiny models
+- Service Dockerfiles and compose manifests for SwitchBoard, Plane, and aider_local tiny models
 - Lifecycle scripts and worker shims (backing the CLI)
 - Port assignments, environment injection, health checks
 - A unified CLI under `tools/platform_deployment_cli/` covering the full operator surface
@@ -363,8 +363,6 @@ pytest test/smoke/ -v
 | [docs/architecture/system/system_overview.md](docs/architecture/system/system_overview.md) | Cross-repo architecture, component roles, architecture decisions |
 | [docs/architecture/contracts/contracts.md](docs/architecture/contracts/contracts.md) | Canonical cross-repo contract models (Phase 3) |
 | [docs/architecture/contracts/contracts-examples.md](docs/architecture/contracts/contracts-examples.md) | Example JSON payloads for all contract models |
-| [docs/architecture/adapters/kodo-adapter.md](docs/architecture/adapters/kodo-adapter.md) | kodo backend adapter architecture (Phase 5) |
-| [docs/architecture/adapters/kodo-adapter-examples.md](docs/architecture/adapters/kodo-adapter-examples.md) | kodo adapter usage examples |
 | [docs/architecture/adapters/local-lane.md](docs/architecture/adapters/local-lane.md) | aider_local lane design and boundaries |
 | [docs/architecture/system/repo_responsibility_matrix.md](docs/architecture/system/repo_responsibility_matrix.md) | Per-repo owns/does-not-own matrix |
 | [docs/architecture/system/glossary.md](docs/architecture/system/glossary.md) | Canonical terminology |

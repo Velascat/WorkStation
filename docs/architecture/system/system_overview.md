@@ -25,14 +25,14 @@ the local infrastructure running.
 | **OperationsCenter** | Decision and execution engine. Observes repos, generates insights, proposes work, consumes routing, enforces policy, dispatches backend adapters, and drives the autonomy loop. |
 | **CxRP** | Contract-only protocol. Canonical orchestration types: `TaskProposal`, `LaneDecision`, `ExecutionRequest`, `ExecutionResult`. Consumed by OperationsCenter, SwitchBoard, OperatorConsole. |
 | **RxP** | Contract-only protocol. Canonical runtime types: `RuntimeInvocation`, `RuntimeResult`, `ArtifactDescriptor`. Consumed by CoreRunner. |
-| **CoreRunner** | Generic runtime mechanics. Dispatches RxP `RuntimeInvocation` by `runtime_kind` to a registered runner (subprocess / manual / HTTP). All OperationsCenter backend adapters (kodo, archon, openclaw, direct_local, aider_local) delegate subprocess execution through ER. |
+| **CoreRunner** | Generic runtime mechanics. Dispatches RxP `RuntimeInvocation` by `runtime_kind` to a registered runner (subprocess / manual / HTTP). All OperationsCenter backend adapters (team_executor, dag_executor, openclaw, direct_local, aider_local) delegate subprocess execution through ER. |
 | **SourceRegistry** | Source and fork tracking. Resolves named source dependencies, verifies expected SHAs across install kinds, records local-fork patches. Consumed as a library by OperationsCenter. |
 | **Custodian** | Cross-repo audit and maintenance toolkit. Detector framework + plugin loader; consumer repos extend with their own `_custodian/` overlays. |
 | **Policy** | Pre-execution guardrail layer (inside OperationsCenter). Evaluates canonical proposals and routing decisions, then allows, warns, requires review, or blocks. |
 | **Observability** | Retention layer (inside OperationsCenter) for canonical execution outcomes, artifacts, and normalized traces. |
 | **Tuning** | Evidence-driven recommendation layer (inside OperationsCenter). Reads retained outcomes and proposes bounded improvements without silently mutating live policy. |
-| **Archon** | Workflow harness. Imposes structured, reproducible execution steps on top of a coding backend. |
-| **kodo** | Coding execution backend. Orchestrates a multi-agent coding session using Claude Agent SDK or Codex SDK. |
+| **DAGExecutor** | Workflow harness. Imposes structured, reproducible execution steps on top of a coding backend. |
+| **TeamExecutor** | Coding execution backend. Orchestrates a multi-agent coding session using Claude Agent SDK or Codex SDK. |
 | **OpenClaw** | Optional outer operator shell. Provides a human-facing runtime above OperationsCenter. Not required for the system to function. |
 | **Claude CLI lane** | Premium execution lane. Runs Claude Code CLI under OAuth/subscription billing. |
 | **Codex CLI lane** | Premium execution lane. Runs Codex CLI under OpenAI subscription billing. |
@@ -110,8 +110,8 @@ PlatformDeployment
    invocation. Unsafe work is blocked, sensitive work is gated for review, and
    only allowed runs proceed.
 
-5. OperationsCenter dispatches the selected bounded adapter. **Archon** may wrap
-   the execution in a YAML-defined workflow; **kodo** or another adapter
+5. OperationsCenter dispatches the selected bounded adapter. **DAGExecutor** may wrap
+   the execution in a YAML-defined workflow; **TeamExecutor** or another adapter
    performs the actual coding work.
 
 6. The lane process (**Claude CLI**, **Codex CLI**, or **Aider**) is the process that
@@ -150,8 +150,8 @@ graph TD
     OC[OpenClaw<br/>optional outer shell]
     CP[OperationsCenter<br/>decision engine]
     SB[SwitchBoard<br/>lane selector]
-    AR[Archon<br/>workflow harness<br/>optional]
-    KD[kodo<br/>coding execution]
+    DE[DAGExecutor<br/>workflow harness<br/>optional]
+    TE[TeamExecutor<br/>coding execution]
     CC[claude_cli lane]
     CX[codex_cli lane]
     AL[aider_local lane]
@@ -160,11 +160,11 @@ graph TD
 
     OC -->|directs work| CP
     CP -->|task + hints| SB
-    SB -->|selected lane| AR
-    AR -->|delegates| KD
-    KD --> CC
-    KD --> CX
-    KD --> AL
+    SB -->|selected lane| DE
+    DE -->|delegates| TE
+    TE --> CC
+    TE --> CX
+    TE --> AL
     WS -->|deploys| SB
     WS -->|deploys| TM
     TM -->|serves| AL
@@ -182,9 +182,9 @@ long-range task strategy.
 **Lane selection is policy-driven, not hardcoded.** Changing cost/quality tradeoffs
 is a SwitchBoard config edit, not a OperationsCenter code change.
 
-**Workflow discipline is optional but composable.** Archon can be inserted between
-SwitchBoard and kodo to impose multi-step process on complex tasks. Simple tasks can
-skip Archon entirely and go straight to kodo.
+**Workflow discipline is optional but composable.** DAGExecutor can be inserted between
+SwitchBoard and TeamExecutor to impose multi-step process on complex tasks. Simple tasks can
+skip DAGExecutor entirely and go straight to TeamExecutor.
 
 **Infrastructure ownership is centralised.** PlatformDeployment is the single place where
 services run or fail to run. No service repo needs to know how it is deployed.
@@ -202,40 +202,40 @@ evidence and a new ADR.
 
 ### Decision A — Adapter-first integration
 
-External execution systems (kodo, Archon, OpenClaw) are integrated through adapters.
+Execution systems (TeamExecutor, DAGExecutor, OpenClaw) are integrated through adapters.
 The platform owns canonical contracts: `TaskProposal`, `ExecutionRequest`,
 `ExecutionResult`. Backend-native schemas do not define platform architecture. When a
 backend's API changes, only the adapter changes — upstream contracts stay stable.
 
-### Decision B — kodo set the adapter pattern
+### Decision B — TeamExecutor set the adapter pattern
 
-kodo was the seed backend integration: clean headless subprocess via Claude
+TeamExecutor was the seed backend integration: clean headless subprocess via Claude
 Agent SDK and Codex SDK, structured exit-code signals, easy to wrap. It
-established the adapter pattern, then archon, openclaw, direct_local, and
-aider_local followed. All five now delegate subprocess execution through
+established the adapter pattern, then dag_executor, openclaw, direct_local, and
+aider_local followed. All delegate subprocess execution through
 CoreRunner via RxP `RuntimeInvocation`.
 
-### Decision C — Archon is optional and bounded
+### Decision C — DAGExecutor is optional and bounded
 
-Archon is a useful workflow harness for complex, multi-step executions. It is
+DAGExecutor is a useful workflow harness for complex, multi-step executions. It is
 **not** the universal home for all execution lanes. Specifically:
 
 - `aider_local` runs use the dedicated `AiderLocalBackendAdapter`; they do not
-  require or go through Archon.
-- OperationsCenter can invoke kodo directly without Archon when workflow discipline is
-  not needed.
-- Archon is useful for `claude_cli` and `codex_cli` lanes when a YAML-defined
+  require or go through DAGExecutor.
+- OperationsCenter can invoke TeamExecutor directly without DAGExecutor when workflow
+  discipline is not needed.
+- DAGExecutor is useful for `claude_cli` and `codex_cli` lanes when a YAML-defined
   plan → implement → validate → PR sequence is needed.
 
 ### Decision D — OpenClaw is optional
 
 OpenClaw is an optional outer operator shell and an available integration target. It is
 not required for the core execution path and does not drive architectural decisions.
-The system (OperationsCenter through kodo) functions without OpenClaw.
+The system (OperationsCenter through TeamExecutor) functions without OpenClaw.
 
 ### Decision E — No upstream modifications without evidence
 
-Forking or patching Archon, OpenClaw, or kodo upstream is out of scope; all integration is done through adapter layers. Upstream
+Forking or patching DAGExecutor, OpenClaw, or TeamExecutor upstream is out of scope; all integration is done through adapter layers. Upstream
 modification is an evidence-based decision that requires a new ADR. If a
 backend's public API is insufficient, the correct response is to raise the gap, not
 to fork the backend.
@@ -261,7 +261,7 @@ SwitchBoard
   classify(task) → complexity=low, cost_sensitivity=high
   select_lane()  → aider_local  (cheap, no API key needed)
 
-kodo (aider_local lane)
+TeamExecutor (aider_local lane)
   checkout worktree
   run aider with PlatformDeployment tiny model
   fix lint errors
@@ -282,9 +282,9 @@ OperationsCenter
 No. OpenClaw is an optional outer shell for human operators. OperationsCenter runs
 autonomously without it.
 
-**Q: Does every task go through Archon?**
-No. Archon is optional. kodo can be invoked directly. Archon adds structured DAG
-execution for multi-step workflows.
+**Q: Does every task go through DAGExecutor?**
+No. DAGExecutor is optional. TeamExecutor can be invoked directly. DAGExecutor adds
+structured DAG execution for multi-step workflows.
 
 **Q: Where does model routing happen?**
 SwitchBoard. It selects the execution lane. It does not proxy API calls to external
@@ -294,6 +294,6 @@ providers.
 PlatformDeployment deploys and serves the tiny local models consumed by the `aider_local`
 lane. OperationsCenter and SwitchBoard do not own model deployment.
 
-**Q: Can kodo use a lane other than Claude CLI?**
-Yes. kodo supports Claude Agent SDK (Claude CLI lane) and Codex SDK (Codex CLI lane).
+**Q: Can TeamExecutor use a lane other than Claude CLI?**
+Yes. TeamExecutor supports Claude Agent SDK (Claude CLI lane) and Codex SDK (Codex CLI lane).
 Aider operates separately in the `aider_local` lane.

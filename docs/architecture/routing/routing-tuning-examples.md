@@ -5,7 +5,7 @@
 ```python
 from operations_center.tuning import StrategyTuningService
 
-# records: 10 runs, kodo@aider_local, bug_fix, low risk, 90% success, fast latency
+# records: 10 runs, team_executor@aider_local, bug_fix, low risk, 90% success, fast latency
 service = StrategyTuningService.default()
 report = service.analyze(records)
 
@@ -16,14 +16,14 @@ print(report.comparison_summaries[0].evidence_strength)  # EvidenceStrength.MODE
 # Findings
 for f in report.findings:
     print(f.category, f.summary)
-# reliability  kodo @ aider_local shows high reliability: 90% success rate across 10 runs.
+# reliability  team_executor @ aider_local shows high reliability: 90% success rate across 10 runs.
 
 # Recommendation
 for p in report.recommendations:
     print(p.summary)
     print(p.affected_policy_area)
     print(p.requires_review)
-# Consider increasing preference for kodo @ aider_local for bounded tasks.
+# Consider increasing preference for team_executor @ aider_local for bounded tasks.
 # backend_preference
 # True
 ```
@@ -33,24 +33,24 @@ for p in report.recommendations:
 ## Example 2: Premium backend outperforming local for high-complexity tasks
 
 ```python
-# records: 8 archon@claude_cli refactor tasks (87% success)
-#        + 8 kodo@aider_local refactor tasks (12% success)
+# records: 8 dag_executor@claude_cli refactor tasks (87% success)
+#        + 8 team_executor@aider_local refactor tasks (12% success)
 
 report = service.analyze(records)
 
 by_backend = {s.backend: s for s in report.comparison_summaries}
 
-print(by_backend["archon"].success_rate)       # 0.875
-print(by_backend["archon"].reliability_class)  # ReliabilityClass.HIGH
+print(by_backend["dag_executor"].success_rate)       # 0.875
+print(by_backend["dag_executor"].reliability_class)  # ReliabilityClass.HIGH
 
-print(by_backend["kodo"].success_rate)         # 0.125
-print(by_backend["kodo"].reliability_class)    # ReliabilityClass.LOW
+print(by_backend["team_executor"].success_rate)         # 0.125
+print(by_backend["team_executor"].reliability_class)    # ReliabilityClass.LOW
 
-# Findings for kodo
-kodo_findings = [f for f in report.findings if "kodo" in f.affected_backends]
-for f in kodo_findings:
+# Findings for team_executor
+te_findings = [f for f in report.findings if "team_executor" in f.affected_backends]
+for f in te_findings:
     print(f.summary)
-# kodo @ aider_local shows low reliability: 12% success rate across 8 runs.
+# team_executor @ aider_local shows low reliability: 12% success rate across 8 runs.
 
 # Proposals from evidence
 for p in report.recommendations:
@@ -106,7 +106,7 @@ print(report.recommendations)  # []
 # Only finding is sparse_data
 for f in report.findings:
     print(f.category, f.summary)
-# sparse_data   kodo @ claude_cli has only 3 sample(s) — too few for confident routing strategy conclusions.
+# sparse_data   team_executor @ claude_cli has only 3 sample(s) — too few for confident routing strategy conclusions.
 
 # Limitations surfaced
 for lim in report.limitations:
@@ -131,12 +131,12 @@ print(s.validation_pass_rate)   # 0.0
 for f in report.findings:
     if f.category == "validation":
         print(f.summary)
-# kodo @ claude_cli skips validation in 100% of runs, limiting quality signal.
+# team_executor @ claude_cli skips validation in 100% of runs, limiting quality signal.
 
 for p in report.recommendations:
     if p.affected_policy_area == "validation_requirements":
         print(p.proposed_change)
-# For kodo @ claude_cli on risk=medium or risk=high: policy should require at least one validation_command.
+# For team_executor @ claude_cli on risk=medium or risk=high: policy should require at least one validation_command.
 ```
 
 ---
@@ -153,9 +153,9 @@ for s in summaries:
     print(f"{s.backend} @ {s.lane} [{s.task_type_scope}]: "
           f"success={s.success_rate:.0%} n={s.sample_size}")
 
-# kodo @ aider_local ['bug_fix']:   success=92% n=25
-# kodo @ aider_local ['feature']:   success=61% n=12
-# archon @ claude_cli ['refactor']: success=88% n=8
+# team_executor @ aider_local ['bug_fix']:   success=92% n=25
+# team_executor @ aider_local ['feature']:   success=61% n=12
+# dag_executor  @ claude_cli  ['refactor']:  success=88% n=8
 ```
 
 ---

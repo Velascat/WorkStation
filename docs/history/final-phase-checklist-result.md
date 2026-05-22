@@ -6,7 +6,7 @@ not as the primary source of current architecture guidance.
 ## Status
 
 - `fixed` Canonical `TaskProposal`, `LaneDecision`, `ExecutionRequest`, and `ExecutionResult` remain the intended contract layer.
-- `fixed` `LaneDecision.selected_backend` now records the real selector backend instead of silently coercing unsupported values to `kodo`.
+- `fixed` `LaneDecision.selected_backend` now records the real selector backend instead of silently coercing unsupported values to a legacy default.
 - `fixed` Supported execution flow now uses `TaskProposal -> LaneDecision -> ExecutionRequest -> adapter -> ExecutionResult`.
 - `fixed` Policy is a mandatory pre-execution gate in the supported execution path.
 - `fixed` Supported tuning runtime is recommendation-only.

@@ -27,7 +27,7 @@ Expected evaluation result:
 - no patch proposal
 - document the limitation and continue using the adapter layer
 
-## Example 3: kodo Ergonomic Friction
+## Example 3: TeamExecutor Ergonomic Friction
 
 Observed evidence:
 

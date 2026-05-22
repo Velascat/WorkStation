@@ -51,7 +51,7 @@ must be started, stopped, health-checked, and reported on. All of that is
 infrastructure operation — PlatformDeployment's domain.
 
 The lane is definitively **not** a SwitchBoard concern (policy selection), a
-OperationsCenter concern (task proposal), or a kodo concern (execution orchestration).
+OperationsCenter concern (task proposal), or an executor concern (execution orchestration).
 The line is clean:
 
 | Concern | Owner |
@@ -59,7 +59,7 @@ The line is clean:
 | Deploying/starting the local model server | PlatformDeployment |
 | Checking if the lane is available | PlatformDeployment |
 | Deciding which lane to use for a task | SwitchBoard |
-| Running Aider against the local models | kodo (`aider_local` backend process) |
+| Running Aider against the local models | executor (`aider_local` backend process) |
 | Deciding what task to run | OperationsCenter |
 
 ---
@@ -70,7 +70,7 @@ The line is clean:
 OperationsCenter → SwitchBoard → [lane decision: aider_local]
                                        │
                                        ▼
-                             kodo (aider_local runner)
+                          executor (aider_local runner)
                                        │
                                        ▼
                           Aider process (local subprocess)
@@ -120,7 +120,7 @@ A clean lifecycle for the local lane looks like this:
 3. **Check** — run `python -m platform_deployment_cli lane status aider_local` or
    `lane health aider_local` to see live state.
 
-4. **Use** — SwitchBoard queries availability; kodo sends requests to the local
+4. **Use** — SwitchBoard queries availability; the executor sends requests to the local
    model endpoint when the lane is selected.
 
 5. **Stop** — run `python -m platform_deployment_cli lane stop aider_local` to stop

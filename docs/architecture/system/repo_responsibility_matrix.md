@@ -38,8 +38,8 @@ services run on a developer machine.
 **Out of scope — PlatformDeployment does not own:**
 - What SwitchBoard's policy rules do or how lanes are scored
 - What OperationsCenter decides to work on next
-- What Archon's workflow steps are
-- kodo's execution logic or agent orchestration
+- What DAGExecutor's workflow steps are
+- TeamExecutor's execution logic or agent orchestration
 - Service-internal config schemas (those live in their own repos)
 - Task prioritization logic of any kind
 - The coding execution that happens inside a lane
@@ -60,7 +60,7 @@ sensitivity, urgency) to feed lane scoring.
 | **Outputs** | Selected lane name + downstream routing info; decision log entry |
 | **Dependencies** | Policy YAML, profiles YAML, capability registry |
 | **Invokes** | Nothing at runtime; SwitchBoard emits routing metadata only |
-| **Invoked by** | OperationsCenter, kodo, or any system component that needs a lane assigned |
+| **Invoked by** | OperationsCenter, or any system component that needs a lane assigned |
 
 **Lanes SwitchBoard selects between:**
 - `claude_cli` — Claude Code CLI, premium, OAuth/subscription
@@ -96,14 +96,14 @@ sensitivity, urgency) to feed lane scoring.
 **Primary responsibility:** Decision and execution engine. Observes repo state,
 derives insights, decides what work matters next, and drives the autonomous task loop.
 
-**Secondary responsibility:** Platform integration layer (Plane board client, kodo
+**Secondary responsibility:** Platform integration layer (Plane board client, team_executor
 invocation wrapper, execution artifact analysis).
 
 | Field | Detail |
 |-------|--------|
 | **Inputs** | Repo state (git history, lint/test signals, architecture metrics), Plane task board, retained execution artifacts |
 | **Outputs** | Proposal candidates, Plane tasks, execution requests, outcome artifacts, autonomy cycle reports |
-| **Dependencies** | Plane (task board), kodo (execution backend), git |
+| **Dependencies** | Plane (task board), team_executor (execution backend), git |
 | **Invokes** | backend adapters through its execution boundary, SwitchBoard, Plane API |
 | **Invoked by** | Operator via CLI, OperatorConsole, or OpenClaw |
 
@@ -152,18 +152,15 @@ GitHub, web UI, CLI).
 - Workflow run tracking (SQLite/PostgreSQL)
 - Bundled default workflows (fix-issue, smart-pr-review, idea-to-pr, etc.)
 
-**Out of scope — Archon does not own:**
+**Out of scope — DAGExecutor does not own:**
 - Strategic decisions about what work to do (that is OperationsCenter's job)
 - Lane selection policy (that is SwitchBoard's job)
 - Infrastructure deployment (that is PlatformDeployment's job)
-- kodo's orchestration logic (Archon uses Claude/Codex SDK directly, not kodo)
-
-> **Archon is optional.** OperationsCenter can invoke kodo directly without Archon when
-> workflow discipline is not required.
+- TeamExecutor's agent orchestration logic
 
 ---
 
-## kodo
+## TeamExecutor
 
 **Primary responsibility:** Coding execution backend. Orchestrates a multi-agent
 coding session within a single task run.
@@ -175,9 +172,9 @@ structured artifact output.
 |-------|--------|
 | **Inputs** | Task description, repo path, execution parameters (lane, model, budget) |
 | **Outputs** | Code changes (committed to branch), validation results, diff artifacts, outcome JSON |
-| **Dependencies** | Claude Agent SDK (`@anthropic-ai/claude-agent-sdk`) or Codex SDK; git |
+| **Dependencies** | Claude Agent SDK or Codex SDK; git |
 | **Invokes** | Claude CLI (via SDK), Codex CLI (via subprocess + JSONL), aider (via subprocess) |
-| **Invoked by** | OperationsCenter, Archon (within workflow nodes) |
+| **Invoked by** | OperationsCenter, DAGExecutor (within workflow nodes) |
 
 **In scope:**
 - Multi-agent coding session orchestration
@@ -188,10 +185,10 @@ structured artifact output.
 - Validation command execution and failure classification
 - Artifact writing (diff, stdout, stderr, outcome summary)
 
-**Out of scope — kodo does not own:**
+**Out of scope — TeamExecutor does not own:**
 - System-wide policy or lane selection (that is SwitchBoard's job)
 - Task proposal and prioritization (that is OperationsCenter's job)
-- Workflow structure and multi-step DAG (that is Archon's job)
+- Workflow structure and multi-step DAG (that is DAGExecutor's job)
 - Infrastructure deployment (that is PlatformDeployment's job)
 - Long-range strategy about what repos to improve
 
@@ -223,7 +220,7 @@ sits above OperationsCenter and provides a unified control surface.
 - SwitchBoard's lane selection
 - Any core execution or infrastructure
 
-> **OpenClaw is optional.** The system (OperationsCenter through kodo) functions without
+> **OpenClaw is optional.** The system (OperationsCenter through TeamExecutor) functions without
 > it. OpenClaw adds operator ergonomics on top of an already-functioning autonomous
 > system.
 
@@ -235,7 +232,7 @@ sits above OperationsCenter and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Invoked by** | kodo (via Claude Agent SDK `client.connect()`) |
+| **Invoked by** | TeamExecutor (via Claude Agent SDK `client.connect()`) |
 | **Auth** | OAuth / Claude.ai subscription — no API key |
 | **Strengths** | Highest capability, complex reasoning and refactors |
 | **Cost profile** | Premium (subscription) |
@@ -245,7 +242,7 @@ sits above OperationsCenter and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Invoked by** | kodo (via `codex exec` subprocess + JSONL) |
+| **Invoked by** | TeamExecutor (via `codex exec` subprocess + JSONL) |
 | **Auth** | OpenAI subscription — no API key |
 | **Strengths** | Strong code generation, OpenAI subscription billing |
 | **Cost profile** | Premium (subscription) |
@@ -255,7 +252,7 @@ sits above OperationsCenter and provides a unified control surface.
 
 | Field | Detail |
 |-------|--------|
-| **Invoked by** | kodo via subprocess or OperationsCenter execution boundary; SwitchBoard selects this lane but does not dispatch execution |
+| **Invoked by** | TeamExecutor via subprocess or OperationsCenter execution boundary; SwitchBoard selects this lane but does not dispatch execution |
 | **Auth** | None — hits locally deployed models only |
 | **Strengths** | Zero external API cost, always available, fast for simple edits |
 | **Cost profile** | Free / local compute only |
@@ -273,13 +270,12 @@ OpenClaw (optional)
                 └─consumes─► SourceRegistry (fork tracking, library)
                 └─dispatches via─► CoreRunner
                                      ├─consumes─► RxP (runtime contracts)
-                                     └─runs adapters─► kodo / archon / openclaw / direct_local / aider_local
+                                     └─runs adapters─► team_executor / dag_executor / openclaw / direct_local / aider_local
                                                          └─each─► claude_cli / codex_cli / aider_local lane
                                                                     └─uses─► tiny models (PlatformDeployment)
 
 PlatformDeployment
   └─deploys─► SwitchBoard
-  └─deploys─► Archon (compose profile)
   └─deploys─► tiny local models
   └─manages─► Plane infra
 

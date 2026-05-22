@@ -21,7 +21,7 @@ ctx = OperatorContext(
 handle = bridge.trigger(ctx)
 
 print(handle.selected_lane)     # "claude_cli"
-print(handle.selected_backend)  # "kodo"
+print(handle.selected_backend)  # "team_executor"
 print(handle.status)            # "planned"
 print(handle.routing_confidence) # 0.9
 ```
@@ -31,7 +31,7 @@ print(handle.routing_confidence) # 0.9
 ```python
 handle, summary = bridge.trigger_with_summary(ctx)
 
-print(summary.headline)    # "PLANNED | claude_cli @ kodo"
+print(summary.headline)    # "PLANNED | claude_cli @ team_executor"
 print(summary.success)     # False — execution hasn't happened yet
 print(summary.status)      # "pending"
 ```
@@ -42,16 +42,16 @@ After a backend adapter completes execution and returns an `ExecutionResult`:
 
 ```python
 # Full path — uses observability layer
-summary = bridge.status_from_result(result, lane="claude_cli", backend="kodo")
+summary = bridge.status_from_result(result, lane="claude_cli", backend="team_executor")
 print(summary.success)               # True
-print(summary.headline)              # "SUCCESS | kodo @ claude_cli | run=abc12345"
+print(summary.headline)              # "SUCCESS | team_executor @ claude_cli | run=abc12345"
 print(summary.changed_files_status)  # "known"
 print(summary.validation_status)     # "passed"
 print(summary.artifact_count)        # 2
 print(summary.recorded_at)           # datetime(...) — set from observability
 
 # Lightweight path — no observability overhead
-summary = bridge.status_from_result_lightweight(result, lane="claude_cli", backend="kodo")
+summary = bridge.status_from_result_lightweight(result, lane="claude_cli", backend="team_executor")
 print(summary.recorded_at)   # None — not set in lightweight path
 ```
 
@@ -66,13 +66,13 @@ from operations_center.observability.trace import RunReportBuilder
 recorder = ExecutionRecorder()
 builder = RunReportBuilder()
 
-record = recorder.record(result, backend="kodo", lane="claude_cli")
+record = recorder.record(result, backend="team_executor", lane="claude_cli")
 trace = builder.build_report(record)
 
 inspection = bridge.inspect_from_record(record, trace)
 
 print(inspection.run_id)               # "run-abc12345"
-print(inspection.headline)             # "SUCCESS | kodo @ claude_cli | run=abc12345"
+print(inspection.headline)             # "SUCCESS | team_executor @ claude_cli | run=abc12345"
 print(inspection.warnings)             # []
 print(inspection.artifact_count)       # 2
 print(inspection.primary_artifact_count) # 1
@@ -128,7 +128,7 @@ else:
 ```python
 bridge = OpenClawBridge.with_stub_routing(
     lane="aider_local",
-    backend="kodo",
+    backend="team_executor",
     confidence=0.85,
 )
 
@@ -136,7 +136,7 @@ ctx = OperatorContext(goal_text="Refactor utils", repo_key="svc")
 handle = bridge.trigger(ctx)
 
 assert handle.selected_lane == "aider_local"
-assert handle.selected_backend == "kodo"
+assert handle.selected_backend == "team_executor"
 assert handle.routing_confidence == pytest.approx(0.85)
 ```
 

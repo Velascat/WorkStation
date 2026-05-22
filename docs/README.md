@@ -41,11 +41,6 @@ canonical public source of truth for ecosystem-wide ownership doctrine.
 
 ### Adapters
 
-- [architecture/adapters/kodo-adapter.md](architecture/adapters/kodo-adapter.md) ·
-  [examples](architecture/adapters/kodo-adapter-examples.md)
-- [architecture/adapters/archon-adapter.md](architecture/adapters/archon-adapter.md) ·
-  [examples](architecture/adapters/archon-adapter-examples.md) ·
-  [real-workflow-integration design](architecture/adapters/archon-real-workflow-integration.md)
 - [architecture/adapters/openclaw-backend-adapter.md](architecture/adapters/openclaw-backend-adapter.md) ·
   [examples](architecture/adapters/openclaw-backend-adapter-examples.md)
 - [architecture/adapters/openclaw-outer-shell.md](architecture/adapters/openclaw-outer-shell.md) ·
@@ -81,8 +76,6 @@ Day-to-day runbook material for operating the local stack.
 
 - [operations/runbook.md](operations/runbook.md) — Day-to-day operational runbook
   (start/stop/health/troubleshoot, plus the Custodian boundary-artifact wrapper).
-- [operations/archon-setup.md](operations/archon-setup.md) — Archon stack
-  bring-up and validation.
 - [operations/local-lane-setup.md](operations/local-lane-setup.md) — Local lane
   (aider_local) tiny-model deployment.
 - [operations/local_aider_lane.md](operations/local_aider_lane.md) — Operator

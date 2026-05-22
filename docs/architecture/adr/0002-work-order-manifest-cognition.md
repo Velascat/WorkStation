@@ -50,15 +50,51 @@ Port the existing `pre_tool_use.sh` (330 lines) and `stop.sh` (116 lines) policy
 
 ## Phase 2 — RepoGraph Visibility Enforcement
 
-Add the authorization check API RepoGraph exposes to CL. CL calls into RepoGraph on every cognition write to validate that the touched repo is within the active anchor's visibility scope.
+Add the authorization check API RepoGraph exposes to CL. **RepoGraph owns manifest discovery, parsing, topology, and authorization logic. CL is a pure consumer** — it passes only the active anchor path and the target repo name; it does not configure RepoGraph's view of the ecosystem, does not pass `root_dir`, does not parse YAML, does not know that other manifests exist.
 
-- [ ] **P2.1** — RepoGraph: `can_anchor_host(anchor_manifest, repo)` API. Three-clause authorization (owner / public-source / explicit `also_hosts` grant). Returns `(allowed, reason)`. Uses schema locked in P0.4.
-- [ ] **P2.2** — RepoGraph load-time validations: exactly-one-owner per repo (dual claim = fatal); `also_hosts` entries reference real (manifest, repo) pairs (bad ref = fatal); warn on redundant `also_hosts` grants pointing at public-owned repos.
-- [ ] **P2.3** — CL: on every write to `.context/`, call `RepoGraph.can_anchor_host()` for each repo involved in the capsule/checkpoint/handoff. Hard error if any returns false; error message names the owning manifest and the failing clause.
-- [ ] **P2.4** — Tests covering each clause: (a) anchor owns repo → allowed; (b) repo in public manifest → allowed regardless of anchor scope; (c) cross-private with `also_hosts` grant → allowed; (d) cross-private without grant → blocked; (e) public anchor touching private-owned repo → blocked; (f) unregistered repo → blocked. Each block path verifies the reason string is operator-actionable.
-- [ ] **P2.5** — Tagged RepoGraph release; CL pin bumped.
+### Boundary discipline (load-bearing)
 
-**DoD:** A session anchored to PM cannot write a capsule that references a private repo. Failure mode is a hard error with the operator told exactly which repo and why.
+| Concern | Owner |
+|---|---|
+| What manifests exist in the ecosystem | **RepoGraph** |
+| Parsing manifest YAML | **RepoGraph** |
+| Authorization logic (3-clause check) | **RepoGraph** |
+| Which manifest is anchoring *this session* | CL (reads `CL_ANCHOR`) |
+| Enforcing the authorization result on a write | CL |
+
+### Tasks
+
+- [ ] **P2.0** — RepoGraph: per-machine manifest registry. RepoGraph owns its own config of "which manifests exist on this machine." Default location: `${XDG_CONFIG_HOME:-~/.config}/repograph/manifests.yaml`. Schema:
+  ```yaml
+  manifests:
+    - /home/dev/Documents/GitHub/PlatformManifest
+    - /home/dev/Documents/GitHub/PrivateManifest
+  ```
+  Registry is per-machine config (not committed to any repo) — manifest *paths* are machine-local; what's tracked in git is manifest *contents*.
+
+- [ ] **P2.1** — RepoGraph CLI for registry management:
+  ```
+  repograph manifest add <path>      # register a manifest
+  repograph manifest list            # show known manifests
+  repograph manifest remove <path>   # unregister
+  repograph manifest validate        # re-check exclusive ownership + also_hosts refs
+  ```
+
+- [ ] **P2.2** — RepoGraph: `RepoGraph()` self-initializes from its own registry (P2.0). On init, loads every registered manifest's YAML, builds the topology index (repo → owner manifest, manifest → `also_hosts` grants), runs load-time validations. No `root_dir`, env var, or path argument from CL.
+
+- [ ] **P2.3** — RepoGraph: `can_anchor_host(anchor_path: Path, repo_name: str) → (bool, str)` API. Three-clause authorization (owner / public-source / explicit `also_hosts` grant). Anchor path must resolve to a known registered manifest; unknown anchor → block with clear error.
+
+- [ ] **P2.4** — RepoGraph: `find_anchor_for_path(cwd: Path) → Path | None` API for `cl session start` no-arg inference (P0.2). Walks the registry to find which manifest claims the given cwd (via its `repos:` list). Returns unique match, raises on ambiguous, returns None if no claim.
+
+- [ ] **P2.5** — RepoGraph load-time validations: exactly-one-owner per repo (dual claim across manifests = fatal); `also_hosts` entries reference real (manifest, repo) pairs (bad ref = fatal); warn on redundant `also_hosts` grants pointing at public-owned repos.
+
+- [ ] **P2.6** — CL: on every write to `.context/`, call `RepoGraph().can_anchor_host(anchor_path, repo)` for each repo involved in the capsule/checkpoint/handoff. Hard error if any returns false; error message names the owning manifest and the failing clause. CL imports RepoGraph as a Python package; in-process call, no IPC.
+
+- [ ] **P2.7** — Tests covering each authorization clause: (a) anchor owns repo → allowed; (b) repo in public manifest → allowed regardless of anchor scope; (c) cross-private with `also_hosts` grant → allowed; (d) cross-private without grant → blocked; (e) public anchor touching private-owned repo → blocked; (f) unregistered repo → blocked; (g) unknown anchor path → blocked. Each block path verifies the reason string is operator-actionable. Plus tests for registry CLI and `find_anchor_for_path` (unique / ambiguous / none).
+
+- [ ] **P2.8** — Tagged RepoGraph release; CL pin bumped.
+
+**DoD:** A session anchored to PM cannot write a capsule that references a private repo. Failure mode is a hard error with the operator told exactly which repo and why. CL has zero knowledge of manifest paths beyond what's set in `CL_ANCHOR`; all topology questions go through RepoGraph.
 
 ---
 

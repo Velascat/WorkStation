@@ -1,5 +1,11 @@
 # Mission Log
 
+## 2026-05-22 — Work order 0002: clarify Phase 2 boundaries (RepoGraph owns manifest discovery)
+
+Refined Phase 2 of work order 0002 after Dave caught a boundary smell: an earlier sketch had CL passing `REPOGRAPH_ROOT` to RepoGraph, effectively making CL responsible for manifest discovery. Wrong — RepoGraph is the semantic library of topological connections and owns the full topology including which manifests exist.
+
+Phase 2 restructured: added P2.0 (per-machine manifest registry at `${XDG_CONFIG_HOME}/repograph/manifests.yaml`), P2.1 (registry CLI: `repograph manifest add/list/remove/validate`), and split the previous P2.1 across new P2.2 (self-init from registry), P2.3 (`can_anchor_host`), P2.4 (`find_anchor_for_path` for P0.2 no-arg inference). Boundary table added to Phase 2 prose. CL is now a pure consumer — passes only anchor path + repo name, never configures RepoGraph's view of the world.
+
 ## 2026-05-22 — Add work order 0002: manifest-cognition integration
 
 New cross-repo work order at `docs/architecture/adr/0002-work-order-manifest-cognition.md`. Spans ContextLifecycle, RepoGraph, PlatformManifest, PrivateManifest, OperationsCenter, and the three executors. Establishes "manifest" as a first-class repo type, defines the CL/RepoGraph/Manifest contract split, locks all six Phase 0 specs. Design rationale in `ContextLifecycle/.console/log.md` and `PlatformManifest/.console/log.md` (both 2026-05-22).

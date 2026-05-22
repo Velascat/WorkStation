@@ -1,5 +1,9 @@
 # Mission Log
 
+## 2026-05-22 — Add work order 0002: manifest-cognition integration
+
+New cross-repo work order at `docs/architecture/adr/0002-work-order-manifest-cognition.md`. Spans ContextLifecycle, RepoGraph, PlatformManifest, PrivateManifest, OperationsCenter, and the three executors. Establishes "manifest" as a first-class repo type, defines the CL/RepoGraph/Manifest contract split, locks all six Phase 0 specs. Design rationale in `ContextLifecycle/.console/log.md` and `PlatformManifest/.console/log.md` (both 2026-05-22).
+
 ## 2026-05-21 — Add closing console-context fence to CLAUDE.md
 
 Added <!-- /console-context --> end marker so OperatorConsole only

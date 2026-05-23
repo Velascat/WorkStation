@@ -51,10 +51,10 @@ repo audits against the full union.
   cannot be re-tightened without splitting PrivateManifest.
 - **CL anchoring is flat.** Sessions touching private code anchor at
   PrivateManifest, not at the project hosted within. Cognition for
-  VideoFoundry, FooCorp, and BarCorp would land under the same
+  BazCorp, FooCorp, and BarCorp would land under the same
   `.context/sessions/` tree, distinguished only by capsule metadata. The
   long-term goal (per-project cognition hosting, e.g. inside a
-  hypothetical `manifests/videofoundry/.context/`) is incompatible with the
+  hypothetical `manifests/bazcorp/.context/`) is incompatible with the
   current single-anchor implementation.
 - **Audit scope is global.** Every consumer audits against the full
   forbidden_names list, including names for projects it has nothing to do
@@ -74,7 +74,7 @@ repo audits against the full union.
 When the constraints above start to bind, the migration is:
 
 1. **Split PrivateManifest by tenant.** Each tenant (or major project)
-   becomes its own private repo: `PrivateManifest-VideoFoundry`,
+   becomes its own private repo: `PrivateManifest-BazCorp`,
    `PrivateManifest-FooCorp`. Each runs its own publish-boundary workflow
    producing its own artifact at its own raw URL.
 

@@ -252,3 +252,11 @@ Fixed to "Copy files from sync dir → repo positions" to match the actual imple
 ### ADR 0005 — Remove Archon compose profile (2026-05-18)
 Deleted compose/profiles/archon.yml per ADR 0005 decision to retire Archon backend.
 Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
+
+## 2026-05-23 — ADR 0004 + sync-topology doc (manifest as sync authority)
+
+- Added `docs/architecture/system/sync-topology.md` — canonical cross-repo model: group fleet sync by manifest (not data-type), three layers (manifest declaration / public sync mechanism / private FleetMgmt binding), per-asset sync modes (copy/in-repo/external), backup-restore via per-repo shim contract.
+- Added `docs/architecture/adr/0004-sync-topology-manifest-authority.md`; updated adr/README table (also backfilled missing 0003 row).
+- Decisions captured: new public Sync Mechanism repo extracted from SyncingSolution; SyncingSolution remainder → FleetMgmt (private); FleetMgmt vs SSHInventory kept distinct.
+- Boundary (B1): genericized 'VideoFoundry' → 'media-pipeline precedent' in sync-topology.md + ADR 0004, and reworded ADR 0004 sync-mode names out of inline code (K1 phantom-symbol). Pre-existing 'VideoFoundry' refs in ADR 0003 (lines 54/57/77) left untouched pending a decision — they block the push under --fail-on-findings.
+- ADR 0003: genericized pre-existing 'VideoFoundry' refs → 'BazCorp' placeholder (matching FooCorp/BarCorp) on lines 54/57/77, clearing the B1 boundary findings that blocked the push. Decision: keep private repo names out of tracked ADRs; use Foo/Bar/Baz tenant placeholders.

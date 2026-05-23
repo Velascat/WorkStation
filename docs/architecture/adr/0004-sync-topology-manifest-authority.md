@@ -9,8 +9,8 @@ was drifting toward an `N×M` repo explosion — one repo per *data-type* per
 *project*. No single thing owned "what syncs where," and the scope felt like it
 was creeping with every new data class.
 
-Separately, today's `SyncingSolution` repo conflates four concerns: machine
-identity keys (in commit history, so permanently private), syncthing setup
+Separately, the existing private sync repo conflated four concerns: machine
+identity keys (in commit history, so permanently private), Syncthing setup
 tooling, fleet state, and project data assets.
 
 ## Decision
@@ -25,12 +25,10 @@ Three layers, following the established public-mechanism / private-binding split
 1. **Manifest (declaration).** Declares data classes, per-asset sync mode, and
    folder layout. A *public* manifest declares structure only — never
    destinations, device IDs, or secrets.
-2. **Sync Mechanism (public, new repo).** Extracted from `SyncingSolution`.
-   Owns the Syncthing schema/vocabulary and the setup/backup/restore
-   orchestration + shim contract. Reads manifest shape + private binding, emits
-   Syncthing config.
-3. **Private binding.** `FleetMgmt` (the remainder of `SyncingSolution` —
-   permanently private due to keys in history) supplies device IDs, keys, and
+2. **Sync Mechanism (public, new repo).** Owns the Syncthing schema/vocabulary
+   and the setup/backup/restore orchestration + shim contract. Reads manifest
+   shape + private binding, emits Syncthing config.
+3. **Private binding.** A private fleet layer supplies device IDs, keys, and
    machine-link setup. Private manifests supply destination folders / routing.
 
 **Backup/restore implementations live in each participating repo**, behind the
@@ -40,10 +38,14 @@ data (same shape as the CL shim hooks the executors carry).
 **Sync modes** (vocabulary in the mechanism repo, chosen per-asset in the
 manifest), from the media-pipeline precedent: *copy* (small → snapshot into a
 `sync/` dir), *in-repo* (large, e.g. models), *external* (cannot live in-repo,
-e.g. OC plane backups).
+e.g. large backup archives).
 
-`FleetMgmt` and `SSHInventory` stay distinct: FleetMgmt = machine identity keys
-+ link-setup scripts; SSHInventory = index of SSH keys and their lifecycle.
+The private fleet layer (machine identity keys + link-setup scripts) stays
+distinct from the SSH key index (index of SSH keys and their lifecycle).
+
+**Repo sequence:** the existing private sync repo is renamed to become the
+private fleet layer (hard cutover — permanently private due to keys in history);
+the public Sync Mechanism repo is then extracted from it.
 
 Full model and diagram: [`system/sync-topology.md`](../system/sync-topology.md).
 Public reader-facing mirror lives on the Pages site under Architecture →
@@ -55,8 +57,8 @@ Sync & Data Transport.
   each project). Rejected: `N×M` explosion, no single owner of grouping.
 - **One global rule for payload home.** Rejected: churn coupling differs per
   asset; the mode is declared per-asset instead.
-- **Keep SyncingSolution as one repo.** Rejected: it mixes permanently-private
-  keys with tooling that should be public and configurable.
+- **Keep the existing sync repo as one repo.** Rejected: it mixes
+  permanently-private keys with tooling that should be public and configurable.
 
 ## Open decision
 

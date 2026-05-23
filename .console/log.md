@@ -260,3 +260,8 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 - Decisions captured: new public Sync Mechanism repo extracted from SyncingSolution; SyncingSolution remainder → FleetMgmt (private); FleetMgmt vs SSHInventory kept distinct.
 - Boundary (B1): genericized 'VideoFoundry' → 'media-pipeline precedent' in sync-topology.md + ADR 0004, and reworded ADR 0004 sync-mode names out of inline code (K1 phantom-symbol). Pre-existing 'VideoFoundry' refs in ADR 0003 (lines 54/57/77) left untouched pending a decision — they block the push under --fail-on-findings.
 - ADR 0003: genericized pre-existing 'VideoFoundry' refs → 'BazCorp' placeholder (matching FooCorp/BarCorp) on lines 54/57/77, clearing the B1 boundary findings that blocked the push. Decision: keep private repo names out of tracked ADRs; use Foo/Bar/Baz tenant placeholders.
+
+## 2026-05-23 — Fix: land genericized sync docs + standardize hook
+
+- PR #23 squash captured the pre-genericized docs by mistake; restoring the genericized sync-topology.md + ADR 0004 (no private fleet-layer name on this public repo).
+- Standardized .hooks/pre-push to the auto-discovering variant (supersedes conflicted PR #24).

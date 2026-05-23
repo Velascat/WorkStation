@@ -261,3 +261,7 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 - Boundary (B1): genericized 'VideoFoundry' → 'media-pipeline precedent' in sync-topology.md + ADR 0004, and reworded ADR 0004 sync-mode names out of inline code (K1 phantom-symbol). Pre-existing 'VideoFoundry' refs in ADR 0003 (lines 54/57/77) left untouched pending a decision — they block the push under --fail-on-findings.
 - ADR 0003: genericized pre-existing 'VideoFoundry' refs → 'BazCorp' placeholder (matching FooCorp/BarCorp) on lines 54/57/77, clearing the B1 boundary findings that blocked the push. Decision: keep private repo names out of tracked ADRs; use Foo/Bar/Baz tenant placeholders.
 - Genericized private fleet-layer name out of sync-topology.md + ADR 0004 (drop_from_public decision); referred to functionally as "private fleet layer". Corrected sequence narrative: existing private sync repo renamed to the fleet layer (hard cutover), public Sync Mechanism extracted later.
+
+## 2026-05-23 — Standardize pre-push hook
+
+- Updated `.hooks/pre-push` to the auto-discovering boundary-artifact variant (auto-locates PrivateManifest/dist artifact; extra custodian-multi fallback path).

@@ -266,6 +266,11 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 - PR #23 squash captured the pre-genericized docs by mistake; restoring the genericized sync-topology.md + ADR 0004 (no private fleet-layer name on this public repo).
 - Standardized .hooks/pre-push to the auto-discovering variant (supersedes conflicted PR #24).
 
+## 2026-05-27 — Fix: wire boundary artifact + register ADR 0005 in index
+
+- `.custodian/config.yaml`: added `boundary_artifact_file` pointing to PrivM dist artifact (clears B2)
+- `docs/architecture/adr/README.md`: added ADR 0005 row (clears DC7 orphan finding)
+
 ## 2026-05-27 — ADR 0005: sync-spec declarations belong in manifests
 
 Formalises the gap between ADR 0004's invariant ("manifest is the only place grouping is defined") and the initial implementation (sync-spec.yaml inside SyncControl). Decision: platform-config/platform-backups move to PM; vf-* move to PrivM. SyncControl becomes a pure executor that loads specs from manifests via RepoGraph. Migration steps sequenced; current sync-spec.yaml remains operational until step 4.

@@ -266,6 +266,10 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 - PR #23 squash captured the pre-genericized docs by mistake; restoring the genericized sync-topology.md + ADR 0004 (no private fleet-layer name on this public repo).
 - Standardized .hooks/pre-push to the auto-discovering variant (supersedes conflicted PR #24).
 
+## 2026-05-27 — Fix: genericize private names in ADR 0005 + README (B1)
+
+`SyncControl` and `VideoFoundry` were flagged by B1. Replaced with `fleet executor` and `<tenant>` placeholder — same pattern as ADR 0003/0004 genericization. README title updated to match.
+
 ## 2026-05-27 — Fix: wire boundary artifact + register ADR 0005 in index
 
 - `.custodian/config.yaml`: added `boundary_artifact_file` pointing to PrivM dist artifact (clears B2)

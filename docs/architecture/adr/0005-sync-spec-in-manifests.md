@@ -32,8 +32,8 @@ The misplacement has two concrete consequences:
 
 - **PlatformManifest** declares `platform-config` and `platform-backups`
   (public-platform assets owned by PD + OC).
-- **PrivateManifest** declares the private-tenant asset groups (config, assets,
-  models, backups).
+- **The private-manifest repo** declares the private-tenant asset groups
+  (config, assets, models, backups).
 
 Each manifest gains a `sync_spec:` top-level block in its YAML:
 
@@ -55,7 +55,7 @@ sync_spec:
 ```
 
 ```yaml
-# PrivateManifest/manifests/<tenant>/private_manifest.yaml
+# <private-manifest-repo>/manifests/<tenant>/private_manifest.yaml
 sync_spec:
   schema_version: "1.0"
   assets:

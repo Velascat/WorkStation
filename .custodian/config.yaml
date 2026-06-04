@@ -34,6 +34,12 @@ audit:
   # Reconcile detectors R1/R2 enforced — this repo's tracked .console/ has been
   # reconciled (scrub-target leaks genericized; log under budget, no prune needed).
   reconcile_enforce: true
+  # The reconcile detector reads `reconcile_enforce` directly, but custodian-doctor's
+  # _KNOWN_AUDIT_KEYS allow-list omits it (upstream gap), so --strict flags it as a
+  # typo. Declare it via the doctor's own plugin_audit_keys escape hatch so the
+  # config validates without changing R1/R2 enforcement behavior.
+  plugin_audit_keys:
+    - reconcile_enforce
   # PlatformDeployment docs frequently reference symbols and values that live in
   # OTHER repos (TeamExecutor, DAGExecutor, OperationsCenter) since WS hosts adapter
   # integration documentation. These aren't phantoms — they're cross-repo

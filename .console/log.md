@@ -1,5 +1,16 @@
 # Mission Log
 
+## 2026-06-04 — Console reconciliation: scrub + enforce
+
+Per the `.console/` reconciliation spec, scrubbed all scrub-target private
+identifiers from tracked `.console/log.md` (7 historical narration hits:
+canonical/snake_case private-repo names, the bare two-letter alias, and the
+private fleet-executor repo name). Genericized in place to "a private downstream
+repo" / "private fleet-executor repo" — no prune needed (log under the 400-line
+budget). Detector-ID forms (alias + a digit) preserved by word boundary. Flipped
+`audit.reconcile_enforce: true` in `.custodian/config.yaml` now that the tracked
+`.console/` is clean. `git grep` for scrub-target names returns empty on tracked files.
+
 ## 2026-05-22 — P6: resolve K1 phantoms for work order 0002, push
 
 Branch: `feat/work-order-0002-manifest-cognition` (rebased on main).
@@ -10,7 +21,7 @@ Option (a): added the four symbols to `.custodian/config.yaml > audit.common_wor
 
 ## 2026-05-22 — Fix B1 leak and DC7 orphan in work order 0002
 
-Custodian pre-push caught a B1 boundary violation in `0002-work-order-manifest-cognition.md`: literal private-repo name (`VideoFoundry`) appeared in example YAML. PD is public-scope, so concrete private names belong only to PrivateManifest's tracked files. Scrubbed to `example-private-repo-A` with an inline note explaining the omission.
+Custodian pre-push caught a B1 boundary violation in `0002-work-order-manifest-cognition.md`: a literal private-repo name (the name of a private downstream repo) appeared in example YAML. PD is public-scope, so concrete private names belong only to PrivateManifest's tracked files. Scrubbed to `example-private-repo-A` with an inline note explaining the omission.
 
 Custodian also flagged the work order as a DC7 orphan (no tracked doc linked to it). Added `docs/architecture/adr/README.md` as the ADR index linking both 0001 and 0002.
 
@@ -57,7 +68,7 @@ now in ~/sync/platform/config/. second-linux needs `setup platform` to restore.
 Brought up PlatformDeployment stack on `dev-latitudee7470` (second Linux machine, Manjaro).
 
 - `python -m syncing_solution setup all` restored PD `.env`, switchboard policy,
-  endpoints, `plane.env`, VF config/assets/backups from `~/sync/` (Syncthing fleet)
+  endpoints, `plane.env`, private downstream repo config/assets/backups from `~/sync/` (Syncthing fleet)
 - `bash scripts/up.sh` started stack: SwitchBoard built from source (first run),
   Plane started via `plane.sh up` (PLANE_ENABLED=true in .env)
 - SyncingSolution updated to also backup/restore OC local config +
@@ -185,7 +196,7 @@ _Log significant choices here so they survive context resets._
 
 ## Stop Points
 
-- Wire Custodian B1 privacy block (2026-05-08, on `chore/wire-b1-privacy-block`): Added top-level `privacy:` block to `.custodian/config.yaml` listing `VideoFoundry` and `videofoundry` as banned literals. B1 reports zero leaks on the public surface — defaults exclude operator-private workspaces, history docs, and the config file itself, so the block is purely declarative for now and acts as a forward guard against future leaks.
+- Wire Custodian B1 privacy block (2026-05-08, on `chore/wire-b1-privacy-block`): Added top-level `privacy:` block to `.custodian/config.yaml` listing a private downstream repo's name (canonical + snake_case forms) as banned literals. B1 reports zero leaks on the public surface — defaults exclude operator-private workspaces, history docs, and the config file itself, so the block is purely declarative for now and acts as a forward guard against future leaks.
 
 - Archon compose profile (2026-05-06, on `feat/archon-compose-profile`): Added `compose/profiles/archon.yml` following the SwitchBoard pattern — builds from sibling `ProtocolWarden/Archon` clone, exposes `PORT_ARCHON` (default 3000), mounts persistence under `runtime/archon`, health-checks `GET /api/health`. Docs at `docs/operations/archon-setup.md`. Closes the long-standing infra gap (architecture docs already said PlatformDeployment owns archon deployment, but no compose entry existed). Companion OC PRs land a health-only concrete `ArchonAdapter` and an ER `HttpRunner` — real workflow dispatch is deferred (archon's API is conversation-driven async; needs design work, see backlog.md *"Archon real workflow integration"*).
 
@@ -258,8 +269,8 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 - Added `docs/architecture/system/sync-topology.md` — canonical cross-repo model: group fleet sync by manifest (not data-type), three layers (manifest declaration / public sync mechanism / private FleetMgmt binding), per-asset sync modes (copy/in-repo/external), backup-restore via per-repo shim contract.
 - Added `docs/architecture/adr/0004-sync-topology-manifest-authority.md`; updated adr/README table (also backfilled missing 0003 row).
 - Decisions captured: new public Sync Mechanism repo extracted from SyncingSolution; SyncingSolution remainder → FleetMgmt (private); FleetMgmt vs SSHInventory kept distinct.
-- Boundary (B1): genericized 'VideoFoundry' → 'media-pipeline precedent' in sync-topology.md + ADR 0004, and reworded ADR 0004 sync-mode names out of inline code (K1 phantom-symbol). Pre-existing 'VideoFoundry' refs in ADR 0003 (lines 54/57/77) left untouched pending a decision — they block the push under --fail-on-findings.
-- ADR 0003: genericized pre-existing 'VideoFoundry' refs → 'BazCorp' placeholder (matching FooCorp/BarCorp) on lines 54/57/77, clearing the B1 boundary findings that blocked the push. Decision: keep private repo names out of tracked ADRs; use Foo/Bar/Baz tenant placeholders.
+- Boundary (B1): genericized a private downstream repo's name → 'media-pipeline precedent' in sync-topology.md + ADR 0004, and reworded ADR 0004 sync-mode names out of inline code (K1 phantom-symbol). Pre-existing private-name refs in ADR 0003 (lines 54/57/77) left untouched pending a decision — they block the push under --fail-on-findings.
+- ADR 0003: genericized pre-existing private-name refs → 'BazCorp' placeholder (matching FooCorp/BarCorp) on lines 54/57/77, clearing the B1 boundary findings that blocked the push. Decision: keep private repo names out of tracked ADRs; use Foo/Bar/Baz tenant placeholders.
 
 ## 2026-05-23 — Fix: land genericized sync docs + standardize hook
 
@@ -268,7 +279,7 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 
 ## 2026-05-27 — Fix: genericize private names in ADR 0005 + README (B1)
 
-`SyncControl` and `VideoFoundry` were flagged by B1. Replaced with `fleet executor` and `<tenant>` placeholder — same pattern as ADR 0003/0004 genericization. README title updated to match.
+A private fleet-executor repo name and a private downstream repo name were flagged by B1. Replaced with `fleet executor` and `<tenant>` placeholder — same pattern as ADR 0003/0004 genericization. README title updated to match.
 
 ## 2026-05-27 — Fix: wire boundary artifact + register ADR 0005 in index
 
@@ -277,4 +288,4 @@ Archon replaced by DagExecutor (github.com/ProtocolWarden/DagExecutor).
 
 ## 2026-05-27 — ADR 0005: sync-spec declarations belong in manifests
 
-Formalises the gap between ADR 0004's invariant ("manifest is the only place grouping is defined") and the initial implementation (sync-spec.yaml inside SyncControl). Decision: platform-config/platform-backups move to PM; vf-* move to PrivM. SyncControl becomes a pure executor that loads specs from manifests via RepoGraph. Migration steps sequenced; current sync-spec.yaml remains operational until step 4.
+Formalises the gap between ADR 0004's invariant ("manifest is the only place grouping is defined") and the initial implementation (sync-spec.yaml inside the private fleet-executor repo). Decision: platform-config/platform-backups move to PM; private downstream repo assets move to PrivM. The fleet-executor repo becomes a pure executor that loads specs from manifests via RepoGraph. Migration steps sequenced; current sync-spec.yaml remains operational until step 4.

@@ -29,6 +29,9 @@ privacy:
 # Audit: per-detector exclusions and tuning
 # ---------------------------------------------------------------------------
 audit:
+  # Reconcile detectors R1/R2 enforced — this repo's tracked .console/ has been
+  # reconciled (scrub-target leaks genericized; log under budget, no prune needed).
+  reconcile_enforce: true
   # PlatformDeployment docs frequently reference symbols and values that live in
   # OTHER repos (TeamExecutor, DAGExecutor, OperationsCenter) since WS hosts adapter
   # integration documentation. These aren't phantoms — they're cross-repo

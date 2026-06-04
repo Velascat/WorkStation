@@ -2,7 +2,7 @@
 # =============================================================================
 # PlatformDeployment — run_with_boundary.sh
 # Convenience wrapper that materializes a RepoGraph boundary artifact through
-# the approved PrivateManifest export flow, exports REPOGRAPH_BOUNDARY_ARTIFACT_FILE,
+# the approved private-manifest export flow, exports REPOGRAPH_BOUNDARY_ARTIFACT_FILE,
 # and then invokes Custodian.
 #
 # This script does not define graph semantics, projection logic, or boundary
@@ -14,7 +14,28 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PLATFORM_DEPLOYMENT_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 
 PYTHON_BIN="${PYTHON_BIN:-python}"
-DEFAULT_PRIVATE_MANIFEST_ROOT="${PRIVATE_MANIFEST_ROOT:-${PLATFORM_DEPLOYMENT_ROOT}/../PrivateManifest}"
+
+# Resolve the private-manifest repo root by ROLE: $PRIVATE_MANIFEST_ROOT (or
+# $PRIVATE_MANIFEST_DIR) wins, else scan the workspace for a repo hosting a
+# private_manifest*.yaml (the manifest *type* filename — never a hardcoded
+# repo-instance name).
+_discover_private_manifest_root() {
+  local workspace_root
+  workspace_root="$(cd "${PLATFORM_DEPLOYMENT_ROOT}/.." && pwd)"
+  local d
+  for d in "$workspace_root"/*/; do
+    if compgen -G "${d}private_manifest*.yaml" >/dev/null 2>&1 \
+       || compgen -G "${d}src/*/data/private_manifest*.yaml" >/dev/null 2>&1 \
+       || compgen -G "${d}manifests/private_manifest*.yaml" >/dev/null 2>&1 \
+       || compgen -G "${d}manifests/*/private_manifest*.yaml" >/dev/null 2>&1; then
+      echo "${d%/}"
+      return 0
+    fi
+  done
+  return 1
+}
+
+DEFAULT_PRIVATE_MANIFEST_ROOT="${PRIVATE_MANIFEST_ROOT:-${PRIVATE_MANIFEST_DIR:-$(_discover_private_manifest_root || true)}}"
 DEFAULT_REPOGRAPH_ROOT="${REPOGRAPH_ROOT:-${PLATFORM_DEPLOYMENT_ROOT}/../RepoGraph}"
 
 repo_root="${PLATFORM_DEPLOYMENT_ROOT}"
@@ -39,7 +60,7 @@ Required/primary options:
 
 Boundary input:
   --boundary-artifact PATH      Use an existing boundary artifact file
-  --private-manifest-root PATH  PrivateManifest checkout root (default: sibling repo)
+  --private-manifest-root PATH  private-manifest checkout root (default: discovered in workspace)
   --repograph-root PATH         RepoGraph checkout root for PYTHONPATH during export
   --profile NAME                Operator hint for the export run (default: PUBLIC_SAFE)
 
@@ -129,12 +150,13 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
+[[ -n "${private_manifest_root}" ]] || die "no private-manifest repo found: pass --private-manifest-root or set PRIVATE_MANIFEST_DIR"
 repo_root="$(abspath "${repo_root}")"
 private_manifest_root="$(abspath "${private_manifest_root}")"
 repograph_root="$(abspath "${repograph_root}")"
 
 [[ -d "${repo_root}" ]] || die "repo root not found: ${repo_root}"
-[[ -d "${private_manifest_root}" ]] || die "PrivateManifest root not found: ${private_manifest_root}"
+[[ -d "${private_manifest_root}" ]] || die "private-manifest root not found: ${private_manifest_root}"
 [[ -d "${repograph_root}" ]] || die "RepoGraph root not found: ${repograph_root}"
 
 if [[ -z "${custodian_command}" ]]; then
@@ -147,7 +169,7 @@ if [[ -z "${boundary_artifact}" ]]; then
   boundary_artifact="${tmp_dir}/repograph-boundary-${profile_token}.json"
 
   if [[ "${debug}" == "true" ]]; then
-    echo "[custodian-runner] materializing boundary artifact via PrivateManifest" >&2
+    echo "[custodian-runner] materializing boundary artifact via the private manifest" >&2
     echo "[custodian-runner] private_manifest_root=${private_manifest_root}" >&2
     echo "[custodian-runner] repograph_root=${repograph_root}" >&2
     echo "[custodian-runner] profile=${profile}" >&2

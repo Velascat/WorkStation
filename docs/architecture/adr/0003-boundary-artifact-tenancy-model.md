@@ -4,7 +4,7 @@ _Status: Accepted · 2026-05-22_
 
 ## Context
 
-The boundary artifact pipeline (PrivateManifest → public-repo CI) was finished
+The boundary artifact pipeline (private-manifest repo → public-repo CI) was finished
 end-to-end on 2026-05-22. Three things became "set in stone" once consumers
 were configured:
 
@@ -13,11 +13,11 @@ were configured:
    consuming repo currently holds exactly two secrets:
    `PRIVATEMANIFEST_READ_TOKEN` and `REPOGRAPH_BOUNDARY_ARTIFACT_FILE`.
 2. **The boundary artifact is generated from `graph/repos.yaml` and
-   `graph/edges.yaml`** at the PrivateManifest repo root — a single flat
+   `graph/edges.yaml`** at the private-manifest repo root — a single flat
    graph instance. Per-project files under `manifests/<project>/` are
    organizational metadata, not the source of truth for boundary generation.
 3. **ContextLifecycle anchors sessions at the repo level**
-   (`cl session start PrivateManifest`) and writes cognition under that
+   (`cl session start <private-manifest-repo>`) and writes cognition under that
    anchor's `.context/sessions/<sid>/`. There is no per-project sub-anchor.
 
 This ADR records the deliberate decision to ship single-tenant **now**, the
@@ -27,9 +27,9 @@ per-tenant model when it becomes necessary.
 ## Decision
 
 **Accept the single-tenant model for the current era.** All private projects
-share one PrivateManifest, one boundary artifact, one PAT, and one
+share one private-manifest repo, one boundary artifact, one PAT, and one
 cognition anchor. The boundary artifact contains the **union** of every
-private name across every project hosted in PrivateManifest. Every consuming
+private name across every project hosted in the private-manifest repo. Every consuming
 repo audits against the full union.
 
 ## Consequences
@@ -41,16 +41,16 @@ repo audits against the full union.
 - **No cross-repo orchestration.** The pipeline has zero moving parts beyond
   the publish-boundary workflow and the materialize step in each consumer.
 - **Atomic freshness.** Every CI run fetches the current artifact from
-  PrivateManifest's `main` — no background sync, no per-tenant rotation.
+  the private manifest's `main` branch — no background sync, no per-tenant rotation.
 
 ### Negative / Limitations
 
 - **No cross-tenant isolation.** If a second tenant's private overlay is
-  added to PrivateManifest, all consumer contributors gain visibility into
+  added to the private-manifest repo, all consumer contributors gain visibility into
   every tenant's forbidden names. This is a real disclosure boundary that
-  cannot be re-tightened without splitting PrivateManifest.
+  cannot be re-tightened without splitting the private-manifest repo.
 - **CL anchoring is flat.** Sessions touching private code anchor at
-  PrivateManifest, not at the project hosted within. Cognition for
+  the private-manifest repo, not at the project hosted within. Cognition for
   BazCorp, FooCorp, and BarCorp would land under the same
   `.context/sessions/` tree, distinguished only by capsule metadata. The
   long-term goal (per-project cognition hosting, e.g. inside a
@@ -73,9 +73,9 @@ repo audits against the full union.
 
 When the constraints above start to bind, the migration is:
 
-1. **Split PrivateManifest by tenant.** Each tenant (or major project)
-   becomes its own private repo: `PrivateManifest-BazCorp`,
-   `PrivateManifest-FooCorp`. Each runs its own publish-boundary workflow
+1. **Split the private-manifest repo by tenant.** Each tenant (or major project)
+   becomes its own private repo: `<private-manifest>-BazCorp`,
+   `<private-manifest>-FooCorp`. Each runs its own publish-boundary workflow
    producing its own artifact at its own raw URL.
 
 2. **Custodian gains multi-artifact support.** The detector accepts
@@ -95,8 +95,8 @@ When the constraints above start to bind, the migration is:
 
 4. **ContextLifecycle adds per-project anchoring.** The CLI accepts a
    `--project <name>` argument and resolves the anchor to
-   `<PrivateManifest>/.context/projects/<name>/sessions/<sid>/` instead
-   of the flat `<PrivateManifest>/.context/sessions/<sid>/`. This is a CL
+   `<private-manifest-repo>/.context/projects/<name>/sessions/<sid>/` instead
+   of the flat `<private-manifest-repo>/.context/sessions/<sid>/`. This is a CL
    schema change, not a downstream consumer change. ([[adr-0002]])
 
 5. **Bootstrap tooling is updated.** The `bootstrap-boundary-secrets.sh`
@@ -133,7 +133,7 @@ Three reasons:
 - `PlatformManifest/docs/forking-guide.md` — operator-level setup tutorial
 - `Custodian/src/custodian/audit_kit/detectors/boundary.py` — current
   single-artifact detector implementation
-- `PrivateManifest/scripts/export_private_repo_names.py` — current
+- `<private-manifest-repo>/scripts/export_private_repo_names.py` — current
   single-graph generator entry point
 
 ## Decision log

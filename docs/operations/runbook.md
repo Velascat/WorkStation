@@ -154,7 +154,7 @@ Then restart to apply:
 
 Custodian intentionally fails closed when `REPOGRAPH_BOUNDARY_ARTIFACT_FILE` is
 missing. PlatformDeployment provides a convenience wrapper that materializes
-the boundary artifact through the approved `PrivateManifest` export flow,
+the boundary artifact through the approved private-manifest export flow,
 exports the required environment variable, and then invokes Custodian.
 
 ```bash
@@ -187,7 +187,7 @@ your workflow already has a vetted artifact file:
 Add `--debug` to print safe provenance details and `--keep-artifacts` to retain
 the temporary artifact directory for inspection. The wrapper never prints
 forbidden private names; if artifact generation fails, fix the
-`PrivateManifest` export flow rather than Custodian.
+private-manifest export flow rather than Custodian.
 
 ---
 

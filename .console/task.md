@@ -6,8 +6,8 @@ _Replace contents when the objective changes. Do not accumulate history here —
 ## Objective
 
 Add a PlatformDeployment convenience wrapper that materializes a RepoGraph
-boundary artifact through PrivateManifest and then runs Custodian locally or in
-CI without changing Custodian semantics.
+boundary artifact through the private-manifest repo and then runs Custodian
+locally or in CI without changing Custodian semantics.
 
 ## Context
 

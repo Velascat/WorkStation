@@ -7,7 +7,7 @@ _Design rationale: `ContextLifecycle/.console/log.md` 2026-05-22 · `PlatformMan
 
 ## Goal
 
-Move durable cognition state out of consumer repos and into the anchoring **manifest** (PlatformManifest or PrivateManifest). Establish a three-way contract:
+Move durable cognition state out of consumer repos and into the anchoring **manifest** (PlatformManifest or the private-manifest repo). Establish a three-way contract:
 
 - **ContextLifecycle (CL)** — schema + I/O + policy enforcement; ships a Python CLI from its own `.venv/`.
 - **RepoGraph** — repo↔manifest visibility/authorization; gates every cognition write against the active session anchor's scope.
@@ -68,7 +68,7 @@ Add the authorization check API RepoGraph exposes to CL. **RepoGraph owns manife
   ```yaml
   manifests:
     - /home/dev/Documents/GitHub/PlatformManifest
-    - /home/dev/Documents/GitHub/PrivateManifest
+    - <private-manifest-repo>
   ```
   Registry is per-machine config (not committed to any repo) — manifest *paths* are machine-local; what's tracked in git is manifest *contents*.
 
@@ -104,7 +104,7 @@ Add the `.context/` skeleton to PM and PrivM. Document the layout (per P0.5). Mi
 
 - [ ] **P3.1** — PM: `.context/{active,checkpoints,handoffs,templates}/` + `config.yaml`. Public scope only.
 - [ ] **P3.2** — PrivM: same layout. Private scope.
-- [ ] **P3.3** — Document `.context/` layout in `PlatformManifest/docs/` and `PrivateManifest/docs/`.
+- [ ] **P3.3** — Document `.context/` layout in `PlatformManifest/docs/` and the private-manifest repo's `docs/`.
 - [ ] **P3.4** — Migration: move OC's existing `.context/` contents to PM (public-only) or PrivM (any private). Preserve any active capsules / recent checkpoints.
 - [ ] **P3.5** — OC: remove `.context/` directory; update `OperationsCenter/CLAUDE.md` to point to anchoring manifest pattern instead of local `.context/`.
 
@@ -278,13 +278,14 @@ repos:
   - name: SwitchBoard
   # ...
 
-# PrivateManifest/private_manifest.yaml
+# <private-manifest-repo>/private_manifest.yaml
 visibility_scope: private
 repos:
   - name: example-private-repo-A
   # ... other private repos owned by this manifest
   #     (concrete names intentionally omitted — PD is public-scope and
-  #      private-repo names belong to PrivateManifest's tracked files only)
+  #      private-repo names belong to the private-manifest repo's tracked
+  #      files only)
 
 # Hypothetical PrivateProjectFoo/private_project_foo_manifest.yaml
 visibility_scope: private

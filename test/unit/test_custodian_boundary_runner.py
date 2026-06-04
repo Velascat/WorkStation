@@ -27,7 +27,7 @@ def _boundary_artifact(path: Path, *, forbidden_names: list[str]) -> Path:
         "schema_kind": "boundary_artifact",
         "schema_version": "1.0.0",
         "artifact_kind": "boundary_disclosure_artifact",
-        "source_graph_id": "PrivateManifest",
+        "source_graph_id": "private-manifest",
         "source_ref_or_commit": "abc123",
         "generated_at": "2026-05-12T00:00:00Z",
         "forbidden_names": forbidden_names,
@@ -79,7 +79,7 @@ def _fake_private_manifest(root: Path, *, call_file: Path | None = None) -> Path
                 "schema_kind": "boundary_artifact",
                 "schema_version": "1.0.0",
                 "artifact_kind": "boundary_disclosure_artifact",
-                "source_graph_id": "PrivateManifest",
+                "source_graph_id": "private-manifest",
                 "source_ref_or_commit": "abc123",
                 "generated_at": "2026-05-12T00:00:00Z",
                 "forbidden_names": ["PrivateImpl"],
@@ -143,7 +143,7 @@ def _run_wrapper(*args: str, env: dict[str, str]) -> subprocess.CompletedProcess
 
 def test_existing_artifact_succeeds_without_invoking_export(tmp_path: Path) -> None:
     repo_root = _fake_repo_root(tmp_path / "repo")
-    private_manifest_root = tmp_path / "PrivateManifest"
+    private_manifest_root = tmp_path / "private-manifest"
     call_file = tmp_path / "pm-call.json"
     _fake_private_manifest(private_manifest_root)
     repograph_root = _fake_repo_root(tmp_path / "RepoGraph")
@@ -173,7 +173,7 @@ def test_existing_artifact_succeeds_without_invoking_export(tmp_path: Path) -> N
 
 def test_missing_artifact_fails_before_custodian(tmp_path: Path) -> None:
     repo_root = _fake_repo_root(tmp_path / "repo")
-    private_manifest_root = tmp_path / "PrivateManifest"
+    private_manifest_root = tmp_path / "private-manifest"
     call_file = tmp_path / "pm-call.json"
     _fake_private_manifest(private_manifest_root)
     repograph_root = _fake_repo_root(tmp_path / "RepoGraph")
@@ -204,7 +204,7 @@ def test_missing_artifact_fails_before_custodian(tmp_path: Path) -> None:
 
 def test_generated_artifact_succeeds_and_exposes_env(tmp_path: Path) -> None:
     repo_root = _fake_repo_root(tmp_path / "repo")
-    private_manifest_root = tmp_path / "PrivateManifest"
+    private_manifest_root = tmp_path / "private-manifest"
     call_file = tmp_path / "pm-call.json"
     _fake_private_manifest(private_manifest_root)
     repograph_root = _fake_repo_root(tmp_path / "RepoGraph")
@@ -254,7 +254,7 @@ def test_custodian_exit_code_is_preserved(tmp_path: Path) -> None:
 
 def test_keep_artifacts_preserves_generated_output(tmp_path: Path) -> None:
     repo_root = _fake_repo_root(tmp_path / "repo")
-    private_manifest_root = tmp_path / "PrivateManifest"
+    private_manifest_root = tmp_path / "private-manifest"
     call_file = tmp_path / "pm-call.json"
     _fake_private_manifest(private_manifest_root, call_file=call_file)
     repograph_root = _fake_repo_root(tmp_path / "RepoGraph")

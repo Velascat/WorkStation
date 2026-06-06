@@ -1,5 +1,20 @@
 # Mission Log
 
+## 2026-06-06 — fix: ollama healthcheck + VPN-host network hardening
+
+Bringing the aider_local lane up surfaced three issues in docker-compose.local-ai.yml:
+(1) healthcheck used curl, which the ollama image doesn't ship — container reported
+unhealthy while the API was fine; probe is now `ollama ls`. (2)+(3) hardening for
+this VPN'd host: bridge MTU pinned to 1400 (below proton0's 1420) and IPv6 disabled
+in the netns (registry resolves AAAA, bridge has no v6 egress). Container now
+healthy. REMAINING: `ollama pull` itself fails with Error: EOF — reproduced
+identically on host network while curl to the same manifest URL succeeds from the
+same netns; consistent with Cloudflare rejecting the Go client's TLS fingerprint
+from the ProtonVPN exit. Workaround documented in the compose file: pull once with
+the VPN disconnected (blobs persist in ollama_data). Lane is optional; everything
+else green.
+
+
 ## 2026-06-04 — Console reconciliation: scrub + enforce
 
 Per the `.console/` reconciliation spec, scrubbed all scrub-target private

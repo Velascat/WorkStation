@@ -26,9 +26,20 @@ services:
     environment:
       # CPU-only mode: unset CUDA_VISIBLE_DEVICES or set to empty string
       - CUDA_VISIBLE_DEVICES=
-    # Ollama listens on 0.0.0.0:11434 by default inside the container
+    # Hardening for VPN'd hosts: the bridge has no IPv6 egress but
+    # registry.ollama.ai resolves AAAA — disable v6 in the netns so dials go
+    # v4. NOTE (2026-06-06): model pulls can still fail with `Error: EOF` on
+    # a ProtonVPN exit — reproduced identically on host network, while curl
+    # to the same manifest URL succeeds; consistent with Cloudflare rejecting
+    # the Go client's TLS fingerprint from VPN exits. Workaround: pull once
+    # with the VPN disconnected (blobs persist in the ollama_data volume).
+    sysctls:
+      net.ipv6.conf.all.disable_ipv6: 1
+    # Ollama listens on 0.0.0.0:11434 by default inside the container.
+    # The image ships no curl/wget — probe with the ollama CLI itself
+    # (`ollama ls` exits non-zero until the server responds).
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:11434/api/tags"]
+      test: ["CMD", "ollama", "ls"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -37,3 +48,12 @@ services:
 volumes:
   ollama_data:
     name: platformdeployment_ollama_data
+
+networks:
+  # The host runs a ProtonVPN wireguard interface (proton0, MTU 1420); the
+  # docker bridge default of 1500 can black-hole large egress packets from
+  # inside containers. Pin below the VPN MTU (standard hardening for VPN'd
+  # docker hosts; verified container TLS egress works at 1400).
+  default:
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"

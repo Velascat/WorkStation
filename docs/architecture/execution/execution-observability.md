@@ -249,5 +249,5 @@ trace = builder.build_report(record)
 ## See also
 
 - [contracts.md](../contracts/contracts.md) — ExecutionResult, ExecutionArtifact, ValidationSummary
-- [team_executor-adapter.md](../adapters/team_executor-adapter.md) — how team_executor populates ExecutionResult
+- team_executor-adapter.md _(planned — not yet written)_ — how team_executor populates ExecutionResult
 - [operations-center-routing.md](../routing/operations-center-routing.md) — PlanningService and ProposalDecisionBundle

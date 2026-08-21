@@ -1,0 +1,3 @@
+ports:
+  switchboard: 20401
+  status: 20400

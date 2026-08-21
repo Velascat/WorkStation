@@ -1,0 +1,5 @@
+services:
+  - name: switchboard
+    required: true
+  - name: status
+    required: false
